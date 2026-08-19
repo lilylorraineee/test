@@ -47,7 +47,6 @@
 
                 <div class="input-group">
                     <label>📚 Semester</label>
-
                     <select id="semester">
                         <option value="">Select Semester</option>
                         <option value="1">Semester 1</option>
@@ -88,6 +87,24 @@
                 <div class="input-group">
                     <label>📧 Email</label>
                     <input type="email" id="email" placeholder="name@gmail.com">
+                </div>
+
+                <!-- ========================================== -->
+                <!-- ✅ VEHICLE DETAILS SECTION - TAMBAH SEMULA -->
+                <!-- ========================================== -->
+                <div class="input-group">
+                    <label>🚗 Plate Number</label>
+                    <input type="text" id="plate_no" placeholder="ABC1234" style="text-transform: uppercase;">
+                </div>
+
+                <div class="input-group">
+                    <label>🚙 Vehicle Type / Model</label>
+                    <input type="text" id="vehicle_type" placeholder="e.g., Myvi, Vios, Axia">
+                </div>
+
+                <div class="input-group">
+                    <label>🎨 Vehicle Color</label>
+                    <input type="text" id="vehicle_color" placeholder="e.g., White, Red, Black, Silver">
                 </div>
 
                 <div class="input-group">
@@ -138,6 +155,9 @@ function registerStudent() {
     var program = document.getElementById('program').value;
     var phone_no = document.getElementById('phone_no').value.trim();
     var email = document.getElementById('email').value.trim();
+    var plate_no = document.getElementById('plate_no').value.trim().toUpperCase();
+    var vehicle_type = document.getElementById('vehicle_type').value.trim();
+    var vehicle_color = document.getElementById('vehicle_color').value.trim();
     var password = document.getElementById('password').value;
     var confirm_password = document.getElementById('confirm_password').value;
     var errorMsg = document.getElementById('errorMsg');
@@ -153,6 +173,33 @@ function registerStudent() {
         if (errorMsg) {
             errorMsg.style.display = 'block';
             errorMsg.innerHTML = '❌ Please fill in all fields.';
+        }
+        return false;
+    }
+
+    // Validation - Plate Number
+    if (!plate_no || plate_no.length < 3) {
+        if (errorMsg) {
+            errorMsg.style.display = 'block';
+            errorMsg.innerHTML = '❌ Please enter a valid vehicle plate number (min 3 characters)';
+        }
+        return false;
+    }
+
+    // Validation - Vehicle Type
+    if (!vehicle_type || vehicle_type.length < 2) {
+        if (errorMsg) {
+            errorMsg.style.display = 'block';
+            errorMsg.innerHTML = '❌ Please enter your vehicle type/model';
+        }
+        return false;
+    }
+
+    // Validation - Vehicle Color
+    if (!vehicle_color || vehicle_color.length < 2) {
+        if (errorMsg) {
+            errorMsg.style.display = 'block';
+            errorMsg.innerHTML = '❌ Please enter your vehicle color';
         }
         return false;
     }
@@ -200,7 +247,18 @@ function registerStudent() {
         }
     }
 
-    // Create new student object
+    // Check if plate number already exists
+    for (var k = 0; k < students.length; k++) {
+        if (students[k].plate_no === plate_no && students[k].plate_no !== '') {
+            if (errorMsg) {
+                errorMsg.style.display = 'block';
+                errorMsg.innerHTML = '❌ This plate number is already registered by another student';
+            }
+            return false;
+        }
+    }
+
+    // Create new student object WITH vehicle details
     var newStudent = {
         id: Date.now(),
         name: fullname,
@@ -211,9 +269,9 @@ function registerStudent() {
         phone_no: phone_no,
         email: email,
         password: password,
-        plate_no: '',
-        vehicle_type: '',
-        vehicle_color: ''
+        plate_no: plate_no,
+        vehicle_type: vehicle_type,
+        vehicle_color: vehicle_color
     };
 
     // Save to localStorage

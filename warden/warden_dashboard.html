@@ -14,6 +14,12 @@
 
 <body>
 
+<!-- ================= TOAST NOTIFICATION ================= -->
+<div id="toastEmail" class="toast-email" style="display:none; position:fixed; bottom:20px; right:20px; background:#28a745; color:white; padding:15px 25px; border-radius:10px; box-shadow:0 5px 20px rgba(0,0,0,0.3); z-index:9999; max-width:400px;">
+    <span id="toastMessage">✅ Email sent successfully!</span>
+    <span class="toast-close" onclick="document.getElementById('toastEmail').style.display='none'" style="margin-left:15px; cursor:pointer; font-weight:bold;">✕</span>
+</div>
+
 <div class="topbar">
     <div class="brand">TVETMARA LUMUT - Warden Portal</div>
     <div class="menu-icon" onclick="toggleMenu()">☰</div>
@@ -22,15 +28,9 @@
 <div id="overlay" onclick="toggleMenu()"></div>
 
 <div id="menu" class="menu">
-    <a href="https://saver-systm.lilylorraineee.workers.dev/lecturer/lecturer_login.html">
-        🏠 Home
-    </a>
-
-    <a href="#" class="logout-link" onclick="logout()">
-        🚪 Logout
-    </a>
+    <a href="https://saver-systm.lilylorraineee.workers.dev/lecturer/lecturer_login.html">🏠 Home</a>
+    <a href="#" class="logout-link" onclick="logout()">🚪 Logout</a>
 </div>
-
 
 <div class="dashboard-container">
 
@@ -40,357 +40,137 @@
         Manage and filter all student parking bookings (Premium & Basic)
     </p>
 
-
     <!-- ================= STATISTICS ================= -->
-
     <div class="stats-grid">
-
-        <div class="stat-box"
-             id="statAll"
-             onclick="filterByStatus('all')">
-
+        <div class="stat-box" id="statAll" onclick="filterByStatus('all')">
             <span class="stat-icon">📋</span>
-
-            <div class="stat-label">
-                Total Bookings
-            </div>
-
-            <div class="number blue" id="totalBookings">
-                0
-            </div>
-
-            <div class="stat-sub click-hint">
-                👆 Click to view all
-            </div>
-
+            <div class="stat-label">Total Bookings</div>
+            <div class="number blue" id="totalBookings">0</div>
+            <div class="stat-sub click-hint">👆 Click to view all</div>
         </div>
 
-
-        <div class="stat-box"
-             id="statPending"
-             onclick="filterByStatus('pending')">
-
+        <div class="stat-box" id="statPending" onclick="filterByStatus('pending')">
             <span class="stat-icon">🟡</span>
-
-            <div class="stat-label">
-                Pending
-            </div>
-
-            <div class="number yellow" id="pendingCount">
-                0
-            </div>
-
-            <div class="stat-sub click-hint">
-                👆 Click to filter
-            </div>
-
+            <div class="stat-label">Pending</div>
+            <div class="number yellow" id="pendingCount">0</div>
+            <div class="stat-sub click-hint">👆 Click to filter</div>
         </div>
 
-
-        <div class="stat-box"
-             id="statApproved"
-             onclick="filterByStatus('approved')">
-
+        <div class="stat-box" id="statApproved" onclick="filterByStatus('approved')">
             <span class="stat-icon">🟢</span>
-
-            <div class="stat-label">
-                Approved
-            </div>
-
-            <div class="number green" id="approvedCount">
-                0
-            </div>
-
-            <div class="stat-sub click-hint">
-                👆 Click to filter
-            </div>
-
+            <div class="stat-label">Approved</div>
+            <div class="number green" id="approvedCount">0</div>
+            <div class="stat-sub click-hint">👆 Click to filter</div>
         </div>
 
-
-        <div class="stat-box"
-             id="statPaid"
-             onclick="filterByStatus('paid')">
-
+        <div class="stat-box" id="statPaid" onclick="filterByStatus('paid')">
             <span class="stat-icon">🔵</span>
-
-            <div class="stat-label">
-                Paid / Confirmed
-            </div>
-
-            <div class="number purple" id="paidCount">
-                0
-            </div>
-
-            <div class="stat-sub click-hint">
-                👆 Click to filter
-            </div>
-
+            <div class="stat-label">Paid / Confirmed</div>
+            <div class="number purple" id="paidCount">0</div>
+            <div class="stat-sub click-hint">👆 Click to filter</div>
         </div>
-
     </div>
-
 
     <!-- ================= FILTER BAR ================= -->
-
     <div class="filter-bar">
-
         <div class="filter-info">
-
-            📊 Showing:
-
-            <span id="filterResultCount">
-                0
-            </span>
-
-            bookings
-
+            📊 Showing: <span id="filterResultCount">0</span> bookings
             <span id="filterBadges"></span>
-
         </div>
-
-
         <div class="filter-btn-group">
-
-            <button class="btn-filter"
-                    onclick="openFilterModal()">
-                🔍 Filter
-            </button>
-
-            <button class="btn-filter reset"
-                    onclick="resetFilters()">
-                ↺ Reset
-            </button>
-
-            <button class="btn-refresh"
-                    onclick="loadAllData()">
-                🔄 Refresh
-            </button>
-
+            <button class="btn-filter" onclick="openFilterModal()">🔍 Filter</button>
+            <button class="btn-filter reset" onclick="resetFilters()">↺ Reset</button>
+            <button class="btn-refresh" onclick="loadAllData()">🔄 Refresh</button>
         </div>
-
     </div>
-
 
     <!-- ================= PARKING BALANCE ================= -->
-
     <div class="parking-balance">
-
         <div class="balance-grid">
-
-
-            <div class="balance-box premium"
-                 onclick="filterPaidPremium()">
-
-                <div class="balance-icon">
-                    ⭐
-                </div>
-
+            <div class="balance-box premium" onclick="filterPaidPremium()">
+                <div class="balance-icon">⭐</div>
                 <div class="balance-info">
-
-                    <div class="balance-label">
-                        Premium Parking
-                    </div>
-
+                    <div class="balance-label">Premium Parking</div>
                     <div class="balance-numbers">
-
-                        <span class="available"
-                              id="premiumAvailable">
-                            0
-                        </span>
-
-                        <span class="total">
-                            /
-                            <span id="premiumTotal">
-                                0
-                            </span>
-                        </span>
-
+                        <span class="available" id="premiumAvailable">0</span>
+                        <span class="total">/ <span id="premiumTotal">0</span></span>
                     </div>
-
                     <div class="balance-bar">
-
-                        <div class="bar-fill premium-fill"
-                             id="premiumBar"
-                             style="width: 0%;">
-                        </div>
-
+                        <div class="bar-fill premium-fill" id="premiumBar" style="width: 0%;"></div>
                     </div>
-
-                    <div class="click-hint">
-                        👆 Click to view Paid Premium
-                    </div>
-
+                    <div class="click-hint">👆 Click to view Paid Premium</div>
                 </div>
-
             </div>
 
-
-            <div class="balance-box basic"
-                 onclick="filterPaidBasic()">
-
-                <div class="balance-icon">
-                    🅿️
-                </div>
-
+            <div class="balance-box basic" onclick="filterPaidBasic()">
+                <div class="balance-icon">🅿️</div>
                 <div class="balance-info">
-
-                    <div class="balance-label">
-                        Basic Parking
-                    </div>
-
+                    <div class="balance-label">Basic Parking</div>
                     <div class="balance-numbers">
-
-                        <span class="available"
-                              id="basicAvailable">
-                            0
-                        </span>
-
-                        <span class="total">
-                            /
-                            <span id="basicTotal">
-                                55
-                            </span>
-                        </span>
-
+                        <span class="available" id="basicAvailable">0</span>
+                        <span class="total">/ <span id="basicTotal">55</span></span>
                     </div>
-
                     <div class="balance-bar">
-
-                        <div class="bar-fill basic-fill"
-                             id="basicBar"
-                             style="width: 0%;">
-                        </div>
-
+                        <div class="bar-fill basic-fill" id="basicBar" style="width: 0%;"></div>
                     </div>
-
-                    <div class="click-hint">
-                        👆 Click to view Paid Basic
-                    </div>
-
+                    <div class="click-hint">👆 Click to view Paid Basic</div>
                 </div>
-
             </div>
-
         </div>
-
     </div>
 
-
     <!-- ================= STUDENT LIST ================= -->
-
     <div class="student-section">
-
         <div class="section-header">
-
             <div class="section-title">
-
                 🎓 Student List
-
-                <span class="badge-count"
-                      id="studentTotalCount">
-                    0
-                </span>
-
+                <span class="badge-count" id="studentTotalCount">0</span>
             </div>
-
-            <button class="btn-refresh"
-                    onclick="loadAllBookings()"
-                    style="font-size:13px; padding:8px 16px;">
-
+            <button class="btn-refresh" onclick="loadAllBookings()" style="font-size:13px; padding:8px 16px;">
                 🔄 Refresh List
-
             </button>
-
         </div>
 
-
         <div class="glass">
-
             <div class="table-wrapper">
-
-                <table class="bookings-table"
-                       id="bookingsTable">
-
+                <table class="bookings-table" id="bookingsTable">
                     <thead>
-
                         <tr>
-
                             <th>No.</th>
                             <th>Name</th>
                             <th>Program</th>
                             <th>Semester</th>
                             <th>Plate No.</th>
                             <th>Action</th>
-
                         </tr>
-
                     </thead>
-
                     <tbody id="bookingsBody">
-
                         <tr>
-
-                            <td colspan="6"
-                                class="empty-msg">
-
-                                Loading...
-
-                            </td>
-
+                            <td colspan="6" class="empty-msg">Loading...</td>
                         </tr>
-
                     </tbody>
-
                 </table>
-
             </div>
-
         </div>
-
     </div>
 
-
     <!-- ================= LECTURER SECTION ================= -->
-
     <div class="lecturer-section">
-
         <div class="section-header">
-
             <div class="section-title">
-
                 👨‍🏫 Registered Lecturers
-
-                <span class="badge-count"
-                      id="lecturerTotalCount">
-                    0
-                </span>
-
+                <span class="badge-count" id="lecturerTotalCount">0</span>
             </div>
-
-
-            <button class="btn-refresh"
-                    onclick="loadLecturers()"
-                    style="font-size:13px; padding:8px 16px;">
-
+            <button class="btn-refresh" onclick="loadLecturers()" style="font-size:13px; padding:8px 16px;">
                 🔄 Refresh List
-
             </button>
-
         </div>
 
-
         <div class="glass">
-
             <div class="lecturer-table-wrapper">
-
-                <table class="lecturer-table"
-                       id="lecturerTable">
-
+                <table class="lecturer-table" id="lecturerTable">
                     <thead>
-
                         <tr>
-
                             <th>No.</th>
                             <th>Name</th>
                             <th>Staff ID</th>
@@ -399,167 +179,54 @@
                             <th>Program</th>
                             <th>Plate No.</th>
                             <th>Action</th>
-
                         </tr>
-
                     </thead>
-
                     <tbody id="lecturerBody">
-
                         <tr>
-
-                            <td colspan="8"
-                                class="empty-msg">
-
-                                Loading lecturers...
-
-                            </td>
-
+                            <td colspan="8" class="empty-msg">Loading lecturers...</td>
                         </tr>
-
                     </tbody>
-
                 </table>
-
             </div>
-
         </div>
-
     </div>
-
 
     <!-- ================= INSTRUCTIONS ================= -->
-
     <div class="instructions-box">
-
-        <h4>
-            📌 Instructions:
-        </h4>
-
-        <p>
-            ✅ <span class="highlight-green">Approve</span>
-            - Student will be notified to make payment
-        </p>
-
-        <p>
-            ❌ <span class="highlight-red">Reject</span>
-            - Booking will be cancelled, slot becomes available again
-        </p>
-
-        <p>
-            👆 Click
-            <span class="highlight-orange">
-                Total, Pending, Approved, or Paid
-            </span>
-            stat boxes to filter bookings by status
-        </p>
-
-        <p>
-            👆 Click
-            <span class="highlight-blue">
-                Premium
-            </span>
-            or
-            <span class="highlight-green">
-                Basic
-            </span>
-            balance boxes to view paid bookings
-        </p>
-
-        <p>
-            👆 Click on
-            <span class="highlight-blue">
-                Student Name
-            </span>
-            or
-            <span class="highlight-green">
-                View
-            </span>
-            button to see full details
-        </p>
-
-        <p style="margin-top:8px; color:#666; font-size:13px;">
-            🔄 Table auto-refreshes every 10 seconds
-        </p>
-
+        <h4>📌 Instructions:</h4>
+        <p>✅ <span class="highlight-green">Approve</span> - Student will be notified to make payment</p>
+        <p>❌ <span class="highlight-red">Reject</span> - Booking will be cancelled, slot becomes available again</p>
+        <p>👆 Click <span class="highlight-orange">Total, Pending, Approved, or Paid</span> stat boxes to filter bookings by status</p>
+        <p>👆 Click <span class="highlight-blue">Premium</span> or <span class="highlight-green">Basic</span> balance boxes to view paid bookings</p>
+        <p>👆 Click on <span class="highlight-blue">Student Name</span> or <span class="highlight-green">View</span> button to see full details</p>
+        <p style="margin-top:8px; color:#666; font-size:13px;">🔄 Table auto-refreshes every 10 seconds</p>
     </div>
-
 </div>
-
 
 <!-- ================= STUDENT DETAIL MODAL ================= -->
-
-<div id="studentModal"
-     class="student-modal">
-
+<div id="studentModal" class="student-modal">
     <div class="student-modal-content">
-
         <div class="modal-header">
-
-            <h2>
-                📋 Student Details
-            </h2>
-
-            <button class="modal-close"
-                    onclick="closeStudentModal()">
-
-                &times;
-
-            </button>
-
+            <h2>📋 Student Details</h2>
+            <button class="modal-close" onclick="closeStudentModal()">&times;</button>
         </div>
-
-
-        <div class="modal-body"
-             id="studentModalBody">
-
-        </div>
-
-
+        <div class="modal-body" id="studentModalBody"></div>
         <div class="modal-footer">
-
-            <button class="btn-close-modal"
-                    onclick="closeStudentModal()">
-
-                Close
-
-            </button>
-
+            <button class="btn-close-modal" onclick="closeStudentModal()">Close</button>
         </div>
-
     </div>
-
 </div>
 
-
 <!-- ================= FILTER MODAL ================= -->
-
-<div id="filterModal"
-     class="filter-modal">
-
+<div id="filterModal" class="filter-modal">
     <div class="filter-modal-content">
-
-        <h2>
-            🔍 Filter Bookings
-        </h2>
-
-        <p class="subtitle">
-            Select your filter options below
-        </p>
-
+        <h2>🔍 Filter Bookings</h2>
+        <p class="subtitle">Select your filter options below</p>
 
         <div class="filter-group">
-
-            <label>
-                🎯 Course
-            </label>
-
+            <label>🎯 Course</label>
             <select id="filterCourse">
-
-                <option value="all">
-                    All Courses
-                </option>
-
+                <option value="all">All Courses</option>
                 <option value="ITW">ITW</option>
                 <option value="DFD">DFD</option>
                 <option value="DNS">DNS</option>
@@ -574,117 +241,51 @@
                 <option value="SLR">SLR</option>
                 <option value="SSB">SSB</option>
                 <option value="STF">STF</option>
-
             </select>
-
         </div>
 
-
         <div class="filter-group">
-
-            <label>
-                📅 Semester
-            </label>
-
+            <label>📅 Semester</label>
             <select id="filterSemester">
-
-                <option value="all">
-                    All Semesters
-                </option>
-
+                <option value="all">All Semesters</option>
                 <option value="1">Semester 1</option>
                 <option value="2">Semester 2</option>
                 <option value="3">Semester 3</option>
                 <option value="4">Semester 4</option>
                 <option value="5">Semester 5</option>
                 <option value="6">Semester 6</option>
-
             </select>
-
         </div>
 
-
         <div class="filter-group">
-
-            <label>
-                🅿️ Parking Type
-            </label>
-
+            <label>🅿️ Parking Type</label>
             <select id="filterType">
-
-                <option value="all">
-                    All Types
-                </option>
-
-                <option value="premium">
-                    ⭐ Premium
-                </option>
-
-                <option value="basic">
-                    🅿️ Basic
-                </option>
-
+                <option value="all">All Types</option>
+                <option value="premium">⭐ Premium</option>
+                <option value="basic">🅿️ Basic</option>
             </select>
-
         </div>
-
 
         <div class="filter-group">
-
-            <label>
-                📌 Status
-            </label>
-
+            <label>📌 Status</label>
             <select id="filterStatus">
-
-                <option value="all">
-                    All Status
-                </option>
-
-                <option value="pending">
-                    🟡 Pending
-                </option>
-
-                <option value="approved">
-                    🟢 Approved
-                </option>
-
-                <option value="paid">
-                    🔵 Paid
-                </option>
-
+                <option value="all">All Status</option>
+                <option value="pending">🟡 Pending</option>
+                <option value="approved">🟢 Approved</option>
+                <option value="paid">🔵 Paid</option>
             </select>
-
         </div>
-
 
         <div class="filter-modal-actions">
-
-            <button class="btn-apply-filter"
-                    onclick="applyFilterFromModal()">
-
-                ✅ Apply Filter
-
-            </button>
-
-            <button class="btn-close-filter"
-                    onclick="closeFilterModal()">
-
-                ❌ Close
-
-            </button>
-
+            <button class="btn-apply-filter" onclick="applyFilterFromModal()">✅ Apply Filter</button>
+            <button class="btn-close-filter" onclick="closeFilterModal()">❌ Close</button>
         </div>
-
     </div>
-
 </div>
 
-
 <script>
-
 /* ============================================================
-   EMAILJS CONFIGURATION
+   EMAILJS CONFIGURATION - GUNAKAN ID ANDA
 ============================================================ */
 
 const EMAILJS_SERVICE_ID = "service_5yob3r8";
@@ -695,2780 +296,857 @@ emailjs.init({
     publicKey: EMAILJS_PUBLIC_KEY
 });
 
+console.log('✅ EmailJS initialized with your IDs!');
 
 /* ============================================================
    WEBSITE LINK
 ============================================================ */
 
-const WEBSITE_LINK =
-    "https://saver-systm.lilylorraineee.workers.dev/";
+const WEBSITE_LINK = "https://saver-systm.lilylorraineee.workers.dev/";
 
+/* ============================================================
+   SHOW TOAST NOTIFICATION
+============================================================ */
+
+function showToast(message, type) {
+    var toast = document.getElementById('toastEmail');
+    var toastMsg = document.getElementById('toastMessage');
+    
+    toast.className = 'toast-email';
+    if (type === 'error') {
+        toast.style.background = '#dc3545';
+    } else if (type === 'warning') {
+        toast.style.background = '#ffc107';
+        toast.style.color = '#333';
+    } else {
+        toast.style.background = '#28a745';
+        toast.style.color = 'white';
+    }
+    
+    toastMsg.textContent = message;
+    toast.style.display = 'block';
+    
+    clearTimeout(toast._timeout);
+    toast._timeout = setTimeout(function() {
+        toast.style.display = 'none';
+    }, 5000);
+}
 
 /* ============================================================
    CHECK LOGIN
 ============================================================ */
 
-let loggedInWarden =
-    JSON.parse(sessionStorage.getItem('loggedInWarden'));
-
-let loggedInAdmin =
-    JSON.parse(sessionStorage.getItem('loggedInAdmin'));
+var loggedInWarden = JSON.parse(sessionStorage.getItem('loggedInWarden'));
+var loggedInAdmin = JSON.parse(sessionStorage.getItem('loggedInAdmin'));
 
 if (!loggedInWarden && !loggedInAdmin) {
-
     window.location.href = '../login.html';
-
 }
-
 
 /* ============================================================
    VARIABLES
 ============================================================ */
 
-let allBookings = [];
-let filteredBookings = [];
-let activeStatusFilter = null;
-let allLecturers = [];
-
+var allBookings = [];
+var filteredBookings = [];
+var activeStatusFilter = null;
+var allLecturers = [];
 
 /* ============================================================
    MENU
 ============================================================ */
 
 function toggleMenu() {
-
-    let menu =
-        document.getElementById("menu");
-
-    let overlay =
-        document.getElementById("overlay");
-
+    var menu = document.getElementById("menu");
+    var overlay = document.getElementById("overlay");
     menu.classList.toggle("active");
-
     overlay.classList.toggle("active");
-
 }
-
 
 function logout() {
-
     if (confirm('Are you sure you want to logout?')) {
-
         sessionStorage.removeItem('loggedInWarden');
         sessionStorage.removeItem('loggedInAdmin');
-
         window.location.href = 'login.php';
-
     }
-
 }
-
 
 /* ============================================================
    FIND STUDENT EMAIL
-   ------------------------------------------------------------
-   This function searches localStorage for:
-   studentId + email
 ============================================================ */
 
 function findStudentEmail(studentId) {
-
     if (!studentId) {
         return "";
     }
 
-
-    /*
-       1. Search all localStorage items
-    */
-
-    for (let key in localStorage) {
-
-        try {
-
-            let rawData =
-                localStorage.getItem(key);
-
-            if (!rawData) {
-                continue;
+    // Search students in localStorage
+    var students = JSON.parse(localStorage.getItem('students')) || [];
+    for (var i = 0; i < students.length; i++) {
+        if (String(students[i].id) === String(studentId)) {
+            if (students[i].email) {
+                return String(students[i].email).trim();
             }
-
-
-            let data =
-                JSON.parse(rawData);
-
-
-            /*
-               Case 1:
-               Single object
-            */
-
-            if (
-                data &&
-                typeof data === "object" &&
-                !Array.isArray(data)
-            ) {
-
-                if (
-                    String(data.studentId || data.student_id || data.matricNo || "")
-                    === String(studentId)
-                ) {
-
-                    let email =
-                        data.email ||
-                        data.studentEmail ||
-                        data.student_email;
-
-                    if (
-                        email &&
-                        String(email).includes("@")
-                    ) {
-
-                        return String(email).trim();
-
-                    }
-
-                }
-
-            }
-
-
-            /*
-               Case 2:
-               Array of students/bookings
-            */
-
-            if (Array.isArray(data)) {
-
-                for (let item of data) {
-
-                    if (!item || typeof item !== "object") {
-                        continue;
-                    }
-
-
-                    let id =
-                        item.studentId ||
-                        item.student_id ||
-                        item.matricNo ||
-                        item.studentMatric;
-
-
-                    if (
-                        String(id || "")
-                        === String(studentId)
-                    ) {
-
-                        let email =
-                            item.email ||
-                            item.studentEmail ||
-                            item.student_email;
-
-
-                        if (
-                            email &&
-                            String(email).includes("@")
-                        ) {
-
-                            return String(email).trim();
-
-                        }
-
-                    }
-
-                }
-
-            }
-
         }
-        catch (error) {
-
-            /*
-               Ignore localStorage values
-               that are not JSON
-            */
-
-        }
-
     }
 
+    // Search in all localStorage items
+    for (var key in localStorage) {
+        try {
+            var rawData = localStorage.getItem(key);
+            if (!rawData) continue;
+            var data = JSON.parse(rawData);
+            
+            if (data && typeof data === "object" && !Array.isArray(data)) {
+                if (String(data.studentId || data.student_id || "") === String(studentId)) {
+                    var email = data.email || data.studentEmail || data.student_email;
+                    if (email && String(email).includes("@")) {
+                        return String(email).trim();
+                    }
+                }
+            }
+            
+            if (Array.isArray(data)) {
+                for (var j = 0; j < data.length; j++) {
+                    var item = data[j];
+                    if (!item || typeof item !== "object") continue;
+                    if (String(item.studentId || item.student_id || "") === String(studentId)) {
+                        var email = item.email || item.studentEmail || item.student_email;
+                        if (email && String(email).includes("@")) {
+                            return String(email).trim();
+                        }
+                    }
+                }
+            }
+        } catch(error) {}
+    }
 
     return "";
-
 }
-
 
 /* ============================================================
    GET EMAIL FROM BOOKING
 ============================================================ */
 
 function getBookingEmail(booking) {
-
-    /*
-       First priority:
-       email already inside booking
-    */
-
-    if (
-        booking.studentEmail &&
-        String(booking.studentEmail).includes("@")
-    ) {
-
+    if (booking.studentEmail && String(booking.studentEmail).includes("@")) {
         return String(booking.studentEmail).trim();
-
     }
-
-
-    if (
-        booking.email &&
-        String(booking.email).includes("@")
-    ) {
-
+    if (booking.email && String(booking.email).includes("@")) {
         return String(booking.email).trim();
-
     }
-
-
-    /*
-       Second priority:
-       search localStorage using student ID
-    */
-
-    let foundEmail =
-        findStudentEmail(booking.studentId);
-
-
+    var foundEmail = findStudentEmail(booking.studentId);
     return foundEmail;
-
 }
-
 
 /* ============================================================
    STUDENT MODAL
 ============================================================ */
 
 function openStudentModal(booking) {
-
-    let body =
-        document.getElementById('studentModalBody');
-
-
-    let statusClass = '';
-
-    if (booking.status === 'pending') {
-
-        statusClass = 'tag-pending';
-
-    }
-    else if (booking.status === 'approved') {
-
-        statusClass = 'tag-approved';
-
-    }
-    else if (
-        booking.status === 'paid' ||
-        booking.status === 'occupied'
-    ) {
-
-        statusClass = 'tag-paid';
-
-    }
-
-
-    let typeClass =
-        booking.type === 'premium'
-        ? 'tag-premium'
-        : 'tag-basic';
-
-
-    let email =
-        getBookingEmail(booking);
-
-
+    var body = document.getElementById('studentModalBody');
+    
+    var statusClass = '';
+    if (booking.status === 'pending') statusClass = 'tag-pending';
+    else if (booking.status === 'approved') statusClass = 'tag-approved';
+    else if (booking.status === 'paid' || booking.status === 'occupied') statusClass = 'tag-paid';
+    
+    var typeClass = booking.type === 'premium' ? 'tag-premium' : 'tag-basic';
+    var email = getBookingEmail(booking);
+    
     body.innerHTML = `
-
         <div class="detail-grid">
-
             <div class="detail-item full-width">
-
-                <span class="label">
-                    👤 Name
-                </span>
-
-                <span class="value">
-                    ${booking.studentName || 'N/A'}
-                </span>
-
+                <span class="label">👤 Name</span>
+                <span class="value">${booking.studentName || 'N/A'}</span>
             </div>
-
-
-            <div class="detail-item">
-
-                <span class="label">
-                    🪪 IC Number
-                </span>
-
-                <span class="value">
-                    ${booking.studentIC || 'N/A'}
-                </span>
-
+            <div class="detail-item full-width" style="background:#e8f5e9; padding:10px; border-radius:8px;">
+                <span class="label">📧 Email</span>
+                <span class="value" style="color:#2e7d32; font-weight:bold;">${email || '❌ No email found'}</span>
             </div>
-
-
-            <div class="detail-item">
-
-                <span class="label">
-                    🎓 Matric No.
-                </span>
-
-                <span class="value">
-                    ${booking.studentMatric || 'N/A'}
-                </span>
-
-            </div>
-
-
-            <div class="detail-item">
-
-                <span class="label">
-                    📖 Program
-                </span>
-
-                <span class="value">
-                    ${booking.studentCourse || 'N/A'}
-                </span>
-
-            </div>
-
-
-            <div class="detail-item">
-
-                <span class="label">
-                    📅 Semester
-                </span>
-
-                <span class="value">
-                    ${booking.studentSemester || 'N/A'}
-                </span>
-
-            </div>
-
-
-            <div class="detail-item">
-
-                <span class="label">
-                    📱 Phone
-                </span>
-
-                <span class="value">
-                    ${booking.studentPhone || 'N/A'}
-                </span>
-
-            </div>
-
-
-            <div class="detail-item">
-
-                <span class="label">
-                    📧 Email
-                </span>
-
-                <span class="value"
-                      style="word-break:break-all;">
-
-                    ${email || 'Email not found'}
-
-                </span>
-
-            </div>
-
-
-            <div class="detail-item">
-
-                <span class="label">
-                    🚗 Plate No.
-                </span>
-
-                <span class="value">
-                    ${booking.plateNo || 'N/A'}
-                </span>
-
-            </div>
-
-
-            <div class="detail-item">
-
-                <span class="label">
-                    🚙 Vehicle Type
-                </span>
-
-                <span class="value">
-                    ${booking.vehicleType || 'N/A'}
-                </span>
-
-            </div>
-
-
-            <div class="detail-item">
-
-                <span class="label">
-                    🎨 Vehicle Color
-                </span>
-
-                <span class="value">
-                    ${booking.vehicleColor || 'N/A'}
-                </span>
-
-            </div>
-
-
+            <div class="detail-item"><span class="label">🪪 IC Number</span><span class="value">${booking.studentIC || 'N/A'}</span></div>
+            <div class="detail-item"><span class="label">🎓 Matric No.</span><span class="value">${booking.studentMatric || 'N/A'}</span></div>
+            <div class="detail-item"><span class="label">📖 Program</span><span class="value">${booking.studentCourse || 'N/A'}</span></div>
+            <div class="detail-item"><span class="label">📅 Semester</span><span class="value">${booking.studentSemester || 'N/A'}</span></div>
+            <div class="detail-item"><span class="label">📱 Phone</span><span class="value">${booking.studentPhone || 'N/A'}</span></div>
+            <div class="detail-item"><span class="label">🚗 Plate No.</span><span class="value">${booking.plateNo || 'N/A'}</span></div>
+            <div class="detail-item"><span class="label">🚙 Vehicle Type</span><span class="value">${booking.vehicleType || 'N/A'}</span></div>
+            <div class="detail-item"><span class="label">🎨 Vehicle Color</span><span class="value">${booking.vehicleColor || 'N/A'}</span></div>
             <div class="detail-divider"></div>
-
-
-            <div class="detail-item">
-
-                <span class="label">
-                    🅿️ Booking Type
-                </span>
-
-                <span class="value">
-
-                    <span class="tag ${typeClass}">
-                        ${booking.type || 'N/A'}
-                    </span>
-
-                </span>
-
-            </div>
-
-
-            <div class="detail-item">
-
-                <span class="label">
-                    📍 Slot
-                </span>
-
-                <span class="value">
-                    ${booking.slotId || 'Random'}
-                </span>
-
-            </div>
-
-
-            <div class="detail-item">
-
-                <span class="label">
-                    📌 Status
-                </span>
-
-                <span class="value">
-
-                    <span class="tag ${statusClass}">
-                        ${booking.status || 'N/A'}
-                    </span>
-
-                </span>
-
-            </div>
-
-
-            <div class="detail-item">
-
-                <span class="label">
-                    🕐 Booking Time
-                </span>
-
-                <span class="value">
-
-                    ${
-                        booking.bookingTime
-                        ? new Date(booking.bookingTime).toLocaleString()
-                        : 'N/A'
-                    }
-
-                </span>
-
-            </div>
-
+            <div class="detail-item"><span class="label">🅿️ Booking Type</span><span class="value"><span class="tag ${typeClass}">${booking.type || 'N/A'}</span></span></div>
+            <div class="detail-item"><span class="label">📍 Slot</span><span class="value">${booking.slotId || 'Random'}</span></div>
+            <div class="detail-item"><span class="label">📌 Status</span><span class="value"><span class="tag ${statusClass}">${booking.status || 'N/A'}</span></span></div>
+            <div class="detail-item"><span class="label">🕐 Booking Time</span><span class="value">${booking.bookingTime ? new Date(booking.bookingTime).toLocaleString() : 'N/A'}</span></div>
         </div>
-
     `;
-
-
-    document
-        .getElementById('studentModal')
-        .classList.add('active');
-
+    
+    document.getElementById('studentModal').classList.add('active');
     document.body.style.overflow = 'hidden';
-
 }
-
 
 function closeStudentModal() {
-
-    document
-        .getElementById('studentModal')
-        .classList.remove('active');
-
+    document.getElementById('studentModal').classList.remove('active');
     document.body.style.overflow = 'auto';
-
 }
 
-
-document
-    .getElementById('studentModal')
-    .addEventListener('click', function(e) {
-
-        if (e.target === this) {
-
-            closeStudentModal();
-
-        }
-
-    });
-
+document.getElementById('studentModal').addEventListener('click', function(e) {
+    if (e.target === this) closeStudentModal();
+});
 
 /* ============================================================
    SEND APPROVAL EMAIL
 ============================================================ */
 
 function sendApprovalEmail(booking) {
-
     return new Promise(function(resolve, reject) {
-
-
-        let studentEmail =
-            getBookingEmail(booking);
-
-
-        console.log(
-            "Student Email:",
-            studentEmail
-        );
-
-
-        /*
-           If email cannot be found,
-           stop email sending.
-        */
-
+        var studentEmail = getBookingEmail(booking);
+        
+        console.log("📧 Student Email:", studentEmail);
+        
         if (!studentEmail) {
-
-            console.error(
-                "❌ Student email not found for:",
-                booking.studentId
-            );
-
-            alert(
-                "⚠️ Booking approved, BUT email could not be sent.\n\n" +
-                "Student email was not found.\n\n" +
-                "Student ID: " +
-                booking.studentId
-            );
-
-            reject(
-                new Error("Student email not found")
-            );
-
+            console.error("❌ Student email not found for:", booking.studentId);
+            showToast('⚠️ Email not found for ' + booking.studentName, 'warning');
+            reject(new Error("Student email not found"));
             return;
-
         }
 
-
-        /*
-           Booking date
-        */
-
-        let bookingDate = "N/A";
-
-        let bookingTime = "N/A";
-
+        var bookingDate = "N/A";
+        var bookingTime = "N/A";
 
         if (booking.bookingTime) {
-
-            let dateObject =
-                new Date(booking.bookingTime);
-
-
+            var dateObject = new Date(booking.bookingTime);
             if (!isNaN(dateObject.getTime())) {
-
-                bookingDate =
-                    dateObject.toLocaleDateString('en-MY');
-
-
-                bookingTime =
-                    dateObject.toLocaleTimeString(
-                        'en-MY',
-                        {
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        }
-                    );
-
+                bookingDate = dateObject.toLocaleDateString('ms-MY', {
+                    day: 'numeric', month: 'long', year: 'numeric'
+                });
+                bookingTime = dateObject.toLocaleTimeString('ms-MY', {
+                    hour: '2-digit', minute: '2-digit'
+                });
             }
-
         }
 
-
-        /*
-           Payment deadline
-           2 days from approval
-        */
-
-        let deadline =
-            new Date();
-
-        deadline.setDate(
-            deadline.getDate() + 2
-        );
-
-
-        let paymentDeadline =
-            deadline.toLocaleDateString('en-MY');
-
-
-        /*
-           Parking price
-
-           CHANGE THESE VALUES
-           IF YOUR ACTUAL PRICE IS DIFFERENT.
-        */
-
-        let parkingPrice =
-            booking.type === 'premium'
-            ? '50.00'
-            : '30.00';
-
-
-        /*
-           Send EmailJS
-        */
-
-        emailjs.send(
-            EMAILJS_SERVICE_ID,
-            EMAILJS_TEMPLATE_ID,
-            {
-
-                to_email:
-                    studentEmail,
-
-                student_name:
-                    booking.studentName || 'Student',
-
-                booking_date:
-                    bookingDate,
-
-                booking_time:
-                    bookingTime,
-
-                plate_no:
-                    booking.plateNo || 'N/A',
-
-                parking_type:
-                    booking.type === 'premium'
-                    ? 'Premium Parking'
-                    : 'Basic Parking',
-
-                parking_price:
-                    parkingPrice,
-
-                payment_deadline:
-                    paymentDeadline,
-
-                website_link:
-                    WEBSITE_LINK
-
-            }
-
-        )
-
-        .then(function(response) {
-
-            console.log(
-                "✅ EMAIL SENT",
-                response.status,
-                response.text
-            );
-
-
-            alert(
-                "✅ Booking approved successfully!\n\n" +
-                "📧 Approval email sent to:\n" +
-                studentEmail
-            );
-
-
-            resolve(response);
-
-        })
-
-        .catch(function(error) {
-
-            console.error(
-                "❌ EMAILJS ERROR:",
-                error
-            );
-
-
-            alert(
-                "⚠️ Booking was approved,\n" +
-                "but EmailJS failed to send the email.\n\n" +
-                "Please check the browser Console."
-            );
-
-
-            reject(error);
-
+        var deadline = new Date();
+        deadline.setDate(deadline.getDate() + 2);
+        var paymentDeadline = deadline.toLocaleDateString('ms-MY', {
+            day: 'numeric', month: 'long', year: 'numeric'
         });
 
-    });
+        var parkingPrice = booking.type === 'premium' ? '50.00' : '30.00';
+        var parkingTypeLabel = booking.type === 'premium' ? '⭐ Premium' : '🅿️ Basic';
 
+        var templateParams = {
+            to_email: studentEmail,
+            student_name: booking.studentName || 'Student',
+            booking_date: bookingDate,
+            booking_time: bookingTime,
+            plate_no: booking.plateNo || 'N/A',
+            parking_type: parkingTypeLabel,
+            parking_price: parkingPrice,
+            payment_deadline: paymentDeadline,
+            website_link: WEBSITE_LINK
+        };
+
+        console.log('📧 Template params:', templateParams);
+
+        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
+            .then(function(response) {
+                console.log("✅ EMAIL SENT", response.status, response.text);
+                showToast('✅ Email sent to ' + studentEmail, 'success');
+                resolve(response);
+            })
+            .catch(function(error) {
+                console.error("❌ EMAILJS ERROR:", error);
+                showToast('❌ Email failed to send. Check console.', 'error');
+                reject(error);
+            });
+    });
 }
 
-
 /* ============================================================
-   FILTER PAID PREMIUM
+   FILTER PAID PREMIUM / BASIC
 ============================================================ */
 
 function filterPaidPremium() {
-
     document.getElementById('filterCourse').value = 'all';
-
     document.getElementById('filterSemester').value = 'all';
-
     document.getElementById('filterType').value = 'premium';
-
     document.getElementById('filterStatus').value = 'paid';
-
-
-    document.querySelectorAll('.stat-box')
-        .forEach(box => {
-
-            box.classList.remove(
-                'active-filter'
-            );
-
-        });
-
-
+    document.querySelectorAll('.stat-box').forEach(function(box) {
+        box.classList.remove('active-filter');
+    });
     activeStatusFilter = null;
-
     applyFilters();
-
 }
-
-
-/* ============================================================
-   FILTER PAID BASIC
-============================================================ */
 
 function filterPaidBasic() {
-
     document.getElementById('filterCourse').value = 'all';
-
     document.getElementById('filterSemester').value = 'all';
-
     document.getElementById('filterType').value = 'basic';
-
     document.getElementById('filterStatus').value = 'paid';
-
-
-    document.querySelectorAll('.stat-box')
-        .forEach(box => {
-
-            box.classList.remove(
-                'active-filter'
-            );
-
-        });
-
-
+    document.querySelectorAll('.stat-box').forEach(function(box) {
+        box.classList.remove('active-filter');
+    });
     activeStatusFilter = null;
-
     applyFilters();
-
 }
-
 
 /* ============================================================
    UPDATE PARKING BALANCE
 ============================================================ */
 
 function updateParkingBalance() {
-
-
-    /* ===== PREMIUM ===== */
-
-    let premiumSlots =
-        JSON.parse(
-            localStorage.getItem('premiumSlots')
-        ) || [];
-
-
-    let premiumTotal =
-        premiumSlots.length;
-
-
-    let premiumPaid =
-        premiumSlots.filter(
-            s =>
-                s.bookedBy &&
-                s.bookedBy !== '' &&
-                (
-                    s.status === 'paid' ||
-                    s.status === 'occupied'
-                )
-        ).length;
-
-
-    document.getElementById(
-        'premiumAvailable'
-    ).innerText = premiumPaid;
-
-
-    document.getElementById(
-        'premiumTotal'
-    ).innerText = premiumTotal;
-
-
-    let premiumPercent =
-        premiumTotal > 0
-        ? (premiumPaid / premiumTotal) * 100
-        : 0;
-
-
-    document.getElementById(
-        'premiumBar'
-    ).style.width =
-        Math.min(
-            premiumPercent,
-            100
-        ) + '%';
-
-
-    /* ===== BASIC ===== */
-
-    let basicTotal = 55;
-
-    let basicPaid = 0;
-
-    let basicStudentIds =
-        new Set();
-
-
-    let allBasicBookings =
-        JSON.parse(
-            localStorage.getItem(
-                'allBasicBookings'
-            )
-        ) || [];
-
-
-    allBasicBookings.forEach(
-        b => {
-
-            if (
-                b.studentId &&
-                (
-                    b.status === 'paid' ||
-                    b.status === 'occupied'
-                )
-            ) {
-
-                if (
-                    !basicStudentIds.has(
-                        b.studentId
-                    )
-                ) {
-
-                    basicStudentIds.add(
-                        b.studentId
-                    );
-
-                    basicPaid++;
-
-                }
-
+    var premiumSlots = JSON.parse(localStorage.getItem('premiumSlots')) || [];
+    var premiumTotal = premiumSlots.length;
+    var premiumPaid = premiumSlots.filter(function(s) {
+        return s.bookedBy && s.bookedBy !== '' && (s.status === 'paid' || s.status === 'occupied');
+    }).length;
+    
+    document.getElementById('premiumAvailable').innerText = premiumPaid;
+    document.getElementById('premiumTotal').innerText = premiumTotal;
+    var premiumPercent = premiumTotal > 0 ? (premiumPaid / premiumTotal) * 100 : 0;
+    document.getElementById('premiumBar').style.width = Math.min(premiumPercent, 100) + '%';
+    
+    var basicTotal = 55;
+    var basicPaid = 0;
+    var basicStudentIds = new Set();
+    
+    var allBasicBookings = JSON.parse(localStorage.getItem('allBasicBookings')) || [];
+    allBasicBookings.forEach(function(b) {
+        if (b.studentId && (b.status === 'paid' || b.status === 'occupied')) {
+            if (!basicStudentIds.has(b.studentId)) {
+                basicStudentIds.add(b.studentId);
+                basicPaid++;
             }
-
         }
-    );
-
-
-    for (let key in localStorage) {
-
-        if (
-            key.startsWith(
-                'myBasicBooking_'
-            )
-        ) {
-
+    });
+    
+    for (var key in localStorage) {
+        if (key.startsWith('myBasicBooking_')) {
             try {
-
-                let booking =
-                    JSON.parse(
-                        localStorage.getItem(key)
-                    );
-
-
-                if (
-                    booking &&
-                    booking.studentId &&
-                    (
-                        booking.status === 'paid' ||
-                        booking.status === 'occupied'
-                    )
-                ) {
-
-                    if (
-                        !basicStudentIds.has(
-                            booking.studentId
-                        )
-                    ) {
-
-                        basicStudentIds.add(
-                            booking.studentId
-                        );
-
+                var booking = JSON.parse(localStorage.getItem(key));
+                if (booking && booking.studentId && (booking.status === 'paid' || booking.status === 'occupied')) {
+                    if (!basicStudentIds.has(booking.studentId)) {
+                        basicStudentIds.add(booking.studentId);
                         basicPaid++;
-
                     }
-
                 }
-
-            }
-            catch(e) {}
-
+            } catch(e) {}
         }
-
     }
-
-
-    if (
-        basicPaid >
-        basicTotal
-    ) {
-
-        basicPaid =
-            basicTotal;
-
-    }
-
-
-    document.getElementById(
-        'basicAvailable'
-    ).innerText =
-        basicPaid;
-
-
-    document.getElementById(
-        'basicTotal'
-    ).innerText =
-        basicTotal;
-
-
-    let basicPercent =
-        basicTotal > 0
-        ? (basicPaid / basicTotal) * 100
-        : 0;
-
-
-    document.getElementById(
-        'basicBar'
-    ).style.width =
-        Math.min(
-            basicPercent,
-            100
-        ) + '%';
-
+    
+    if (basicPaid > basicTotal) basicPaid = basicTotal;
+    
+    document.getElementById('basicAvailable').innerText = basicPaid;
+    document.getElementById('basicTotal').innerText = basicTotal;
+    var basicPercent = basicTotal > 0 ? (basicPaid / basicTotal) * 100 : 0;
+    document.getElementById('basicBar').style.width = Math.min(basicPercent, 100) + '%';
 }
-
 
 /* ============================================================
    FILTER BY STATUS
 ============================================================ */
 
 function filterByStatus(status) {
-
-    document.getElementById(
-        'filterType'
-    ).value = 'all';
-
-
-    document.querySelectorAll('.stat-box')
-        .forEach(box => {
-
-            box.classList.remove(
-                'active-filter'
-            );
-
-        });
-
-
-    if (
-        activeStatusFilter === status
-    ) {
-
+    document.getElementById('filterType').value = 'all';
+    document.querySelectorAll('.stat-box').forEach(function(box) {
+        box.classList.remove('active-filter');
+    });
+    
+    if (activeStatusFilter === status) {
         activeStatusFilter = null;
-
-        document.getElementById(
-            'filterStatus'
-        ).value = 'all';
-
+        document.getElementById('filterStatus').value = 'all';
         applyFilters();
-
         return;
-
     }
-
-
-    activeStatusFilter =
-        status;
-
-
+    
+    activeStatusFilter = status;
+    
     if (status === 'all') {
-
-        document.getElementById(
-            'statAll'
-        ).classList.add(
-            'active-filter'
-        );
-
-        document.getElementById(
-            'filterStatus'
-        ).value = 'all';
-
+        document.getElementById('statAll').classList.add('active-filter');
+        document.getElementById('filterStatus').value = 'all';
+    } else if (status === 'pending') {
+        document.getElementById('statPending').classList.add('active-filter');
+        document.getElementById('filterStatus').value = 'pending';
+    } else if (status === 'approved') {
+        document.getElementById('statApproved').classList.add('active-filter');
+        document.getElementById('filterStatus').value = 'approved';
+    } else if (status === 'paid') {
+        document.getElementById('statPaid').classList.add('active-filter');
+        document.getElementById('filterStatus').value = 'paid';
     }
-
-    else if (
-        status === 'pending'
-    ) {
-
-        document.getElementById(
-            'statPending'
-        ).classList.add(
-            'active-filter'
-        );
-
-        document.getElementById(
-            'filterStatus'
-        ).value = 'pending';
-
-    }
-
-    else if (
-        status === 'approved'
-    ) {
-
-        document.getElementById(
-            'statApproved'
-        ).classList.add(
-            'active-filter'
-        );
-
-        document.getElementById(
-            'filterStatus'
-        ).value = 'approved';
-
-    }
-
-    else if (
-        status === 'paid'
-    ) {
-
-        document.getElementById(
-            'statPaid'
-        ).classList.add(
-            'active-filter'
-        );
-
-        document.getElementById(
-            'filterStatus'
-        ).value = 'paid';
-
-    }
-
-
+    
     applyFilters();
-
 }
-
 
 /* ============================================================
    FILTER MODAL
 ============================================================ */
 
 function openFilterModal() {
-
-    document
-        .getElementById('filterModal')
-        .classList.add('active');
-
+    document.getElementById('filterModal').classList.add('active');
 }
-
 
 function closeFilterModal() {
-
-    document
-        .getElementById('filterModal')
-        .classList.remove('active');
-
+    document.getElementById('filterModal').classList.remove('active');
 }
-
 
 function applyFilterFromModal() {
-
     closeFilterModal();
-
     activeStatusFilter = null;
-
-
-    document.querySelectorAll('.stat-box')
-        .forEach(box => {
-
-            box.classList.remove(
-                'active-filter'
-            );
-
-        });
-
-
+    document.querySelectorAll('.stat-box').forEach(function(box) {
+        box.classList.remove('active-filter');
+    });
     applyFilters();
-
 }
-
 
 /* ============================================================
    UPDATE STATS
 ============================================================ */
 
 function updateStats(bookings) {
-
-    let total =
-        bookings.length;
-
-
-    let pending =
-        bookings.filter(
-            b =>
-                b.status === 'pending'
-        ).length;
-
-
-    let approved =
-        bookings.filter(
-            b =>
-                b.status === 'approved'
-        ).length;
-
-
-    let paid =
-        bookings.filter(
-            b =>
-                b.status === 'paid' ||
-                b.status === 'occupied'
-        ).length;
-
-
-    document.getElementById(
-        'totalBookings'
-    ).innerText =
-        total;
-
-
-    document.getElementById(
-        'pendingCount'
-    ).innerText =
-        pending;
-
-
-    document.getElementById(
-        'approvedCount'
-    ).innerText =
-        approved;
-
-
-    document.getElementById(
-        'paidCount'
-    ).innerText =
-        paid;
-
-
-    document.getElementById(
-        'studentTotalCount'
-    ).innerText =
-        total;
-
+    var total = bookings.length;
+    var pending = bookings.filter(function(b) { return b.status === 'pending'; }).length;
+    var approved = bookings.filter(function(b) { return b.status === 'approved'; }).length;
+    var paid = bookings.filter(function(b) { return b.status === 'paid' || b.status === 'occupied'; }).length;
+    
+    document.getElementById('totalBookings').innerText = total;
+    document.getElementById('pendingCount').innerText = pending;
+    document.getElementById('approvedCount').innerText = approved;
+    document.getElementById('paidCount').innerText = paid;
+    document.getElementById('studentTotalCount').innerText = total;
 }
-
 
 /* ============================================================
    GET ALL BOOKINGS
 ============================================================ */
 
 function getAllBookings() {
-
-    let bookings = [];
-
-    let seen =
-        new Set();
-
-
-    /* ================= PREMIUM SLOTS ================= */
-
-    let premiumSlots =
-        JSON.parse(
-            localStorage.getItem(
-                'premiumSlots'
-            )
-        ) || [];
-
-
-    premiumSlots.forEach(
-        slot => {
-
-            if (slot.bookedBy) {
-
-                let key =
-                    'premium_' +
-                    slot.bookedBy +
-                    '_' +
-                    slot.id;
-
-
-                if (
-                    !seen.has(key)
-                ) {
-
-                    seen.add(key);
-
-
-                    let email =
-                        slot.studentEmail ||
-                        slot.email ||
-                        findStudentEmail(
-                            slot.bookedBy
-                        );
-
-
-                    bookings.push({
-
-                        studentId:
-                            slot.bookedBy,
-
-                        studentName:
-                            slot.bookedByName ||
-                            'Unknown',
-
-                        studentEmail:
-                            email,
-
-                        studentIC:
-                            slot.studentIC ||
-                            'N/A',
-
-                        studentMatric:
-                            slot.studentMatric ||
-                            'N/A',
-
-                        studentCourse:
-                            slot.studentCourse ||
-                            slot.program ||
-                            'N/A',
-
-                        studentSemester:
-                            slot.studentSemester ||
-                            'N/A',
-
-                        studentPhone:
-                            slot.studentPhone ||
-                            'N/A',
-
-                        plateNo:
-                            slot.plateNo ||
-                            'N/A',
-
-                        slotId:
-                            slot.id,
-
-                        type:
-                            'premium',
-
-                        status:
-                            slot.status ||
-                            'pending',
-
-                        bookingTime:
-                            slot.bookingTime ||
-                            new Date().toISOString(),
-
-                        vehicleType:
-                            slot.vehicleType ||
-                            'N/A',
-
-                        vehicleColor:
-                            slot.vehicleColor ||
-                            'N/A'
-
-                    });
-
-                }
-
+    var bookings = [];
+    var seen = new Set();
+    
+    // Premium Slots
+    var premiumSlots = JSON.parse(localStorage.getItem('premiumSlots')) || [];
+    premiumSlots.forEach(function(slot) {
+        if (slot.bookedBy) {
+            var key = 'premium_' + slot.bookedBy + '_' + slot.id;
+            if (!seen.has(key)) {
+                seen.add(key);
+                var email = slot.studentEmail || slot.email || findStudentEmail(slot.bookedBy);
+                bookings.push({
+                    studentId: slot.bookedBy,
+                    studentName: slot.bookedByName || 'Unknown',
+                    studentEmail: email,
+                    studentIC: slot.studentIC || 'N/A',
+                    studentMatric: slot.studentMatric || 'N/A',
+                    studentCourse: slot.studentCourse || slot.program || 'N/A',
+                    studentSemester: slot.studentSemester || 'N/A',
+                    studentPhone: slot.studentPhone || 'N/A',
+                    plateNo: slot.plateNo || 'N/A',
+                    slotId: slot.id,
+                    type: 'premium',
+                    status: slot.status || 'pending',
+                    bookingTime: slot.bookingTime || new Date().toISOString(),
+                    vehicleType: slot.vehicleType || 'N/A',
+                    vehicleColor: slot.vehicleColor || 'N/A'
+                });
             }
-
         }
-    );
-
-
-    /* ================= PREMIUM BOOKING ================= */
-
-    for (
-        let key in localStorage
-    ) {
-
-        if (
-            key.startsWith(
-                'myPremiumBooking_'
-            )
-        ) {
-
+    });
+    
+    // myPremiumBooking_
+    for (var key in localStorage) {
+        if (key.startsWith('myPremiumBooking_')) {
             try {
-
-                let booking =
-                    JSON.parse(
-                        localStorage.getItem(key)
-                    );
-
-
-                if (
-                    booking &&
-                    booking.studentId
-                ) {
-
-                    let uniqueKey =
-                        'premium_' +
-                        booking.studentId +
-                        '_' +
-                        (
-                            booking.slotId ||
-                            ''
-                        );
-
-
-                    if (
-                        !seen.has(
-                            uniqueKey
-                        )
-                    ) {
-
-                        seen.add(
-                            uniqueKey
-                        );
-
-
-                        let email =
-                            booking.studentEmail ||
-                            booking.email ||
-                            findStudentEmail(
-                                booking.studentId
-                            );
-
-
+                var booking = JSON.parse(localStorage.getItem(key));
+                if (booking && booking.studentId) {
+                    var uniqueKey = 'premium_' + booking.studentId + '_' + (booking.slotId || '');
+                    if (!seen.has(uniqueKey)) {
+                        seen.add(uniqueKey);
+                        var email = booking.studentEmail || booking.email || findStudentEmail(booking.studentId);
                         bookings.push({
-
-                            studentId:
-                                booking.studentId,
-
-                            studentName:
-                                booking.studentName ||
-                                'Unknown',
-
-                            studentEmail:
-                                email,
-
-                            studentIC:
-                                booking.studentIC ||
-                                'N/A',
-
-                            studentMatric:
-                                booking.studentMatric ||
-                                'N/A',
-
-                            studentCourse:
-                                booking.studentCourse ||
-                                booking.program ||
-                                'N/A',
-
-                            studentSemester:
-                                booking.studentSemester ||
-                                'N/A',
-
-                            studentPhone:
-                                booking.studentPhone ||
-                                'N/A',
-
-                            plateNo:
-                                booking.plateNo ||
-                                'N/A',
-
-                            slotId:
-                                booking.slotId ||
-                                'N/A',
-
-                            type:
-                                'premium',
-
-                            status:
-                                booking.status ||
-                                'pending',
-
-                            bookingTime:
-                                booking.bookingTime ||
-                                new Date().toISOString(),
-
-                            vehicleType:
-                                booking.vehicleType ||
-                                'N/A',
-
-                            vehicleColor:
-                                booking.vehicleColor ||
-                                'N/A'
-
+                            studentId: booking.studentId,
+                            studentName: booking.studentName || 'Unknown',
+                            studentEmail: email,
+                            studentIC: booking.studentIC || 'N/A',
+                            studentMatric: booking.studentMatric || 'N/A',
+                            studentCourse: booking.studentCourse || booking.program || 'N/A',
+                            studentSemester: booking.studentSemester || 'N/A',
+                            studentPhone: booking.studentPhone || 'N/A',
+                            plateNo: booking.plateNo || 'N/A',
+                            slotId: booking.slotId || 'N/A',
+                            type: 'premium',
+                            status: booking.status || 'pending',
+                            bookingTime: booking.bookingTime || new Date().toISOString(),
+                            vehicleType: booking.vehicleType || 'N/A',
+                            vehicleColor: booking.vehicleColor || 'N/A'
                         });
-
                     }
-
                 }
-
-            }
-            catch(e) {}
-
+            } catch(e) {}
         }
-
     }
-
-
-    /* ================= BASIC ================= */
-
-    let allBasicBookings =
-        JSON.parse(
-            localStorage.getItem(
-                'allBasicBookings'
-            )
-        ) || [];
-
-
-    allBasicBookings.forEach(
-        booking => {
-
-            if (
-                booking.studentId
-            ) {
-
-                let key =
-                    'basic_' +
-                    booking.studentId;
-
-
-                if (
-                    !seen.has(key)
-                ) {
-
-                    seen.add(key);
-
-
-                    let email =
-                        booking.studentEmail ||
-                        booking.email ||
-                        findStudentEmail(
-                            booking.studentId
-                        );
-
-
-                    bookings.push({
-
-                        studentId:
-                            booking.studentId,
-
-                        studentName:
-                            booking.studentName ||
-                            'Unknown',
-
-                        studentEmail:
-                            email,
-
-                        studentIC:
-                            booking.studentIC ||
-                            'N/A',
-
-                        studentMatric:
-                            booking.studentMatric ||
-                            'N/A',
-
-                        studentCourse:
-                            booking.studentCourse ||
-                            booking.program ||
-                            'N/A',
-
-                        studentSemester:
-                            booking.studentSemester ||
-                            'N/A',
-
-                        studentPhone:
-                            booking.studentPhone ||
-                            'N/A',
-
-                        plateNo:
-                            booking.plateNo ||
-                            'N/A',
-
-                        slotId:
-                            'Random',
-
-                        type:
-                            'basic',
-
-                        status:
-                            booking.status ||
-                            'pending',
-
-                        bookingTime:
-                            booking.bookingTime ||
-                            new Date().toISOString(),
-
-                        vehicleType:
-                            booking.vehicleType ||
-                            'N/A',
-
-                        vehicleColor:
-                            booking.vehicleColor ||
-                            'N/A'
-
-                    });
-
-                }
-
+    
+    // allBasicBookings
+    var allBasicBookings = JSON.parse(localStorage.getItem('allBasicBookings')) || [];
+    allBasicBookings.forEach(function(booking) {
+        if (booking.studentId) {
+            var key = 'basic_' + booking.studentId;
+            if (!seen.has(key)) {
+                seen.add(key);
+                var email = booking.studentEmail || booking.email || findStudentEmail(booking.studentId);
+                bookings.push({
+                    studentId: booking.studentId,
+                    studentName: booking.studentName || 'Unknown',
+                    studentEmail: email,
+                    studentIC: booking.studentIC || 'N/A',
+                    studentMatric: booking.studentMatric || 'N/A',
+                    studentCourse: booking.studentCourse || booking.program || 'N/A',
+                    studentSemester: booking.studentSemester || 'N/A',
+                    studentPhone: booking.studentPhone || 'N/A',
+                    plateNo: booking.plateNo || 'N/A',
+                    slotId: 'Random',
+                    type: 'basic',
+                    status: booking.status || 'pending',
+                    bookingTime: booking.bookingTime || new Date().toISOString(),
+                    vehicleType: booking.vehicleType || 'N/A',
+                    vehicleColor: booking.vehicleColor || 'N/A'
+                });
             }
-
         }
-    );
-
-
-    /* ================= MY BASIC BOOKING ================= */
-
-    for (
-        let key in localStorage
-    ) {
-
-        if (
-            key.startsWith(
-                'myBasicBooking_'
-            )
-        ) {
-
+    });
+    
+    // myBasicBooking_
+    for (var key2 in localStorage) {
+        if (key2.startsWith('myBasicBooking_')) {
             try {
-
-                let booking =
-                    JSON.parse(
-                        localStorage.getItem(key)
-                    );
-
-
-                if (
-                    booking &&
-                    booking.studentId
-                ) {
-
-                    let uniqueKey =
-                        'basic_' +
-                        booking.studentId;
-
-
-                    if (
-                        !seen.has(
-                            uniqueKey
-                        )
-                    ) {
-
-                        seen.add(
-                            uniqueKey
-                        );
-
-
-                        let email =
-                            booking.studentEmail ||
-                            booking.email ||
-                            findStudentEmail(
-                                booking.studentId
-                            );
-
-
+                var booking2 = JSON.parse(localStorage.getItem(key2));
+                if (booking2 && booking2.studentId) {
+                    var uniqueKey2 = 'basic_' + booking2.studentId;
+                    if (!seen.has(uniqueKey2)) {
+                        seen.add(uniqueKey2);
+                        var email2 = booking2.studentEmail || booking2.email || findStudentEmail(booking2.studentId);
                         bookings.push({
-
-                            studentId:
-                                booking.studentId,
-
-                            studentName:
-                                booking.studentName ||
-                                'Unknown',
-
-                            studentEmail:
-                                email,
-
-                            studentIC:
-                                booking.studentIC ||
-                                'N/A',
-
-                            studentMatric:
-                                booking.studentMatric ||
-                                'N/A',
-
-                            studentCourse:
-                                booking.studentCourse ||
-                                booking.program ||
-                                'N/A',
-
-                            studentSemester:
-                                booking.studentSemester ||
-                                'N/A',
-
-                            studentPhone:
-                                booking.studentPhone ||
-                                'N/A',
-
-                            plateNo:
-                                booking.plateNo ||
-                                'N/A',
-
-                            slotId:
-                                'Random',
-
-                            type:
-                                'basic',
-
-                            status:
-                                booking.status ||
-                                'pending',
-
-                            bookingTime:
-                                booking.bookingTime ||
-                                new Date().toISOString(),
-
-                            vehicleType:
-                                booking.vehicleType ||
-                                'N/A',
-
-                            vehicleColor:
-                                booking.vehicleColor ||
-                                'N/A'
-
+                            studentId: booking2.studentId,
+                            studentName: booking2.studentName || 'Unknown',
+                            studentEmail: email2,
+                            studentIC: booking2.studentIC || 'N/A',
+                            studentMatric: booking2.studentMatric || 'N/A',
+                            studentCourse: booking2.studentCourse || booking2.program || 'N/A',
+                            studentSemester: booking2.studentSemester || 'N/A',
+                            studentPhone: booking2.studentPhone || 'N/A',
+                            plateNo: booking2.plateNo || 'N/A',
+                            slotId: 'Random',
+                            type: 'basic',
+                            status: booking2.status || 'pending',
+                            bookingTime: booking2.bookingTime || new Date().toISOString(),
+                            vehicleType: booking2.vehicleType || 'N/A',
+                            vehicleColor: booking2.vehicleColor || 'N/A'
                         });
-
                     }
-
                 }
-
-            }
-            catch(e) {}
-
+            } catch(e) {}
         }
-
     }
-
-
+    
     return bookings;
-
 }
-
 
 /* ============================================================
    APPLY FILTERS
 ============================================================ */
 
 function applyFilters() {
-
-    let course =
-        document.getElementById(
-            'filterCourse'
-        ).value;
-
-
-    let semester =
-        document.getElementById(
-            'filterSemester'
-        ).value;
-
-
-    let type =
-        document.getElementById(
-            'filterType'
-        ).value;
-
-
-    let status =
-        document.getElementById(
-            'filterStatus'
-        ).value;
-
-
-    filteredBookings =
-        allBookings.filter(
-            booking => {
-
-                if (
-                    course !== 'all' &&
-                    booking.studentCourse !== course
-                ) {
-
-                    return false;
-
-                }
-
-
-                if (
-                    semester !== 'all' &&
-                    booking.studentSemester !== semester
-                ) {
-
-                    return false;
-
-                }
-
-
-                if (
-                    type !== 'all' &&
-                    booking.type !== type
-                ) {
-
-                    return false;
-
-                }
-
-
-                if (
-                    status !== 'all' &&
-                    booking.status !== status
-                ) {
-
-                    return false;
-
-                }
-
-
-                return true;
-
-            }
-        );
-
-
-    filteredBookings.sort(
-        (a, b) =>
-            new Date(b.bookingTime) -
-            new Date(a.bookingTime)
-    );
-
-
-    document.getElementById(
-        'filterResultCount'
-    ).innerText =
-        filteredBookings.length;
-
-
-    updateFilterBadges(
-        course,
-        semester,
-        type,
-        status
-    );
-
-
-    renderTable(
-        filteredBookings
-    );
-
+    var course = document.getElementById('filterCourse').value;
+    var semester = document.getElementById('filterSemester').value;
+    var type = document.getElementById('filterType').value;
+    var status = document.getElementById('filterStatus').value;
+    
+    filteredBookings = allBookings.filter(function(booking) {
+        if (course !== 'all' && booking.studentCourse !== course) return false;
+        if (semester !== 'all' && booking.studentSemester !== semester) return false;
+        if (type !== 'all' && booking.type !== type) return false;
+        if (status !== 'all' && booking.status !== status) return false;
+        return true;
+    });
+    
+    filteredBookings.sort(function(a, b) {
+        return new Date(b.bookingTime) - new Date(a.bookingTime);
+    });
+    
+    document.getElementById('filterResultCount').innerText = filteredBookings.length;
+    updateFilterBadges(course, semester, type, status);
+    renderTable(filteredBookings);
 }
-
 
 /* ============================================================
-   FILTER BADGES
+   UPDATE FILTER BADGES
 ============================================================ */
 
-function updateFilterBadges(
-    course,
-    semester,
-    type,
-    status
-) {
-
-    let badgesHtml = '';
-
-
-    if (
-        course !== 'all'
-    ) {
-
-        badgesHtml +=
-            `<span class="badge-filter badge-course">
-                📚 ${course}
-            </span>`;
-
+function updateFilterBadges(course, semester, type, status) {
+    var badgesHtml = '';
+    if (course !== 'all') {
+        badgesHtml += '<span class="badge-filter badge-course">📚 ' + course + '</span>';
     }
-
-
-    if (
-        semester !== 'all'
-    ) {
-
-        badgesHtml +=
-            `<span class="badge-filter badge-semester">
-                📅 Sem ${semester}
-            </span>`;
-
+    if (semester !== 'all') {
+        badgesHtml += '<span class="badge-filter badge-semester">📅 Sem ' + semester + '</span>';
     }
-
-
-    if (
-        type !== 'all'
-    ) {
-
-        badgesHtml +=
-            `<span class="badge-filter badge-type">
-                ${
-                    type === 'premium'
-                    ? '⭐ Premium'
-                    : '🅿️ Basic'
-                }
-            </span>`;
-
+    if (type !== 'all') {
+        badgesHtml += '<span class="badge-filter badge-type">' + (type === 'premium' ? '⭐ Premium' : '🅿️ Basic') + '</span>';
     }
-
-
-    if (
-        status !== 'all'
-    ) {
-
-        let statusLabel =
-            status === 'pending'
-            ? '🟡 Pending'
-            : status === 'approved'
-            ? '🟢 Approved'
-            : '🔵 Paid';
-
-
-        badgesHtml +=
-            `<span class="badge-filter badge-status">
-                ${statusLabel}
-            </span>`;
-
+    if (status !== 'all') {
+        var statusLabel = status === 'pending' ? '🟡 Pending' : status === 'approved' ? '🟢 Approved' : '🔵 Paid';
+        badgesHtml += '<span class="badge-filter badge-status">' + statusLabel + '</span>';
     }
-
-
-    document.getElementById(
-        'filterBadges'
-    ).innerHTML =
-        badgesHtml;
-
+    document.getElementById('filterBadges').innerHTML = badgesHtml;
 }
-
 
 /* ============================================================
    RESET FILTERS
 ============================================================ */
 
 function resetFilters() {
-
-    document.getElementById(
-        'filterCourse'
-    ).value = 'all';
-
-
-    document.getElementById(
-        'filterSemester'
-    ).value = 'all';
-
-
-    document.getElementById(
-        'filterType'
-    ).value = 'all';
-
-
-    document.getElementById(
-        'filterStatus'
-    ).value = 'all';
-
-
+    document.getElementById('filterCourse').value = 'all';
+    document.getElementById('filterSemester').value = 'all';
+    document.getElementById('filterType').value = 'all';
+    document.getElementById('filterStatus').value = 'all';
     activeStatusFilter = null;
-
-
-    document.querySelectorAll('.stat-box')
-        .forEach(box => {
-
-            box.classList.remove(
-                'active-filter'
-            );
-
-        });
-
-
+    document.querySelectorAll('.stat-box').forEach(function(box) {
+        box.classList.remove('active-filter');
+    });
     applyFilters();
-
 }
-
 
 /* ============================================================
    RENDER TABLE
 ============================================================ */
 
 function renderTable(bookings) {
-
-    let tbody =
-        document.getElementById(
-            'bookingsBody'
-        );
-
-
-    if (
-        bookings.length === 0
-    ) {
-
-        tbody.innerHTML =
-            '<tr>' +
-            '<td colspan="6" class="empty-msg">' +
-            '📭 No bookings found matching the filters.' +
-            '</td>' +
-            '</tr>';
-
+    var tbody = document.getElementById('bookingsBody');
+    
+    if (bookings.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-msg">📭 No bookings found matching the filters.</td></tr>';
         return;
-
     }
-
-
+    
     tbody.innerHTML = '';
-
-
-    bookings.forEach(
-        (booking, index) => {
-
-            let row =
-                tbody.insertRow();
-
-
-            row.insertCell(0)
-                .innerText =
-                index + 1;
-
-
-            let nameCell =
-                row.insertCell(1);
-
-
-            let nameSpan =
-                document.createElement(
-                    'span'
-                );
-
-
-            nameSpan.className =
-                'clickable-name';
-
-
-            nameSpan.textContent =
-                booking.studentName ||
-                'Unknown';
-
-
-            nameSpan.onclick =
-                function() {
-
-                    openStudentModal(
-                        booking
-                    );
-
-                };
-
-
-            nameCell.appendChild(
-                nameSpan
-            );
-
-
-            row.insertCell(2)
-                .innerHTML =
-                `<span class="course-tag">
-                    ${booking.studentCourse || 'N/A'}
-                </span>`;
-
-
-            row.insertCell(3)
-                .innerHTML =
-                `<span class="semester-tag">
-                    Sem ${booking.studentSemester || 'N/A'}
-                </span>`;
-
-
-            row.insertCell(4)
-                .innerHTML =
-                `<strong style="color:#1a237e;">
-                    ${booking.plateNo || 'N/A'}
-                </strong>`;
-
-
-            let actionCell =
-                row.insertCell(5);
-
-
-            actionCell.style.display =
-                'flex';
-
-
-            actionCell.style.gap =
-                '5px';
-
-
-            actionCell.style.flexWrap =
-                'wrap';
-
-
-            /* VIEW */
-
-            let viewBtn =
-                document.createElement(
-                    'button'
-                );
-
-
-            viewBtn.innerText =
-                '👁️ View';
-
-
-            viewBtn.className =
-                'btn-view';
-
-
-            viewBtn.onclick =
-                function() {
-
-                    openStudentModal(
-                        booking
-                    );
-
-                };
-
-
-            actionCell.appendChild(
-                viewBtn
-            );
-
-
-            /* APPROVE + REJECT */
-
-            if (
-                booking.status === 'pending'
-            ) {
-
-                let approveBtn =
-                    document.createElement(
-                        'button'
-                    );
-
-
-                approveBtn.innerText =
-                    'Approve';
-
-
-                approveBtn.className =
-                    'btn-approve';
-
-
-                approveBtn.onclick =
-                    function() {
-
-                        approveBooking(
-                            booking
-                        );
-
-                    };
-
-
-                actionCell.appendChild(
-                    approveBtn
-                );
-
-
-                let rejectBtn =
-                    document.createElement(
-                        'button'
-                    );
-
-
-                rejectBtn.innerText =
-                    'Reject';
-
-
-                rejectBtn.className =
-                    'btn-reject';
-
-
-                rejectBtn.onclick =
-                    function() {
-
-                        rejectBooking(
-                            booking
-                        );
-
-                    };
-
-
-                actionCell.appendChild(
-                    rejectBtn
-                );
-
-            }
-
+    bookings.forEach(function(booking, index) {
+        var row = tbody.insertRow();
+        row.insertCell(0).innerText = index + 1;
+        
+        var nameCell = row.insertCell(1);
+        var nameSpan = document.createElement('span');
+        nameSpan.className = 'clickable-name';
+        nameSpan.textContent = booking.studentName || 'Unknown';
+        nameSpan.onclick = function() { openStudentModal(booking); };
+        nameCell.appendChild(nameSpan);
+        
+        row.insertCell(2).innerHTML = '<span class="course-tag">' + (booking.studentCourse || 'N/A') + '</span>';
+        row.insertCell(3).innerHTML = '<span class="semester-tag">Sem ' + (booking.studentSemester || 'N/A') + '</span>';
+        row.insertCell(4).innerHTML = '<strong style="color:#1a237e;">' + (booking.plateNo || 'N/A') + '</strong>';
+        
+        var actionCell = row.insertCell(5);
+        actionCell.style.display = 'flex';
+        actionCell.style.gap = '5px';
+        actionCell.style.flexWrap = 'wrap';
+        actionCell.style.alignItems = 'center';
+        
+        var viewBtn = document.createElement('button');
+        viewBtn.innerText = '👁️ View';
+        viewBtn.className = 'btn-view';
+        viewBtn.onclick = function() { openStudentModal(booking); };
+        actionCell.appendChild(viewBtn);
+        
+        if (booking.status === 'pending') {
+            var approveBtn = document.createElement('button');
+            approveBtn.innerText = 'Approve';
+            approveBtn.className = 'btn-approve';
+            approveBtn.onclick = (function(b) { return function() { approveBooking(b); }; })(booking);
+            actionCell.appendChild(approveBtn);
+            
+            var rejectBtn = document.createElement('button');
+            rejectBtn.innerText = 'Reject';
+            rejectBtn.className = 'btn-reject';
+            rejectBtn.onclick = (function(b) { return function() { rejectBooking(b); }; })(booking);
+            actionCell.appendChild(rejectBtn);
         }
-    );
-
+    });
 }
-
 
 /* ============================================================
    LOAD BOOKINGS
 ============================================================ */
 
 function loadAllBookings() {
-
-    allBookings =
-        getAllBookings();
-
-
-    updateStats(
-        allBookings
-    );
-
-
+    allBookings = getAllBookings();
+    updateStats(allBookings);
     applyFilters();
-
 }
-
 
 /* ============================================================
    APPROVE BOOKING
 ============================================================ */
 
-async function approveBooking(booking) {
-
-    let studentEmail =
-        getBookingEmail(booking);
-
-
-    /*
-       Show confirmation first
-    */
-
-    if (
-        !confirm(
-            `Approve booking for ${booking.studentName} ` +
-            `(${booking.type.toUpperCase()})?\n\n` +
-
-            `Matric: ${booking.studentMatric}\n` +
-
-            `Course: ${booking.studentCourse}\n` +
-
-            `Email: ${studentEmail || 'NOT FOUND'}`
-        )
-    ) {
-
+function approveBooking(booking) {
+    var studentEmail = getBookingEmail(booking);
+    
+    if (!confirm('Approve booking for ' + booking.studentName + ' (' + booking.type.toUpperCase() + ')?\n\nMatric: ' + booking.studentMatric + '\nCourse: ' + booking.studentCourse + '\n\n📧 Email: ' + (studentEmail || 'NOT FOUND'))) {
         return;
-
     }
-
-
-    /*
-       ================= PREMIUM =================
-    */
-
-    if (
-        booking.type === 'premium'
-    ) {
-
-        let premiumSlots =
-            JSON.parse(
-                localStorage.getItem(
-                    'premiumSlots'
-                )
-            ) || [];
-
-
-        let slot =
-            premiumSlots.find(
-                s =>
-                    s.id == booking.slotId
-            );
-
-
-        if (
-            slot &&
-            slot.status === 'pending'
-        ) {
-
-            slot.status =
-                'approved';
-
-
-            /*
-               Keep email inside slot
-               for future use
-            */
-
-            if (studentEmail) {
-
-                slot.studentEmail =
-                    studentEmail;
-
-            }
-
-
-            localStorage.setItem(
-                'premiumSlots',
-                JSON.stringify(
-                    premiumSlots
-                )
-            );
-
+    
+    if (booking.type === 'premium') {
+        var premiumSlots = JSON.parse(localStorage.getItem('premiumSlots')) || [];
+        var slot = premiumSlots.find(function(s) { return s.id == booking.slotId; });
+        if (slot && slot.status === 'pending') {
+            slot.status = 'approved';
+            if (studentEmail) { slot.studentEmail = studentEmail; }
+            localStorage.setItem('premiumSlots', JSON.stringify(premiumSlots));
         }
-
-
-        let premiumKey =
-            'myPremiumBooking_' +
-            booking.studentId;
-
-
-        let myPremiumBooking =
-            JSON.parse(
-                localStorage.getItem(
-                    premiumKey
-                )
-            );
-
-
-        if (
-            myPremiumBooking &&
-            myPremiumBooking.slotId ==
-            booking.slotId
-        ) {
-
-            myPremiumBooking.status =
-                'approved';
-
-
-            if (studentEmail) {
-
-                myPremiumBooking.studentEmail =
-                    studentEmail;
-
-            }
-
-
-            localStorage.setItem(
-                premiumKey,
-                JSON.stringify(
-                    myPremiumBooking
-                )
-            );
-
+        
+        var premiumKey = 'myPremiumBooking_' + booking.studentId;
+        var myPremiumBooking = JSON.parse(localStorage.getItem(premiumKey));
+        if (myPremiumBooking && myPremiumBooking.slotId == booking.slotId) {
+            myPremiumBooking.status = 'approved';
+            if (studentEmail) { myPremiumBooking.studentEmail = studentEmail; }
+            localStorage.setItem(premiumKey, JSON.stringify(myPremiumBooking));
         }
-
-    }
-
-
-    /*
-       ================= BASIC =================
-    */
-
-    else if (
-        booking.type === 'basic'
-    ) {
-
-        let allBasicBookings =
-            JSON.parse(
-                localStorage.getItem(
-                    'allBasicBookings'
-                )
-            ) || [];
-
-
-        let index =
-            allBasicBookings.findIndex(
-                b =>
-                    b.studentId ===
-                    booking.studentId
-            );
-
-
-        if (
-            index !== -1
-        ) {
-
-            allBasicBookings[index].status =
-                'approved';
-
-
-            if (studentEmail) {
-
-                allBasicBookings[index].studentEmail =
-                    studentEmail;
-
-            }
-
-
-            localStorage.setItem(
-                'allBasicBookings',
-                JSON.stringify(
-                    allBasicBookings
-                )
-            );
-
+    } else if (booking.type === 'basic') {
+        var allBasicBookings = JSON.parse(localStorage.getItem('allBasicBookings')) || [];
+        var index = allBasicBookings.findIndex(function(b) { return b.studentId === booking.studentId; });
+        if (index !== -1) {
+            allBasicBookings[index].status = 'approved';
+            if (studentEmail) { allBasicBookings[index].studentEmail = studentEmail; }
+            localStorage.setItem('allBasicBookings', JSON.stringify(allBasicBookings));
         }
-
-
-        let basicKey =
-            'myBasicBooking_' +
-            booking.studentId;
-
-
-        let myBasicBooking =
-            JSON.parse(
-                localStorage.getItem(
-                    basicKey
-                )
-            );
-
-
-        if (
-            myBasicBooking &&
-            myBasicBooking.studentId ===
-            booking.studentId
-        ) {
-
-            myBasicBooking.status =
-                'approved';
-
-
-            if (studentEmail) {
-
-                myBasicBooking.studentEmail =
-                    studentEmail;
-
-            }
-
-
-            localStorage.setItem(
-                basicKey,
-                JSON.stringify(
-                    myBasicBooking
-                )
-            );
-
+        
+        var basicKey = 'myBasicBooking_' + booking.studentId;
+        var myBasicBooking = JSON.parse(localStorage.getItem(basicKey));
+        if (myBasicBooking && myBasicBooking.studentId === booking.studentId) {
+            myBasicBooking.status = 'approved';
+            if (studentEmail) { myBasicBooking.studentEmail = studentEmail; }
+            localStorage.setItem(basicKey, JSON.stringify(myBasicBooking));
         }
-
     }
-
-
-    /*
-       ================= SEND EMAIL =================
-    */
-
-    try {
-
-        await sendApprovalEmail(
-            booking
-        );
-
-    }
-
-    catch(error) {
-
-        console.error(
-            "Email error:",
-            error
-        );
-
-    }
-
-
-    /*
-       Refresh dashboard
-    */
-
-    loadAllData();
-
+    
+    // SEND EMAIL
+    sendApprovalEmail(booking)
+        .then(function() {
+            loadAllData();
+        })
+        .catch(function() {
+            loadAllData();
+        });
 }
-
 
 /* ============================================================
    REJECT BOOKING
 ============================================================ */
 
 function rejectBooking(booking) {
-
-    if (
-        !confirm(
-            `Reject booking for ${booking.studentName} ` +
-            `(${booking.type.toUpperCase()})?\n\n` +
-            `Slot will become available again.`
-        )
-    ) {
-
+    if (!confirm('Reject booking for ' + booking.studentName + ' (' + booking.type.toUpperCase() + ')?\n\nSlot will become available again.')) {
         return;
-
     }
-
-
-    /*
-       ================= PREMIUM =================
-    */
-
-    if (
-        booking.type === 'premium'
-    ) {
-
-        let premiumSlots =
-            JSON.parse(
-                localStorage.getItem(
-                    'premiumSlots'
-                )
-            ) || [];
-
-
-        let slot =
-            premiumSlots.find(
-                s =>
-                    s.id == booking.slotId
-            );
-
-
+    
+    if (booking.type === 'premium') {
+        var premiumSlots = JSON.parse(localStorage.getItem('premiumSlots')) || [];
+        var slot = premiumSlots.find(function(s) { return s.id == booking.slotId; });
         if (slot) {
-
-            slot.status =
-                'available';
-
-
+            slot.status = 'available';
             delete slot.bookedBy;
-
             delete slot.bookedByName;
-
             delete slot.studentIC;
-
             delete slot.studentMatric;
-
             delete slot.studentCourse;
-
             delete slot.studentSemester;
-
             delete slot.studentPhone;
-
             delete slot.studentEmail;
-
             delete slot.email;
-
             delete slot.plateNo;
-
             delete slot.bookingTime;
-
-
-            localStorage.setItem(
-                'premiumSlots',
-                JSON.stringify(
-                    premiumSlots
-                )
-            );
-
+            localStorage.setItem('premiumSlots', JSON.stringify(premiumSlots));
         }
-
-
-        let premiumKey =
-            'myPremiumBooking_' +
-            booking.studentId;
-
-
-        localStorage.removeItem(
-            premiumKey
-        );
-
+        var premiumKey = 'myPremiumBooking_' + booking.studentId;
+        localStorage.removeItem(premiumKey);
+    } else if (booking.type === 'basic') {
+        var allBasicBookings = JSON.parse(localStorage.getItem('allBasicBookings')) || [];
+        var newBookings = allBasicBookings.filter(function(b) { return b.studentId !== booking.studentId; });
+        localStorage.setItem('allBasicBookings', JSON.stringify(newBookings));
+        var basicKey = 'myBasicBooking_' + booking.studentId;
+        localStorage.removeItem(basicKey);
     }
-
-
-    /*
-       ================= BASIC =================
-    */
-
-    else if (
-        booking.type === 'basic'
-    ) {
-
-        let allBasicBookings =
-            JSON.parse(
-                localStorage.getItem(
-                    'allBasicBookings'
-                )
-            ) || [];
-
-
-        let newBookings =
-            allBasicBookings.filter(
-                b =>
-                    b.studentId !==
-                    booking.studentId
-            );
-
-
-        localStorage.setItem(
-            'allBasicBookings',
-            JSON.stringify(
-                newBookings
-            )
-        );
-
-
-        let basicKey =
-            'myBasicBooking_' +
-            booking.studentId;
-
-
-        localStorage.removeItem(
-            basicKey
-        );
-
-    }
-
-
-    alert(
-        '❌ Booking for ' +
-        booking.studentName +
-        ' has been REJECTED.\n\n' +
-        'Slot is now available for other students.'
-    );
-
-
+    
+    alert('❌ Booking for ' + booking.studentName + ' has been REJECTED.\n\nSlot is now available for other students.');
     loadAllData();
-
 }
-
 
 /* ============================================================
    LECTURER FUNCTIONS
 ============================================================ */
 
 function loadLecturers() {
-
-    let lecturers =
-        JSON.parse(
-            localStorage.getItem(
-                'lecturers'
-            )
-        ) || [];
-
-
-    allLecturers =
-        lecturers;
-
-
-    document.getElementById(
-        'lecturerTotalCount'
-    ).innerText =
-        lecturers.length;
-
-
-    let tbody =
-        document.getElementById(
-            'lecturerBody'
-        );
-
-
-    if (
-        lecturers.length === 0
-    ) {
-
-        tbody.innerHTML =
-            '<tr>' +
-            '<td colspan="8" class="empty-msg">' +
-            '📭 No lecturers registered yet.' +
-            '</td>' +
-            '</tr>';
-
+    var lecturers = JSON.parse(localStorage.getItem('lecturers')) || [];
+    allLecturers = lecturers;
+    document.getElementById('lecturerTotalCount').innerText = lecturers.length;
+    
+    var tbody = document.getElementById('lecturerBody');
+    if (lecturers.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="empty-msg">📭 No lecturers registered yet.</td></tr>';
         return;
-
     }
-
-
+    
     tbody.innerHTML = '';
-
-
-    lecturers.forEach(
-        (lecturer, index) => {
-
-            let row =
-                tbody.insertRow();
-
-
-            row.insertCell(0)
-                .innerText =
-                index + 1;
-
-
-            row.insertCell(1)
-                .innerHTML =
-                `<strong>
-                    ${lecturer.name || 'N/A'}
-                </strong>`;
-
-
-            row.insertCell(2)
-                .innerHTML =
-                `<span class="staff-badge">
-                    ${lecturer.staff_id || 'N/A'}
-                </span>`;
-
-
-            row.insertCell(3)
-                .innerText =
-                lecturer.email ||
-                'N/A';
-
-
-            row.insertCell(4)
-                .innerText =
-                lecturer.phone_no ||
-                'N/A';
-
-
-            row.insertCell(5)
-                .innerHTML =
-                `<span class="program-tag">
-                    ${lecturer.program || 'N/A'}
-                </span>`;
-
-
-            row.insertCell(6)
-                .innerHTML =
-                lecturer.plate_no
-                ?
-                `<strong style="color:#1a237e;">
-                    ${lecturer.plate_no}
-                </strong>`
-                :
-                '<span style="color:#999;">-</span>';
-
-
-            let actionCell =
-                row.insertCell(7);
-
-
-            let viewBtn =
-                document.createElement(
-                    'button'
-                );
-
-
-            viewBtn.innerText =
-                '👁️ View';
-
-
-            viewBtn.className =
-                'btn-view';
-
-
-            viewBtn.onclick =
-                function() {
-
-                    alert(
-                        `📋 Lecturer Details\n\n` +
-
-                        `Name: ${lecturer.name}\n` +
-
-                        `Staff ID: ${lecturer.staff_id}\n` +
-
-                        `Email: ${lecturer.email}\n` +
-
-                        `Phone: ${lecturer.phone_no}\n` +
-
-                        `Program: ${lecturer.program || 'N/A'}\n` +
-
-                        `Plate No: ${lecturer.plate_no || 'Not registered'}`
-                    );
-
-                };
-
-
-            actionCell.appendChild(
-                viewBtn
-            );
-
-        }
-    );
-
+    lecturers.forEach(function(lecturer, index) {
+        var row = tbody.insertRow();
+        row.insertCell(0).innerText = index + 1;
+        row.insertCell(1).innerHTML = '<strong>' + (lecturer.name || 'N/A') + '</strong>';
+        row.insertCell(2).innerHTML = '<span class="staff-badge">' + (lecturer.staff_id || 'N/A') + '</span>';
+        row.insertCell(3).innerText = lecturer.email || 'N/A';
+        row.insertCell(4).innerText = lecturer.phone_no || 'N/A';
+        row.insertCell(5).innerHTML = '<span class="program-tag">' + (lecturer.program || 'N/A') + '</span>';
+        row.insertCell(6).innerHTML = lecturer.plate_no ? '<strong style="color:#1a237e;">' + lecturer.plate_no + '</strong>' : '<span style="color:#999;">-</span>';
+        
+        var actionCell = row.insertCell(7);
+        var viewBtn = document.createElement('button');
+        viewBtn.innerText = '👁️ View';
+        viewBtn.className = 'btn-view';
+        viewBtn.onclick = function() {
+            alert('📋 Lecturer Details\n\nName: ' + lecturer.name + '\nStaff ID: ' + lecturer.staff_id + '\nEmail: ' + lecturer.email + '\nPhone: ' + lecturer.phone_no + '\nProgram: ' + (lecturer.program || 'N/A') + '\nPlate No: ' + (lecturer.plate_no || 'Not registered'));
+        };
+        actionCell.appendChild(viewBtn);
+    });
 }
-
 
 /* ============================================================
    LOAD ALL DATA
 ============================================================ */
 
 function loadAllData() {
-
     loadAllBookings();
-
     updateParkingBalance();
-
 }
-
 
 /* ============================================================
    CLOSE FILTER MODAL
 ============================================================ */
 
-document
-    .getElementById('filterModal')
-    .addEventListener(
-        'click',
-        function(e) {
-
-            if (
-                e.target === this
-            ) {
-
-                closeFilterModal();
-
-            }
-
-        }
-    );
-
+document.getElementById('filterModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeFilterModal();
+    }
+});
 
 /* ============================================================
    PAGE LOAD
 ============================================================ */
 
 loadAllData();
-
 loadLecturers();
-
 
 /* ============================================================
    AUTO REFRESH
 ============================================================ */
 
-setInterval(
-    loadAllData,
-    10000
-);
-
-
-setInterval(
-    loadLecturers,
-    30000
-);
-
+setInterval(loadAllData, 10000);
+setInterval(loadLecturers, 30000);
 </script>
 
 </body>

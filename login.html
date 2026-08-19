@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="ms">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - TVET Parking</title>
+    <link rel="stylesheet" href="https://saver-systm.lilylorraineee.workers.dev/Design/login.css">
 </head>
-<link rel="stylesheet" href="https://saver-systm.lilylorraineee.workers.dev/Design/login.css">
 <body>
 
 <!-- ===== TOP BAR ===== -->
@@ -20,8 +21,8 @@
 <div id="menu" class="menu">
     <a href="https://saver-systm.lilylorraineee.workers.dev/index.html">🏠 Home</a>
     <a href="https://saver-systm.lilylorraineee.workers.dev/login.html">🔐 Login</a>
-    <a href="https://saver-systm.lilylorraineee.workers.dev/student/student_signup.html">📝 Student Sign Up</a>
-    <a href="https://saver-systm.lilylorraineee.workers.dev/lecturer/lecturer_signup.html">📝 Lecturer Sign Up</a>
+    <a href="https://saver-systm.lilylorraineee.workers.dev/student/student_signup.html" onclick="sessionStorage.clear();">📝 Student Sign Up</a>
+    <a href="https://saver-systm.lilylorraineee.workers.dev/lecturer/lecturer_signup.html" onclick="sessionStorage.clear();">📝 Lecturer Sign Up</a>
     <a href="#">ℹ️ About</a>
 </div>
 
@@ -53,14 +54,14 @@
             <button type="submit" class="btn-login" id="loginBtn">🎓 Login →</button>
         </form>
 
-        <!-- Signup Links -->
-        <div id="studentSignupLink" class="signup-link">
-            Don't have an account? <a href="https://saver-systm.lilylorraineee.workers.dev/student/student_signup.html">Sign Up here</a>
+        <!-- Signup Links (Ditambah z-index & clear session supaya boleh tekan & tak auto redirect) -->
+        <div id="studentSignupLink" class="signup-link" style="position: relative; z-index: 999;">
+            Don't have an account? <a href="https://saver-systm.lilylorraineee.workers.dev/student/student_signup.html" onclick="sessionStorage.clear();">Sign Up here</a>
         </div>
-        <div id="lecturerSignupLink" class="signup-link" style="display: none;">
-            Don't have an account? <a href="https://saver-systm.lilylorraineee.workers.dev/lecturer/lecturer_signup.html">Sign Up here</a>
+        <div id="lecturerSignupLink" class="signup-link" style="display: none; position: relative; z-index: 999;">
+            Don't have an account? <a href="https://saver-systm.lilylorraineee.workers.dev/lecturer/lecturer_signup.html" onclick="sessionStorage.clear();">Sign Up here</a>
         </div>
-        <div id="adminSignupLink" class="signup-link" style="display: none; color: #999;">
+        <div id="adminSignupLink" class="signup-link" style="display: none; color: #999; position: relative; z-index: 999;">
             🔒 Admin access is restricted
         </div>
 

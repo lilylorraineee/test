@@ -22,32 +22,33 @@
     <a href="#">ℹ️ About</a>
 </div>
 
-<div class="dashboard-container">
+<div class="dashboard-container" style="position: relative; z-index: 10;">
     <div class="signup-box glass">
         <h2 class="main-title">📝 Student Registration</h2>
 
-        <div id="errorMsg" class="error-msg" style="display: none;"></div>
+        <div id="errorMsg" class="error-msg" style="display: none; color: #ff4d4d; background: rgba(255, 0, 0, 0.1); padding: 10px; border-radius: 8px; margin-bottom: 15px; font-weight: bold; text-align: center;"></div>
 
-        <form id="signupForm" onsubmit="return registerStudent()">
+        <form id="signupForm" onsubmit="event.preventDefault(); registerStudent();">
             <div class="form-grid">
                 <div class="input-group full-width">
                     <label>👤 Full Name</label>
-                    <input type="text" id="fullname" placeholder="Enter Your Full Name" required>
+                    <input type="text" id="fullname" placeholder="Enter Your Full Name">
                 </div>
 
                 <div class="input-group">
                     <label>🆔 IC Number</label>
-                    <input type="text" id="ic_no" placeholder="Enter Your IC Number" required>
+                    <input type="text" id="ic_no" placeholder="Enter Your IC Number">
                 </div>
 
                 <div class="input-group">
                     <label>🎓 Matric Number</label>
-                    <input type="text" id="matric_no" placeholder="Enter Your Matric Number" required>
+                    <input type="text" id="matric_no" placeholder="Enter Your Matric Number">
                 </div>
 
                 <div class="input-group">
                     <label>📚 Semester</label>
-                    <select id="semester" required>
+
+                    <select id="semester">
                         <option value="">Select Semester</option>
                         <option value="1">Semester 1</option>
                         <option value="2">Semester 2</option>
@@ -60,7 +61,7 @@
 
                 <div class="input-group">
                     <label>📖 Program</label>
-                    <select id="program" required>
+                    <select id="program">
                         <option value="">Select Program</option>
                         <option value="ITW">ITW</option>
                         <option value="DFD">DFD</option>
@@ -81,33 +82,33 @@
 
                 <div class="input-group">
                     <label>📱 Phone Number</label>
-                    <input type="text" id="phone_no" placeholder="Enter Your Phone Number" required>
+                    <input type="text" id="phone_no" placeholder="Enter Your Phone Number">
                 </div>
 
                 <div class="input-group">
                     <label>📧 Email</label>
-                    <input type="email" id="email" placeholder="name@gmail.com" required>
+                    <input type="email" id="email" placeholder="name@gmail.com">
                 </div>
 
                 <div class="input-group">
                     <label>🔒 Password</label>
-                    <input type="password" id="password" placeholder="Create a password (min 6 chars)" required>
+                    <input type="password" id="password" placeholder="Create a password (min 6 chars)">
                 </div>
 
                 <div class="input-group">
                     <label>🔒 Confirm Password</label>
-                    <input type="password" id="confirm_password" placeholder="Confirm your password" required>
+                    <input type="password" id="confirm_password" placeholder="Confirm your password">
                 </div>
             </div>
 
-            <button type="submit" class="btn-start">Register →</button>
+            <button type="button" onclick="registerStudent()" class="btn-start" style="position: relative; z-index: 100; cursor: pointer; margin-top: 15px;">Register →</button>
         </form>
 
-        <div class="login-link">
+        <div class="login-link" style="position: relative; z-index: 100; margin-top: 15px;">
             Already have an account? <a href="https://saver-systm.lilylorraineee.workers.dev/student/student_login.html">Login here</a>
         </div>
 
-        <a href="https://saver-systm.lilylorraineee.workers.dev/index.html" class="back-link">← Back to Home</a>
+        <a href="https://saver-systm.lilylorraineee.workers.dev/index.html" class="back-link" style="position: relative; z-index: 100;">← Back to Home</a>
     </div>
 </div>
 
@@ -118,14 +119,17 @@
 function toggleMenu(){
     var menu = document.getElementById("menu");
     var overlay = document.getElementById("overlay");
-    menu.classList.toggle("active");
-    overlay.classList.toggle("active");
+    if (menu) menu.classList.toggle("active");
+    if (overlay) overlay.classList.toggle("active");
 }
 
 // ============================================================
 // REGISTER STUDENT
 // ============================================================
 function registerStudent() {
+    // Clear sebarang sesi aktif sebelum mendaftar akaun baru
+    sessionStorage.clear();
+
     // Get form values
     var fullname = document.getElementById('fullname').value.trim();
     var ic_no = document.getElementById('ic_no').value.trim();
@@ -139,41 +143,48 @@ function registerStudent() {
     var errorMsg = document.getElementById('errorMsg');
 
     // Clear previous error
-    errorMsg.style.display = 'none';
-    errorMsg.innerHTML = '';
+    if (errorMsg) {
+        errorMsg.style.display = 'none';
+        errorMsg.innerHTML = '';
+    }
 
     // Validation - Check all fields
     if (!fullname || !ic_no || !matric_no || !semester || !program || !phone_no || !email || !password || !confirm_password) {
-        errorMsg.style.display = 'block';
-        errorMsg.innerHTML = '❌ Please fill in all fields.';
+        if (errorMsg) {
+            errorMsg.style.display = 'block';
+            errorMsg.innerHTML = '❌ Please fill in all fields.';
+        }
         return false;
     }
 
     // Validation - Password match
     if(password !== confirm_password) {
-        errorMsg.style.display = 'block';
-        errorMsg.innerHTML = '❌ Passwords do not match';
+        if (errorMsg) {
+            errorMsg.style.display = 'block';
+            errorMsg.innerHTML = '❌ Passwords do not match';
+        }
         return false;
     }
 
     // Validation - Password length
     if(password.length < 6) {
-        errorMsg.style.display = 'block';
-        errorMsg.innerHTML = '❌ Password must be at least 6 characters';
+        if (errorMsg) {
+            errorMsg.style.display = 'block';
+            errorMsg.innerHTML = '❌ Password must be at least 6 characters';
+        }
         return false;
     }
 
     // Get existing students
-    var students = JSON.parse(localStorage.getItem('students'));
-    if(!students) {
-        students = [];
-    }
+    var students = JSON.parse(localStorage.getItem('students')) || [];
 
     // Check if email already exists
     for (var i = 0; i < students.length; i++) {
         if (students[i].email === email) {
-            errorMsg.style.display = 'block';
-            errorMsg.innerHTML = '❌ Email already registered. Please login.';
+            if (errorMsg) {
+                errorMsg.style.display = 'block';
+                errorMsg.innerHTML = '❌ Email already registered. Please login.';
+            }
             return false;
         }
     }
@@ -181,8 +192,10 @@ function registerStudent() {
     // Check if matric number already exists
     for (var j = 0; j < students.length; j++) {
         if (students[j].matric_no === matric_no) {
-            errorMsg.style.display = 'block';
-            errorMsg.innerHTML = '❌ Matric number already registered';
+            if (errorMsg) {
+                errorMsg.style.display = 'block';
+                errorMsg.innerHTML = '❌ Matric number already registered';
+            }
             return false;
         }
     }
@@ -207,7 +220,7 @@ function registerStudent() {
     students.push(newStudent);
     localStorage.setItem('students', JSON.stringify(students));
 
-    // ✅ Save to sessionStorage for auto login
+    // Save to sessionStorage for auto login
     var loggedInStudent = {
         id: newStudent.id,
         name: newStudent.name,
@@ -223,7 +236,7 @@ function registerStudent() {
     };
     sessionStorage.setItem('loggedInStudent', JSON.stringify(loggedInStudent));
 
-    // ✅ Redirect to student dashboard
+    // Redirect to student dashboard
     window.location.href = 'https://saver-systm.lilylorraineee.workers.dev/student/student_dashboard.html';
     
     return false;

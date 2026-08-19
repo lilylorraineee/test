@@ -1,14 +1,72 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Warden Dashboard - TVET Parking System</title>
-   
+    
+    <!-- EmailJS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://saver-systm.lilylorraineee.workers.dev/Design/warden_dashboard.css">
+    
+    <style>
+        /* Additional styles for email notification */
+        .toast-email {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            z-index: 9999;
+            display: none;
+            animation: slideIn 0.3s ease;
+            max-width: 400px;
+        }
+        .toast-email.error {
+            background: #dc3545;
+        }
+        .toast-email.warning {
+            background: #ffc107;
+            color: #333;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .toast-email .toast-close {
+            margin-left: 15px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .email-badge {
+            background: #28a745;
+            color: white;
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 5px;
+        }
+        .email-sent {
+            background: #d4edda;
+            color: #155724;
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+    </style>
 </head>
-<link rel="stylesheet" href="https://saver-systm.lilylorraineee.workers.dev/Design/warden_dashboard.css">
 <body>
+
+<!-- TOAST NOTIFICATION -->
+<div id="toastEmail" class="toast-email">
+    <span id="toastMessage">✅ Email sent successfully!</span>
+    <span class="toast-close" onclick="closeToast()">✕</span>
+</div>
 
 <div class="topbar">
     <div class="brand">TVETMARA LUMUT - Warden Portal</div>
@@ -19,9 +77,6 @@
 
 <div id="menu" class="menu">
     <a href="https://saver-systm.lilylorraineee.workers.dev/lecturer/lecturer_login.html">🏠 Home</a>
-<!--     <a href="https://saver-systm.lilylorraineee.workers.dev/lecturer/lecturer_login.html">🔐 Login</a>
-    <a href="student_signup.php">📝 Student Sign Up</a>
-    <a href="lecturer_signup.php">📝 Lecturer Sign Up</a> -->
     <a href="#" class="logout-link" onclick="logout()">🚪 Logout</a>
 </div>
 
@@ -122,7 +177,7 @@
                     <thead>
                         <tr>
                             <th>No.</th>
-                            <th>Name</th>
+                            <th>Name / Email</th>
                             <th>Program</th>
                             <th>Semester</th>
                             <th>Plate No.</th>
@@ -179,12 +234,13 @@
     <!-- ===== INSTRUCTIONS ===== -->
     <div class="instructions-box">
         <h4>📌 Instructions:</h4>
-        <p>✅ <span class="highlight-green">Approve</span> - Student will be notified to make payment</p>
+        <p>✅ <span class="highlight-green">Approve</span> - Student will be notified via email to make payment</p>
         <p>❌ <span class="highlight-red">Reject</span> - Booking will be cancelled, slot becomes available again</p>
         <p>👆 Click <span class="highlight-orange">Total, Pending, Approved, or Paid</span> stat boxes to filter bookings by status</p>
         <p>👆 Click <span class="highlight-blue">Premium</span> or <span class="highlight-green">Basic</span> balance boxes to view paid bookings</p>
         <p>👆 Click on <span class="highlight-blue">Student Name</span> or <span class="highlight-green">View</span> button to see full details</p>
         <p style="margin-top: 8px; color: #666; font-size: 13px;">🔄 Table auto-refreshes every 10 seconds</p>
+        <p style="margin-top: 4px; color: #28a745; font-size: 13px;">📧 Email notification will be sent to student upon approval</p>
     </div>
 </div>
 
@@ -272,6 +328,27 @@
 
 <script>
 // ============================================================
+// EMAILJS SETUP - GUNAKAN ID ANDA
+// ============================================================
+
+// 🔴 Public Key dari EmailJS
+emailjs.init('J0si7oLITea-Pt_YG');
+
+// 🔴 Service ID dan Template ID dari EmailJS
+const EMAILJS_SERVICE_ID = 'service_5yob3r8';
+const EMAILJS_TEMPLATE_ID = 'template_myo6jy7';
+
+// Harga mengikut jenis parking
+const PARKING_PRICES = {
+    'basic': 30.00,
+    'standard': 40.00,
+    'premium': 50.00,
+    'vip': 80.00
+};
+
+console.log('✅ EmailJS initialized with your IDs!');
+
+// ============================================================
 // CHECK LOGIN
 // ============================================================
 let loggedInWarden = JSON.parse(sessionStorage.getItem('loggedInWarden'));
@@ -288,6 +365,34 @@ let allBookings = [];
 let filteredBookings = [];
 let activeStatusFilter = null;
 let allLecturers = [];
+
+// ============================================================
+// TOAST NOTIFICATION
+// ============================================================
+function showToast(message, type = 'success') {
+    const toast = document.getElementById('toastEmail');
+    const toastMsg = document.getElementById('toastMessage');
+    
+    toast.className = 'toast-email';
+    if (type === 'error') {
+        toast.classList.add('error');
+    } else if (type === 'warning') {
+        toast.classList.add('warning');
+    }
+    
+    toastMsg.textContent = message;
+    toast.style.display = 'block';
+    
+    // Auto hide after 5 seconds
+    clearTimeout(toast._timeout);
+    toast._timeout = setTimeout(() => {
+        toast.style.display = 'none';
+    }, 5000);
+}
+
+function closeToast() {
+    document.getElementById('toastEmail').style.display = 'none';
+}
 
 // ============================================================
 // MENU FUNCTIONS
@@ -325,6 +430,10 @@ function openStudentModal(booking) {
             <div class="detail-item full-width">
                 <span class="label">👤 Name</span>
                 <span class="value">${booking.studentName || 'N/A'}</span>
+            </div>
+            <div class="detail-item full-width">
+                <span class="label">📧 Email</span>
+                <span class="value">${booking.studentEmail || 'N/A'}</span>
             </div>
             <div class="detail-item">
                 <span class="label">🪪 IC Number</span>
@@ -395,7 +504,7 @@ document.getElementById('studentModal').addEventListener('click', function(e) {
 });
 
 // ============================================================
-// FILTER PAID PREMIUM
+// FILTER PAID PREMIUM / BASIC
 // ============================================================
 function filterPaidPremium() {
     document.getElementById('filterCourse').value = 'all';
@@ -411,9 +520,6 @@ function filterPaidPremium() {
     applyFilters();
 }
 
-// ============================================================
-// FILTER PAID BASIC
-// ============================================================
 function filterPaidBasic() {
     document.getElementById('filterCourse').value = 'all';
     document.getElementById('filterSemester').value = 'all';
@@ -429,14 +535,12 @@ function filterPaidBasic() {
 }
 
 // ============================================================
-// UPDATE PARKING BALANCE - HANYA PAID SAHAJA
+// UPDATE PARKING BALANCE
 // ============================================================
 function updateParkingBalance() {
     // ===== PREMIUM SLOTS =====
     let premiumSlots = JSON.parse(localStorage.getItem('premiumSlots')) || [];
     let premiumTotal = premiumSlots.length;
-    
-    // Kira PREMIUM yang PAID sahaja
     let premiumPaid = premiumSlots.filter(s => s.bookedBy && s.bookedBy !== '' && (s.status === 'paid' || s.status === 'occupied')).length;
     
     document.getElementById('premiumAvailable').innerText = premiumPaid;
@@ -447,12 +551,9 @@ function updateParkingBalance() {
     
     // ===== BASIC SLOTS - 55 TOTAL =====
     let basicTotal = 55;
-    
-    // Kumpul BASIC yang PAID sahaja
     let basicPaid = 0;
     let basicStudentIds = new Set();
     
-    // 1. Dari allBasicBookings - hanya PAID
     let allBasicBookings = JSON.parse(localStorage.getItem('allBasicBookings')) || [];
     allBasicBookings.forEach(b => {
         if (b.studentId && (b.status === 'paid' || b.status === 'occupied')) {
@@ -463,7 +564,6 @@ function updateParkingBalance() {
         }
     });
     
-    // 2. Dari myBasicBooking_* - hanya PAID
     for(let key in localStorage) {
         if(key.startsWith('myBasicBooking_')) {
             try {
@@ -560,7 +660,7 @@ function updateStats(bookings) {
 }
 
 // ============================================================
-// GET ALL BOOKINGS - PROGRAM BETUL
+// GET ALL BOOKINGS
 // ============================================================
 function getAllBookings() {
     let bookings = [];
@@ -575,6 +675,7 @@ function getAllBookings() {
                 bookings.push({
                     studentId: slot.bookedBy,
                     studentName: slot.bookedByName || 'Unknown',
+                    studentEmail: slot.studentEmail || '',
                     studentIC: slot.studentIC || 'N/A',
                     studentMatric: slot.studentMatric || 'N/A',
                     studentCourse: slot.studentCourse || slot.program || 'N/A',
@@ -603,6 +704,7 @@ function getAllBookings() {
                         bookings.push({
                             studentId: booking.studentId,
                             studentName: booking.studentName || 'Unknown',
+                            studentEmail: booking.studentEmail || '',
                             studentIC: booking.studentIC || 'N/A',
                             studentMatric: booking.studentMatric || 'N/A',
                             studentCourse: booking.studentCourse || booking.program || 'N/A',
@@ -631,6 +733,7 @@ function getAllBookings() {
                 bookings.push({
                     studentId: booking.studentId,
                     studentName: booking.studentName || 'Unknown',
+                    studentEmail: booking.studentEmail || '',
                     studentIC: booking.studentIC || 'N/A',
                     studentMatric: booking.studentMatric || 'N/A',
                     studentCourse: booking.studentCourse || booking.program || 'N/A',
@@ -659,6 +762,7 @@ function getAllBookings() {
                         bookings.push({
                             studentId: booking.studentId,
                             studentName: booking.studentName || 'Unknown',
+                            studentEmail: booking.studentEmail || '',
                             studentIC: booking.studentIC || 'N/A',
                             studentMatric: booking.studentMatric || 'N/A',
                             studentCourse: booking.studentCourse || booking.program || 'N/A',
@@ -679,6 +783,199 @@ function getAllBookings() {
     }
     
     return bookings;
+}
+
+// ============================================================
+// SEND APPROVAL EMAIL VIA EMAILJS
+// ============================================================
+function sendApprovalEmail(booking) {
+    // Cari email student dari pelbagai sumber
+    let studentEmail = booking.studentEmail;
+    
+    // Jika tiada email, cuba cari dari localStorage students
+    if (!studentEmail || studentEmail === '') {
+        let students = JSON.parse(localStorage.getItem('students')) || [];
+        let student = students.find(s => s.id === booking.studentId || s.matric_no === booking.studentMatric);
+        if (student && student.email) {
+            studentEmail = student.email;
+        }
+    }
+    
+    // Jika masih tiada, cuba cari dari premium slots
+    if (!studentEmail || studentEmail === '') {
+        let premiumSlots = JSON.parse(localStorage.getItem('premiumSlots')) || [];
+        let slot = premiumSlots.find(s => s.id == booking.slotId);
+        if (slot && slot.studentEmail) {
+            studentEmail = slot.studentEmail;
+        }
+    }
+    
+    // Jika masih tiada, cuba cari dari allBasicBookings
+    if (!studentEmail || studentEmail === '') {
+        let allBasicBookings = JSON.parse(localStorage.getItem('allBasicBookings')) || [];
+        let basicBooking = allBasicBookings.find(b => b.studentId === booking.studentId);
+        if (basicBooking && basicBooking.studentEmail) {
+            studentEmail = basicBooking.studentEmail;
+        }
+    }
+    
+    // Jika masih tiada, alert dan return
+    if (!studentEmail || studentEmail === '') {
+        console.error('❌ Cannot send email: No email address found for', booking.studentName);
+        showToast('⚠️ No email found for ' + booking.studentName + '. Email not sent.', 'warning');
+        return;
+    }
+    
+    // Kira tarikh akhir bayaran (2 hari dari sekarang)
+    const deadline = new Date();
+    deadline.setDate(deadline.getDate() + 2);
+    const deadlineFormatted = deadline.toLocaleDateString('ms-MY', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    });
+    
+    // Format tarikh booking
+    const bookingDate = new Date(booking.bookingTime).toLocaleDateString('ms-MY', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    });
+    
+    const bookingTime = new Date(booking.bookingTime).toLocaleTimeString('ms-MY', {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    // Dapatkan harga berdasarkan jenis parking
+    const type = (booking.type || 'basic').toLowerCase();
+    const price = PARKING_PRICES[type] || 30.00;
+    
+    // Nama jenis parking dengan emoji
+    const typeLabels = {
+        'basic': '🅿️ Basic',
+        'premium': '⭐ Premium',
+        'standard': '🟡 Standard',
+        'vip': '🔴 VIP'
+    };
+    const parkingTypeLabel = typeLabels[type] || '🅿️ Basic';
+    
+    // Data untuk email
+    const templateParams = {
+        to_email: studentEmail,
+        to_name: booking.studentName || 'Student',
+        student_name: booking.studentName || 'Student',
+        booking_date: bookingDate,
+        booking_time: bookingTime,
+        plate_no: booking.plateNo || 'N/A',
+        parking_type: parkingTypeLabel,
+        parking_price: price.toFixed(2),
+        payment_deadline: deadlineFormatted,
+        website_link: 'https://saver-systm.lilylorraineee.workers.dev/login.html'
+    };
+    
+    console.log('📧 Sending email to:', studentEmail);
+    console.log('📧 Template params:', templateParams);
+    
+    // Hantar email guna EmailJS
+    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
+        .then(function(response) {
+            console.log('✅ Email sent successfully!', response.status, response.text);
+            showToast('✅ Email sent to ' + studentEmail);
+        })
+        .catch(function(error) {
+            console.error('❌ Failed to send email:', error);
+            console.log('⚠️ Booking approved but email failed. Check EmailJS setup.');
+            showToast('⚠️ Booking approved but email failed to send. Check EmailJS setup.', 'error');
+        });
+}
+
+// ============================================================
+// APPROVE BOOKING + SEND EMAIL
+// ============================================================
+function approveBooking(booking) {
+    let studentEmail = booking.studentEmail || 'No email found';
+    
+    if(confirm(`Approve booking for ${booking.studentName} (${booking.type.toUpperCase()})?\n\nMatric: ${booking.studentMatric}\nCourse: ${booking.studentCourse}\n\n📧 Email will be sent to: ${studentEmail}`)) {
+        
+        // ===== UPDATE STATUS =====
+        if(booking.type === 'premium') {
+            let premiumSlots = JSON.parse(localStorage.getItem('premiumSlots')) || [];
+            let slot = premiumSlots.find(s => s.id == booking.slotId);
+            if(slot && slot.status === 'pending') {
+                slot.status = 'approved';
+                localStorage.setItem('premiumSlots', JSON.stringify(premiumSlots));
+            }
+            
+            let premiumKey = 'myPremiumBooking_' + booking.studentId;
+            let myPremiumBooking = JSON.parse(localStorage.getItem(premiumKey));
+            if(myPremiumBooking && myPremiumBooking.slotId == booking.slotId) {
+                myPremiumBooking.status = 'approved';
+                localStorage.setItem(premiumKey, JSON.stringify(myPremiumBooking));
+            }
+            
+        } else if(booking.type === 'basic') {
+            let allBasicBookings = JSON.parse(localStorage.getItem('allBasicBookings')) || [];
+            let index = allBasicBookings.findIndex(b => b.studentId === booking.studentId);
+            if(index !== -1) {
+                allBasicBookings[index].status = 'approved';
+                localStorage.setItem('allBasicBookings', JSON.stringify(allBasicBookings));
+            }
+            
+            let basicKey = 'myBasicBooking_' + booking.studentId;
+            let myBasicBooking = JSON.parse(localStorage.getItem(basicKey));
+            if(myBasicBooking && myBasicBooking.studentId === booking.studentId) {
+                myBasicBooking.status = 'approved';
+                localStorage.setItem(basicKey, JSON.stringify(myBasicBooking));
+            }
+        }
+        
+        // ===== SEND EMAIL =====
+        sendApprovalEmail(booking);
+        
+        alert('✅ Booking for ' + booking.studentName + ' has been APPROVED.\n\n📧 Email notification sent to student.');
+        loadAllData();
+    }
+}
+
+// ============================================================
+// REJECT BOOKING
+// ============================================================
+function rejectBooking(booking) {
+    if(confirm(`Reject booking for ${booking.studentName} (${booking.type.toUpperCase()})?\n\nSlot will become available again.`)) {
+        
+        if(booking.type === 'premium') {
+            let premiumSlots = JSON.parse(localStorage.getItem('premiumSlots')) || [];
+            let slot = premiumSlots.find(s => s.id == booking.slotId);
+            if(slot) {
+                slot.status = 'available';
+                delete slot.bookedBy;
+                delete slot.bookedByName;
+                delete slot.studentIC;
+                delete slot.studentMatric;
+                delete slot.studentCourse;
+                delete slot.studentSemester;
+                delete slot.studentPhone;
+                delete slot.plateNo;
+                delete slot.bookingTime;
+                localStorage.setItem('premiumSlots', JSON.stringify(premiumSlots));
+            }
+            
+            let premiumKey = 'myPremiumBooking_' + booking.studentId;
+            localStorage.removeItem(premiumKey);
+            
+        } else if(booking.type === 'basic') {
+            let allBasicBookings = JSON.parse(localStorage.getItem('allBasicBookings')) || [];
+            let newBookings = allBasicBookings.filter(b => b.studentId !== booking.studentId);
+            localStorage.setItem('allBasicBookings', JSON.stringify(newBookings));
+            
+            let basicKey = 'myBasicBooking_' + booking.studentId;
+            localStorage.removeItem(basicKey);
+        }
+        
+        alert('❌ Booking for ' + booking.studentName + ' has been REJECTED.\n\nSlot is now available for other students.');
+        loadAllData();
+    }
 }
 
 // ============================================================
@@ -766,8 +1063,19 @@ function renderTable(bookings) {
         let nameSpan = document.createElement('span');
         nameSpan.className = 'clickable-name';
         nameSpan.textContent = booking.studentName || 'Unknown';
+        nameSpan.title = 'Click for details';
+        nameSpan.style.cursor = 'pointer';
         nameSpan.onclick = function() { openStudentModal(booking); };
         nameCell.appendChild(nameSpan);
+        
+        // Show email badge if available
+        if (booking.studentEmail) {
+            let emailSmall = document.createElement('div');
+            emailSmall.style.fontSize = '11px';
+            emailSmall.style.color = '#666';
+            emailSmall.textContent = '📧 ' + booking.studentEmail;
+            nameCell.appendChild(emailSmall);
+        }
         
         row.insertCell(2).innerHTML = `<span class="course-tag">${booking.studentCourse || 'N/A'}</span>`;
         row.insertCell(3).innerHTML = `<span class="semester-tag">Sem ${booking.studentSemester || 'N/A'}</span>`;
@@ -777,6 +1085,7 @@ function renderTable(bookings) {
         actionCell.style.display = 'flex';
         actionCell.style.gap = '5px';
         actionCell.style.flexWrap = 'wrap';
+        actionCell.style.alignItems = 'center';
         
         let viewBtn = document.createElement('button');
         viewBtn.innerText = '👁️ View';
@@ -786,16 +1095,22 @@ function renderTable(bookings) {
         
         if(booking.status === 'pending') {
             let approveBtn = document.createElement('button');
-            approveBtn.innerText = 'Approve';
+            approveBtn.innerText = '✅ Approve';
             approveBtn.className = 'btn-approve';
+            approveBtn.title = 'Approve and send email to student';
             approveBtn.onclick = (function(b) { return function() { approveBooking(b); }; })(booking);
             actionCell.appendChild(approveBtn);
             
             let rejectBtn = document.createElement('button');
-            rejectBtn.innerText = 'Reject';
+            rejectBtn.innerText = '❌ Reject';
             rejectBtn.className = 'btn-reject';
             rejectBtn.onclick = (function(b) { return function() { rejectBooking(b); }; })(booking);
             actionCell.appendChild(rejectBtn);
+        } else if(booking.status === 'approved') {
+            let emailSent = document.createElement('span');
+            emailSent.className = 'email-sent';
+            emailSent.innerText = '📧 Email sent';
+            actionCell.appendChild(emailSent);
         }
     });
 }
@@ -807,88 +1122,6 @@ function loadAllBookings() {
     allBookings = getAllBookings();
     updateStats(allBookings);
     applyFilters();
-}
-
-// ============================================================
-// APPROVE BOOKING
-// ============================================================
-function approveBooking(booking) {
-    if(confirm(`Approve booking for ${booking.studentName} (${booking.type.toUpperCase()})?\n\nMatric: ${booking.studentMatric}\nCourse: ${booking.studentCourse}`)) {
-        
-        if(booking.type === 'premium') {
-            let premiumSlots = JSON.parse(localStorage.getItem('premiumSlots')) || [];
-            let slot = premiumSlots.find(s => s.id == booking.slotId);
-            if(slot && slot.status === 'pending') {
-                slot.status = 'approved';
-                localStorage.setItem('premiumSlots', JSON.stringify(premiumSlots));
-            }
-            
-            let premiumKey = 'myPremiumBooking_' + booking.studentId;
-            let myPremiumBooking = JSON.parse(localStorage.getItem(premiumKey));
-            if(myPremiumBooking && myPremiumBooking.slotId == booking.slotId) {
-                myPremiumBooking.status = 'approved';
-                localStorage.setItem(premiumKey, JSON.stringify(myPremiumBooking));
-            }
-            
-        } else if(booking.type === 'basic') {
-            let allBasicBookings = JSON.parse(localStorage.getItem('allBasicBookings')) || [];
-            let index = allBasicBookings.findIndex(b => b.studentId === booking.studentId);
-            if(index !== -1) {
-                allBasicBookings[index].status = 'approved';
-                localStorage.setItem('allBasicBookings', JSON.stringify(allBasicBookings));
-            }
-            
-            let basicKey = 'myBasicBooking_' + booking.studentId;
-            let myBasicBooking = JSON.parse(localStorage.getItem(basicKey));
-            if(myBasicBooking && myBasicBooking.studentId === booking.studentId) {
-                myBasicBooking.status = 'approved';
-                localStorage.setItem(basicKey, JSON.stringify(myBasicBooking));
-            }
-        }
-        
-        alert('✅ Booking for ' + booking.studentName + ' has been APPROVED.\n\nStudent can now make payment.');
-        loadAllData();
-    }
-}
-
-// ============================================================
-// REJECT BOOKING
-// ============================================================
-function rejectBooking(booking) {
-    if(confirm(`Reject booking for ${booking.studentName} (${booking.type.toUpperCase()})?\n\nSlot will become available again.`)) {
-        
-        if(booking.type === 'premium') {
-            let premiumSlots = JSON.parse(localStorage.getItem('premiumSlots')) || [];
-            let slot = premiumSlots.find(s => s.id == booking.slotId);
-            if(slot) {
-                slot.status = 'available';
-                delete slot.bookedBy;
-                delete slot.bookedByName;
-                delete slot.studentIC;
-                delete slot.studentMatric;
-                delete slot.studentCourse;
-                delete slot.studentSemester;
-                delete slot.studentPhone;
-                delete slot.plateNo;
-                delete slot.bookingTime;
-                localStorage.setItem('premiumSlots', JSON.stringify(premiumSlots));
-            }
-            
-            let premiumKey = 'myPremiumBooking_' + booking.studentId;
-            localStorage.removeItem(premiumKey);
-            
-        } else if(booking.type === 'basic') {
-            let allBasicBookings = JSON.parse(localStorage.getItem('allBasicBookings')) || [];
-            let newBookings = allBasicBookings.filter(b => b.studentId !== booking.studentId);
-            localStorage.setItem('allBasicBookings', JSON.stringify(newBookings));
-            
-            let basicKey = 'myBasicBooking_' + booking.studentId;
-            localStorage.removeItem(basicKey);
-        }
-        
-        alert('❌ Booking for ' + booking.studentName + ' has been REJECTED.\n\nSlot is now available for other students.');
-        loadAllData();
-    }
 }
 
 // ============================================================

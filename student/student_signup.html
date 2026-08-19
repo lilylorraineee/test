@@ -58,7 +58,6 @@
                     </select>
                 </div>
 
-                <!-- ===== PROGRAM ===== -->
                 <div class="input-group">
                     <label>📖 Program</label>
                     <select id="program" required>
@@ -90,7 +89,7 @@
                     <input type="email" id="email" placeholder="name@gmail.com" required>
                 </div>
 
-                <!-- ===== VEHICLE DETAILS SECTION ===== -->
+                <!-- ===== VEHICLE DETAILS ===== -->
                 <div class="vehicle-details">
                     <div class="vehicle-title">🚗 Vehicle Details</div>
                     <div class="form-grid-inner">
@@ -274,7 +273,7 @@ function registerStudent() {
     };
     sessionStorage.setItem('loggedInStudent', JSON.stringify(loggedInStudent));
 
-    // ✅ REDIRECT KE STUDENT DASHBOARD - GUNA .html
+    // Redirect to student dashboard
     window.location.href = 'https://saver-systm.lilylorraineee.workers.dev/student/student_dashboard.html';
     
     return false;

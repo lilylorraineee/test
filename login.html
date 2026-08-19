@@ -74,7 +74,7 @@
 // ============================================
 // VARIABLE: Untuk simpan role yang dipilih
 // ============================================
-let selectedRole = 'student';
+var selectedRole = 'student';
 
 // ============================================
 // FUNCTION 1: toggleMenu()
@@ -95,14 +95,14 @@ function toggleMenu() {
 function selectRole(role) {
     selectedRole = role;
     
-    const studentBtn = document.getElementById('studentRoleBtn');
-    const lecturerBtn = document.getElementById('lecturerRoleBtn');
-    const adminBtn = document.getElementById('adminRoleBtn');
-    const loginBtn = document.getElementById('loginBtn');
-    const pageTitle = document.getElementById('pageTitle');
-    const emailLabel = document.getElementById('emailLabel');
-    const emailInput = document.getElementById('email');
-    const errorMsg = document.getElementById('errorMsg');
+    var studentBtn = document.getElementById('studentRoleBtn');
+    var lecturerBtn = document.getElementById('lecturerRoleBtn');
+    var adminBtn = document.getElementById('adminRoleBtn');
+    var loginBtn = document.getElementById('loginBtn');
+    var pageTitle = document.getElementById('pageTitle');
+    var emailLabel = document.getElementById('emailLabel');
+    var emailInput = document.getElementById('email');
+    var errorMsg = document.getElementById('errorMsg');
     
     // Sembunyikan error (kalau ada)
     errorMsg.style.display = 'none';
@@ -161,9 +161,9 @@ function selectRole(role) {
 // Tujuan: Sahkan login dan redirect
 // ============================================
 function handleLogin() {
-    let email = document.getElementById('email').value.trim();
-    let password = document.getElementById('password').value.trim();
-    let errorMsg = document.getElementById('errorMsg');
+    var email = document.getElementById('email').value.trim();
+    var password = document.getElementById('password').value.trim();
+    var errorMsg = document.getElementById('errorMsg');
     
     // Reset error
     errorMsg.style.display = 'none';
@@ -178,8 +178,8 @@ function handleLogin() {
     
     // --- STUDENT LOGIN ---
     if(selectedRole === 'student') {
-        let students = JSON.parse(localStorage.getItem('students')) || [];
-        let student = students.find(s => s.email === email && s.password === password);
+        var students = JSON.parse(localStorage.getItem('students')) || [];
+        var student = students.find(function(s) { return s.email === email && s.password === password; });
         
         if(student) {
             // Simpan data student dalam sessionStorage
@@ -206,8 +206,8 @@ function handleLogin() {
     
     // --- LECTURER LOGIN ---
     } else if(selectedRole === 'lecturer') {
-        let lecturers = JSON.parse(localStorage.getItem('lecturers')) || [];
-        let lecturer = lecturers.find(l => l.email === email && l.password === password);
+        var lecturers = JSON.parse(localStorage.getItem('lecturers')) || [];
+        var lecturer = lecturers.find(function(l) { return l.email === email && l.password === password; });
         
         if(lecturer) {
             sessionStorage.setItem('loggedInLecturer', JSON.stringify({
@@ -230,8 +230,8 @@ function handleLogin() {
     
     // --- ADMIN LOGIN (Hardcoded) ---
     } else if(selectedRole === 'admin') {
-        const ADMIN_USERNAME = 'admin';
-        const ADMIN_PASSWORD = 'admin123';
+        var ADMIN_USERNAME = 'admin';
+        var ADMIN_PASSWORD = 'admin123';
         
         if (email === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
             sessionStorage.setItem('loggedInAdmin', JSON.stringify({
@@ -255,8 +255,8 @@ function handleLogin() {
 // Tujuan: Boleh guna ?role=admin di URL
 // ============================================
 window.onload = function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const role = urlParams.get('role');
+    var urlParams = new URLSearchParams(window.location.search);
+    var role = urlParams.get('role');
     if(role === 'admin') {
         selectRole('admin');
     } else if(role === 'lecturer') {

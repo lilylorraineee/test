@@ -18,7 +18,7 @@
 <div id="overlay" onclick="toggleMenu()"></div>
 
 <div id="menu" class="menu">
-    <a href="C:\xampp\htdocs\parking_system\index.html">🏠 Home</a>
+    <a href="    <a href="https://saver-systm.lilylorraineee.workers.dev/index.html">🎓 Student Login</a>">🏠 Home</a>
  
     <a href="#" class="logout-link" onclick="logout()">🚪 Logout</a>
 </div>
@@ -252,7 +252,7 @@ function toggleMenu(){
 
 function logout() {
     sessionStorage.removeItem('loggedInStudent');
-    window.location.href = 'index.php';
+    window.location.href = 'https://saver-systm.lilylorraineee.workers.dev/index.html';
 }
 
 function backToChoice() {
@@ -285,7 +285,7 @@ function scrollToBooking() {
 // ============================================================
 loggedInStudent = JSON.parse(sessionStorage.getItem('loggedInStudent'));
 if(!loggedInStudent) {
-    window.location.href = 'student_login.php';
+    window.location.href = 'https://saver-systm.lilylorraineee.workers.dev/student/studetn_login.html';
 }
 
 // Update Welcome Card

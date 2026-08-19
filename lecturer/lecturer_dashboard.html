@@ -7,7 +7,7 @@
     <title>Lecturer Dashboard - TVET Parking System</title>
    
 </head>
-<link rel="stylesheet" href="C:\xampp\htdocs\parking_system\Design\lecturer_dashboard.css">
+<link rel="stylesheet" href="https://saver-systm.lilylorraineee.workers.dev/lecturer/lecturer.css">
 
 <body>
 
@@ -19,12 +19,12 @@
 <div id="overlay" onclick="toggleMenu()"></div>
 
 <div id="menu" class="menu">
-    <a href="C:\xampp\htdocs\parking_system\index.html">🏠 Home</a>
-    <a href="C:\xampp\htdocs\parking_system\student\student_signup.html">🎓 Student Login</a>
-    <a href="C:\xampp\htdocs\parking_system\student\student_signup.html">📝 Student Sign Up</a>
-    <a href="C:\xampp\htdocs\parking_system\lecturer\lecturer_login.html">👨‍🏫 Lecturer Login</a>
-    <a href="C:\xampp\htdocs\parking_system\lecturer\lecturer_signup.html">📝 Lecturer Sign Up</a>
-    <a href="C:\xampp\htdocs\parking_system\login.html">👮 Warden Login</a>
+    <a href="https://saver-systm.lilylorraineee.workers.dev/index.html">🏠 Home</a>
+    <a href="https://saver-systm.lilylorraineee.workers.dev/student/student_login.html">🎓 Student Login</a>
+    <a href="https://saver-systm.lilylorraineee.workers.dev/student/student_signup.html">📝 Student Sign Up</a>
+    <a href="https://saver-systm.lilylorraineee.workers.dev/lecturer/lecturer_login.html">👨‍🏫 Lecturer Login</a>
+    <a href="https://saver-systm.lilylorraineee.workers.dev/lecturer/lecturer_signup.html">📝 Lecturer Sign Up</a>
+    <a href="https://saver-systm.lilylorraineee.workers.dev/login.html">👮 Warden Login</a>
 </div>
 
 <div class="dashboard-container">
@@ -33,7 +33,7 @@
         <p class="subtitle">📊 Lecturer Dashboard - Personal Information</p>
 
         <!-- ===== PERSONAL INFORMATION SECTION ===== -->
-        <div class="section-title">👤 Personal Information</div>
+        <div class="section-title">👤 Pe/rsonal Information</div>
         <div class="info-grid">
             <div class="info-item">
                 <label>📧 Email</label>
@@ -122,7 +122,7 @@
 let lecturerData = JSON.parse(sessionStorage.getItem('loggedInLecturer'));
 
 if (!lecturerData) {
-    window.location.href = 'lecturer_login.php';
+    window.location.href = 'https://saver-systm.lilylorraineee.workers.dev/lecturer/lecturer_login.html';
 } else {
     // Display personal information
     document.getElementById('lecturerName').textContent = lecturerData.name || 'Lecturer';
@@ -298,7 +298,7 @@ document.getElementById('updateModal').addEventListener('click', function(e) {
 function logout() {
     if (confirm('Are you sure you want to logout?')) {
         sessionStorage.removeItem('loggedInLecturer');
-        window.location.href = 'lecturer_login.php';
+        window.location.href = 'https://saver-systm.lilylorraineee.workers.dev/lecturer/lecturer_login.html';
     }
 }
 </script>

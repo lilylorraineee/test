@@ -1,13 +1,11 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Login - TVET Parking System</title>
-   
+    <link rel="stylesheet" href="https://saver-systm.lilylorraineee.workers.dev/Design/student_login.css">
 </head>
-<link rel="stylesheet" href="https://saver-systm.lilylorraineee.workers.dev/Design/student_login.css">
 <body>
 
 <div class="topbar">
@@ -61,28 +59,28 @@ function toggleMenu(){
     overlay.classList.toggle("active");
 }
 
-// Check for success message from signup
-const urlParams = new URLSearchParams(window.location.search);
-const success = urlParams.get('success');
-if(success) {
-    document.getElementById('successMsg').style.display = 'block';
-    document.getElementById('successMsg').innerHTML = '✅ ' + success;
-}
-
 function loginStudent() {
-    let email = document.getElementById('email').value;
-    let password = document.getElementById('password').value;
-    let errorMsg = document.getElementById('errorMsg');
-    let successMsg = document.getElementById('successMsg');
+    var email = document.getElementById('email').value.trim();
+    var password = document.getElementById('password').value;
+    var errorMsg = document.getElementById('errorMsg');
+    var successMsg = document.getElementById('successMsg');
 
     errorMsg.style.display = 'none';
     successMsg.style.display = 'none';
 
-    let students = JSON.parse(localStorage.getItem('students')) || [];
-    let student = students.find(s => s.email === email && s.password === password);
+    var students = JSON.parse(localStorage.getItem('students')) || [];
+    var student = null;
+    
+    for (var i = 0; i < students.length; i++) {
+        if (students[i].email === email && students[i].password === password) {
+            student = students[i];
+            break;
+        }
+    }
 
     if(student) {
-        sessionStorage.setItem('loggedInStudent', JSON.stringify({
+        // Save all student data including email
+        var loggedInStudent = {
             id: student.id,
             name: student.name,
             email: student.email,
@@ -90,9 +88,15 @@ function loginStudent() {
             ic_no: student.ic_no,
             phone_no: student.phone_no,
             plate_no: student.plate_no || '',
+            vehicle_type: student.vehicle_type || '',
+            vehicle_color: student.vehicle_color || '',
             semester: student.semester,
-            course: student.course
-        }));
+            program: student.program || student.course || ''
+        };
+        sessionStorage.setItem('loggedInStudent', JSON.stringify(loggedInStudent));
+        
+        console.log('✅ Student logged in:', loggedInStudent);
+        
         window.location.href = 'https://saver-systm.lilylorraineee.workers.dev/student/student_dashboard.html';
     } else {
         errorMsg.style.display = 'block';

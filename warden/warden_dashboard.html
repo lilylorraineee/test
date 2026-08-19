@@ -285,7 +285,7 @@
 
 <script>
 /* ============================================================
-   EMAILJS CONFIGURATION - GUNAKAN ID ANDA
+   EMAILJS CONFIGURATION
 ============================================================ */
 
 const EMAILJS_SERVICE_ID = "service_5yob3r8";
@@ -372,7 +372,7 @@ function logout() {
 }
 
 /* ============================================================
-   FIND STUDENT EMAIL
+   FIND STUDENT EMAIL - FIXED
 ============================================================ */
 
 function findStudentEmail(studentId) {
@@ -380,7 +380,7 @@ function findStudentEmail(studentId) {
         return "";
     }
 
-    // Search students in localStorage
+    // 1. Search students in localStorage
     var students = JSON.parse(localStorage.getItem('students')) || [];
     for (var i = 0; i < students.length; i++) {
         if (String(students[i].id) === String(studentId)) {
@@ -388,9 +388,25 @@ function findStudentEmail(studentId) {
                 return String(students[i].email).trim();
             }
         }
+        // Check by matric if ID not match
+        if (String(students[i].matric_no) === String(studentId)) {
+            if (students[i].email) {
+                return String(students[i].email).trim();
+            }
+        }
     }
 
-    // Search in all localStorage items
+    // 2. Search premiumSlots
+    var premiumSlots = JSON.parse(localStorage.getItem('premiumSlots')) || [];
+    for (var j = 0; j < premiumSlots.length; j++) {
+        if (String(premiumSlots[j].bookedBy) === String(studentId)) {
+            if (premiumSlots[j].studentEmail) {
+                return String(premiumSlots[j].studentEmail).trim();
+            }
+        }
+    }
+
+    // 3. Search all localStorage items
     for (var key in localStorage) {
         try {
             var rawData = localStorage.getItem(key);
@@ -407,8 +423,8 @@ function findStudentEmail(studentId) {
             }
             
             if (Array.isArray(data)) {
-                for (var j = 0; j < data.length; j++) {
-                    var item = data[j];
+                for (var k = 0; k < data.length; k++) {
+                    var item = data[k];
                     if (!item || typeof item !== "object") continue;
                     if (String(item.studentId || item.student_id || "") === String(studentId)) {
                         var email = item.email || item.studentEmail || item.student_email;
@@ -425,19 +441,148 @@ function findStudentEmail(studentId) {
 }
 
 /* ============================================================
-   GET EMAIL FROM BOOKING
+   GET EMAIL FROM BOOKING - FIXED WITH DEBUG
 ============================================================ */
 
 function getBookingEmail(booking) {
+    console.log("🔍 DEBUG: Searching email for booking:", booking);
+    
+    // 1. Check booking.studentEmail
     if (booking.studentEmail && String(booking.studentEmail).includes("@")) {
+        console.log("✅ Found in booking.studentEmail:", booking.studentEmail);
         return String(booking.studentEmail).trim();
     }
+    
+    // 2. Check booking.email
     if (booking.email && String(booking.email).includes("@")) {
+        console.log("✅ Found in booking.email:", booking.email);
         return String(booking.email).trim();
     }
-    var foundEmail = findStudentEmail(booking.studentId);
-    return foundEmail;
+    
+    // 3. Try using studentId
+    if (booking.studentId) {
+        var found = findStudentEmail(booking.studentId);
+        if (found) {
+            console.log("✅ Found via findStudentEmail:", found);
+            return found;
+        }
+    }
+    
+    console.log("❌ No email found for student!");
+    return "";
 }
+
+/* ============================================================
+   SEND APPROVAL EMAIL - FIXED
+============================================================ */
+
+function sendApprovalEmail(booking) {
+    return new Promise(function(resolve, reject) {
+        
+        console.log("========================================");
+        console.log("📧 SENDING APPROVAL EMAIL");
+        console.log("========================================");
+        
+        var studentEmail = getBookingEmail(booking);
+        
+        console.log("📧 Final Student Email:", studentEmail);
+        
+        if (!studentEmail || studentEmail === "") {
+            console.error("❌ Student email not found for:", booking.studentId);
+            alert("⚠️ No email found for student!\n\nPlease add email manually.");
+            showToast('⚠️ No email found for ' + booking.studentName, 'warning');
+            reject(new Error("Student email not found"));
+            return;
+        }
+
+        // Format date
+        var bookingDate = "N/A";
+        var bookingTime = "N/A";
+
+        if (booking.bookingTime) {
+            var dateObject = new Date(booking.bookingTime);
+            if (!isNaN(dateObject.getTime())) {
+                bookingDate = dateObject.toLocaleDateString('ms-MY', {
+                    day: 'numeric', month: 'long', year: 'numeric'
+                });
+                bookingTime = dateObject.toLocaleTimeString('ms-MY', {
+                    hour: '2-digit', minute: '2-digit'
+                });
+            }
+        }
+
+        // Payment deadline (2 days)
+        var deadline = new Date();
+        deadline.setDate(deadline.getDate() + 2);
+        var paymentDeadline = deadline.toLocaleDateString('ms-MY', {
+            day: 'numeric', month: 'long', year: 'numeric'
+        });
+
+        // Price
+        var parkingPrice = booking.type === 'premium' ? '50.00' : '30.00';
+        var parkingTypeLabel = booking.type === 'premium' ? '⭐ Premium' : '🅿️ Basic';
+
+        // Email parameters
+        var templateParams = {
+            to_email: studentEmail,
+            student_name: booking.studentName || 'Student',
+            booking_date: bookingDate,
+            booking_time: bookingTime,
+            plate_no: booking.plateNo || 'N/A',
+            parking_type: parkingTypeLabel,
+            parking_price: parkingPrice,
+            payment_deadline: paymentDeadline,
+            website_link: WEBSITE_LINK
+        };
+
+        console.log("📧 EMAIL PARAMS:", templateParams);
+        console.log("📧 Service ID:", EMAILJS_SERVICE_ID);
+        console.log("📧 Template ID:", EMAILJS_TEMPLATE_ID);
+
+        // Send email
+        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
+            .then(function(response) {
+                console.log("✅ EMAIL SENT SUCCESSFULLY!", response.status, response.text);
+                alert("✅ Email sent to " + studentEmail);
+                showToast('✅ Email sent to ' + studentEmail, 'success');
+                resolve(response);
+            })
+            .catch(function(error) {
+                console.error("❌ EMAILJS ERROR:", error);
+                console.error("❌ Error details:", error.text || error.message);
+                alert("❌ Email failed to send.\n\nError: " + (error.text || error.message));
+                showToast('❌ Email failed to send. Check console.', 'error');
+                reject(error);
+            });
+    });
+}
+
+/* ============================================================
+   DEBUG - SEMAK EMAIL STUDENT
+============================================================ */
+
+function debugStudentEmail() {
+    console.log("========================================");
+    console.log("🔍 DEBUG STUDENT EMAIL");
+    console.log("========================================");
+    
+    var students = JSON.parse(localStorage.getItem('students')) || [];
+    console.log("📋 All students in localStorage:", students);
+    
+    var premiumSlots = JSON.parse(localStorage.getItem('premiumSlots')) || [];
+    console.log("📋 Premium Slots:", premiumSlots);
+    
+    console.log("========================================");
+    console.log("💡 To add email manually, run this in Console:");
+    console.log("");
+    console.log("var students = JSON.parse(localStorage.getItem('students')) || [];");
+    console.log("var student = students.find(s => s.id === 1787127905548);");
+    console.log("if (student) { student.email = 'your_email@gmail.com'; localStorage.setItem('students', JSON.stringify(students)); console.log('✅ Email added!'); }");
+    console.log("========================================");
+}
+
+// Call debug function
+debugStudentEmail();
 
 /* ============================================================
    STUDENT MODAL
@@ -492,75 +637,6 @@ function closeStudentModal() {
 document.getElementById('studentModal').addEventListener('click', function(e) {
     if (e.target === this) closeStudentModal();
 });
-
-/* ============================================================
-   SEND APPROVAL EMAIL
-============================================================ */
-
-function sendApprovalEmail(booking) {
-    return new Promise(function(resolve, reject) {
-        var studentEmail = getBookingEmail(booking);
-        
-        console.log("📧 Student Email:", studentEmail);
-        
-        if (!studentEmail) {
-            console.error("❌ Student email not found for:", booking.studentId);
-            showToast('⚠️ Email not found for ' + booking.studentName, 'warning');
-            reject(new Error("Student email not found"));
-            return;
-        }
-
-        var bookingDate = "N/A";
-        var bookingTime = "N/A";
-
-        if (booking.bookingTime) {
-            var dateObject = new Date(booking.bookingTime);
-            if (!isNaN(dateObject.getTime())) {
-                bookingDate = dateObject.toLocaleDateString('ms-MY', {
-                    day: 'numeric', month: 'long', year: 'numeric'
-                });
-                bookingTime = dateObject.toLocaleTimeString('ms-MY', {
-                    hour: '2-digit', minute: '2-digit'
-                });
-            }
-        }
-
-        var deadline = new Date();
-        deadline.setDate(deadline.getDate() + 2);
-        var paymentDeadline = deadline.toLocaleDateString('ms-MY', {
-            day: 'numeric', month: 'long', year: 'numeric'
-        });
-
-        var parkingPrice = booking.type === 'premium' ? '50.00' : '30.00';
-        var parkingTypeLabel = booking.type === 'premium' ? '⭐ Premium' : '🅿️ Basic';
-
-        var templateParams = {
-            to_email: studentEmail,
-            student_name: booking.studentName || 'Student',
-            booking_date: bookingDate,
-            booking_time: bookingTime,
-            plate_no: booking.plateNo || 'N/A',
-            parking_type: parkingTypeLabel,
-            parking_price: parkingPrice,
-            payment_deadline: paymentDeadline,
-            website_link: WEBSITE_LINK
-        };
-
-        console.log('📧 Template params:', templateParams);
-
-        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
-            .then(function(response) {
-                console.log("✅ EMAIL SENT", response.status, response.text);
-                showToast('✅ Email sent to ' + studentEmail, 'success');
-                resolve(response);
-            })
-            .catch(function(error) {
-                console.error("❌ EMAILJS ERROR:", error);
-                showToast('❌ Email failed to send. Check console.', 'error');
-                reject(error);
-            });
-    });
-}
 
 /* ============================================================
    FILTER PAID PREMIUM / BASIC

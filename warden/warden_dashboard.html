@@ -8,11 +8,9 @@
     <!-- EmailJS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     
-    <!-- CSS -->
     <link rel="stylesheet" href="https://saver-systm.lilylorraineee.workers.dev/Design/warden_dashboard.css">
     
     <style>
-        /* Additional styles for email notification */
         .toast-email {
             position: fixed;
             bottom: 20px;
@@ -27,13 +25,8 @@
             animation: slideIn 0.3s ease;
             max-width: 400px;
         }
-        .toast-email.error {
-            background: #dc3545;
-        }
-        .toast-email.warning {
-            background: #ffc107;
-            color: #333;
-        }
+        .toast-email.error { background: #dc3545; }
+        .toast-email.warning { background: #ffc107; color: #333; }
         @keyframes slideIn {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
@@ -43,20 +36,16 @@
             cursor: pointer;
             font-weight: bold;
         }
-        .email-badge {
-            background: #28a745;
-            color: white;
-            font-size: 10px;
-            padding: 2px 8px;
-            border-radius: 10px;
-            margin-left: 5px;
-        }
         .email-sent {
             background: #d4edda;
             color: #155724;
             padding: 2px 10px;
             border-radius: 10px;
             font-size: 11px;
+        }
+        .email-badge {
+            font-size: 11px;
+            color: #666;
         }
     </style>
 </head>
@@ -84,7 +73,7 @@
     <h2 class="main-title">👮 Parking Management Dashboard</h2>
     <p class="subtitle">Manage and filter all student parking bookings (Premium & Basic)</p>
 
-    <!-- ===== STATISTICS ===== -->
+    <!-- STATISTICS -->
     <div class="stats-grid">
         <div class="stat-box" id="statAll" onclick="filterByStatus('all')">
             <span class="stat-icon">📋</span>
@@ -112,7 +101,7 @@
         </div>
     </div>
 
-    <!-- ===== FILTER BAR ===== -->
+    <!-- FILTER BAR -->
     <div class="filter-bar">
         <div class="filter-info">
             📊 Showing: <span id="filterResultCount">0</span> bookings
@@ -125,7 +114,7 @@
         </div>
     </div>
 
-    <!-- ===== PARKING BALANCE ===== -->
+    <!-- PARKING BALANCE -->
     <div class="parking-balance">
         <div class="balance-grid">
             <div class="balance-box premium" onclick="filterPaidPremium()">
@@ -159,7 +148,7 @@
         </div>
     </div>
 
-    <!-- ===== STUDENT LIST (Booking Table) ===== -->
+    <!-- STUDENT LIST -->
     <div class="student-section">
         <div class="section-header">
             <div class="section-title">
@@ -194,7 +183,7 @@
         </div>
     </div>
 
-    <!-- ===== LECTURER SECTION ===== -->
+    <!-- LECTURER SECTION -->
     <div class="lecturer-section">
         <div class="section-header">
             <div class="section-title">
@@ -231,7 +220,7 @@
         </div>
     </div>
 
-    <!-- ===== INSTRUCTIONS ===== -->
+    <!-- INSTRUCTIONS -->
     <div class="instructions-box">
         <h4>📌 Instructions:</h4>
         <p>✅ <span class="highlight-green">Approve</span> - Student will be notified via email to make payment</p>
@@ -244,7 +233,7 @@
     </div>
 </div>
 
-<!-- ===== STUDENT DETAIL MODAL ===== -->
+<!-- STUDENT DETAIL MODAL -->
 <div id="studentModal" class="student-modal">
     <div class="student-modal-content">
         <div class="modal-header">
@@ -260,7 +249,7 @@
     </div>
 </div>
 
-<!-- ===== FILTER MODAL ===== -->
+<!-- FILTER MODAL -->
 <div id="filterModal" class="filter-modal">
     <div class="filter-modal-content">
         <h2>🔍 Filter Bookings</h2>
@@ -374,16 +363,12 @@ function showToast(message, type = 'success') {
     const toastMsg = document.getElementById('toastMessage');
     
     toast.className = 'toast-email';
-    if (type === 'error') {
-        toast.classList.add('error');
-    } else if (type === 'warning') {
-        toast.classList.add('warning');
-    }
+    if (type === 'error') toast.classList.add('error');
+    else if (type === 'warning') toast.classList.add('warning');
     
     toastMsg.textContent = message;
     toast.style.display = 'block';
     
-    // Auto hide after 5 seconds
     clearTimeout(toast._timeout);
     toast._timeout = setTimeout(() => {
         toast.style.display = 'none';
@@ -413,7 +398,7 @@ function logout() {
 }
 
 // ============================================================
-// STUDENT MODAL FUNCTIONS
+// STUDENT MODAL FUNCTIONS - DENGAN EMAIL
 // ============================================================
 function openStudentModal(booking) {
     let body = document.getElementById('studentModalBody');
@@ -431,9 +416,9 @@ function openStudentModal(booking) {
                 <span class="label">👤 Name</span>
                 <span class="value">${booking.studentName || 'N/A'}</span>
             </div>
-            <div class="detail-item full-width">
+            <div class="detail-item full-width" style="background:#e8f5e9; padding:10px; border-radius:8px;">
                 <span class="label">📧 Email</span>
-                <span class="value">${booking.studentEmail || 'N/A'}</span>
+                <span class="value" style="color:#2e7d32; font-weight:bold;">${booking.studentEmail || '❌ No email found'}</span>
             </div>
             <div class="detail-item">
                 <span class="label">🪪 IC Number</span>
@@ -496,11 +481,8 @@ function closeStudentModal() {
     document.body.style.overflow = 'auto';
 }
 
-// Close modal when clicking outside
 document.getElementById('studentModal').addEventListener('click', function(e) {
-    if(e.target === this) {
-        closeStudentModal();
-    }
+    if(e.target === this) closeStudentModal();
 });
 
 // ============================================================
@@ -511,11 +493,7 @@ function filterPaidPremium() {
     document.getElementById('filterSemester').value = 'all';
     document.getElementById('filterType').value = 'premium';
     document.getElementById('filterStatus').value = 'paid';
-    
-    document.querySelectorAll('.stat-box').forEach(box => {
-        box.classList.remove('active-filter');
-    });
-    
+    document.querySelectorAll('.stat-box').forEach(box => box.classList.remove('active-filter'));
     activeStatusFilter = null;
     applyFilters();
 }
@@ -525,11 +503,7 @@ function filterPaidBasic() {
     document.getElementById('filterSemester').value = 'all';
     document.getElementById('filterType').value = 'basic';
     document.getElementById('filterStatus').value = 'paid';
-    
-    document.querySelectorAll('.stat-box').forEach(box => {
-        box.classList.remove('active-filter');
-    });
-    
+    document.querySelectorAll('.stat-box').forEach(box => box.classList.remove('active-filter'));
     activeStatusFilter = null;
     applyFilters();
 }
@@ -538,18 +512,15 @@ function filterPaidBasic() {
 // UPDATE PARKING BALANCE
 // ============================================================
 function updateParkingBalance() {
-    // ===== PREMIUM SLOTS =====
     let premiumSlots = JSON.parse(localStorage.getItem('premiumSlots')) || [];
     let premiumTotal = premiumSlots.length;
     let premiumPaid = premiumSlots.filter(s => s.bookedBy && s.bookedBy !== '' && (s.status === 'paid' || s.status === 'occupied')).length;
     
     document.getElementById('premiumAvailable').innerText = premiumPaid;
     document.getElementById('premiumTotal').innerText = premiumTotal;
-    
     let premiumPercent = premiumTotal > 0 ? (premiumPaid / premiumTotal) * 100 : 0;
     document.getElementById('premiumBar').style.width = Math.min(premiumPercent, 100) + '%';
     
-    // ===== BASIC SLOTS - 55 TOTAL =====
     let basicTotal = 55;
     let basicPaid = 0;
     let basicStudentIds = new Set();
@@ -582,7 +553,6 @@ function updateParkingBalance() {
     
     document.getElementById('basicAvailable').innerText = basicPaid;
     document.getElementById('basicTotal').innerText = basicTotal;
-    
     let basicPercent = basicTotal > 0 ? (basicPaid / basicTotal) * 100 : 0;
     document.getElementById('basicBar').style.width = Math.min(basicPercent, 100) + '%';
 }
@@ -592,10 +562,7 @@ function updateParkingBalance() {
 // ============================================================
 function filterByStatus(status) {
     document.getElementById('filterType').value = 'all';
-    
-    document.querySelectorAll('.stat-box').forEach(box => {
-        box.classList.remove('active-filter');
-    });
+    document.querySelectorAll('.stat-box').forEach(box => box.classList.remove('active-filter'));
     
     if (activeStatusFilter === status) {
         activeStatusFilter = null;
@@ -637,9 +604,7 @@ function closeFilterModal() {
 function applyFilterFromModal() {
     closeFilterModal();
     activeStatusFilter = null;
-    document.querySelectorAll('.stat-box').forEach(box => {
-        box.classList.remove('active-filter');
-    });
+    document.querySelectorAll('.stat-box').forEach(box => box.classList.remove('active-filter'));
     applyFilters();
 }
 
@@ -660,22 +625,31 @@ function updateStats(bookings) {
 }
 
 // ============================================================
-// GET ALL BOOKINGS
+// GET ALL BOOKINGS - DENGAN EMAIL STUDENT
 // ============================================================
 function getAllBookings() {
     let bookings = [];
     let seen = new Set();
     
+    // Function untuk cari email student
+    function getStudentEmail(studentId, matricNo) {
+        let students = JSON.parse(localStorage.getItem('students')) || [];
+        let student = students.find(s => s.id === studentId || s.matric_no === matricNo);
+        return student ? student.email : '';
+    }
+    
+    // Premium Slots
     let premiumSlots = JSON.parse(localStorage.getItem('premiumSlots')) || [];
     premiumSlots.forEach(slot => {
         if(slot.bookedBy) {
             let key = 'premium_' + slot.bookedBy + '_' + slot.id;
             if(!seen.has(key)) {
                 seen.add(key);
+                let email = slot.studentEmail || getStudentEmail(slot.bookedBy, slot.studentMatric);
                 bookings.push({
                     studentId: slot.bookedBy,
                     studentName: slot.bookedByName || 'Unknown',
-                    studentEmail: slot.studentEmail || '',
+                    studentEmail: email,  // ✅ TAMBAH EMAIL
                     studentIC: slot.studentIC || 'N/A',
                     studentMatric: slot.studentMatric || 'N/A',
                     studentCourse: slot.studentCourse || slot.program || 'N/A',
@@ -693,6 +667,7 @@ function getAllBookings() {
         }
     });
     
+    // myPremiumBooking_
     for(let key in localStorage) {
         if(key.startsWith('myPremiumBooking_')) {
             try {
@@ -701,10 +676,11 @@ function getAllBookings() {
                     let uniqueKey = 'premium_' + booking.studentId + '_' + (booking.slotId || '');
                     if(!seen.has(uniqueKey)) {
                         seen.add(uniqueKey);
+                        let email = booking.studentEmail || getStudentEmail(booking.studentId, booking.studentMatric);
                         bookings.push({
                             studentId: booking.studentId,
                             studentName: booking.studentName || 'Unknown',
-                            studentEmail: booking.studentEmail || '',
+                            studentEmail: email,  // ✅ TAMBAH EMAIL
                             studentIC: booking.studentIC || 'N/A',
                             studentMatric: booking.studentMatric || 'N/A',
                             studentCourse: booking.studentCourse || booking.program || 'N/A',
@@ -724,16 +700,18 @@ function getAllBookings() {
         }
     }
     
+    // allBasicBookings
     let allBasicBookings = JSON.parse(localStorage.getItem('allBasicBookings')) || [];
     allBasicBookings.forEach(booking => {
         if(booking.studentId) {
             let key = 'basic_' + booking.studentId;
             if(!seen.has(key)) {
                 seen.add(key);
+                let email = booking.studentEmail || getStudentEmail(booking.studentId, booking.studentMatric);
                 bookings.push({
                     studentId: booking.studentId,
                     studentName: booking.studentName || 'Unknown',
-                    studentEmail: booking.studentEmail || '',
+                    studentEmail: email,  // ✅ TAMBAH EMAIL
                     studentIC: booking.studentIC || 'N/A',
                     studentMatric: booking.studentMatric || 'N/A',
                     studentCourse: booking.studentCourse || booking.program || 'N/A',
@@ -751,6 +729,7 @@ function getAllBookings() {
         }
     });
     
+    // myBasicBooking_
     for(let key in localStorage) {
         if(key.startsWith('myBasicBooking_')) {
             try {
@@ -759,10 +738,11 @@ function getAllBookings() {
                     let uniqueKey = 'basic_' + booking.studentId;
                     if(!seen.has(uniqueKey)) {
                         seen.add(uniqueKey);
+                        let email = booking.studentEmail || getStudentEmail(booking.studentId, booking.studentMatric);
                         bookings.push({
                             studentId: booking.studentId,
                             studentName: booking.studentName || 'Unknown',
-                            studentEmail: booking.studentEmail || '',
+                            studentEmail: email,  // ✅ TAMBAH EMAIL
                             studentIC: booking.studentIC || 'N/A',
                             studentMatric: booking.studentMatric || 'N/A',
                             studentCourse: booking.studentCourse || booking.program || 'N/A',
@@ -789,69 +769,31 @@ function getAllBookings() {
 // SEND APPROVAL EMAIL VIA EMAILJS
 // ============================================================
 function sendApprovalEmail(booking) {
-    // Cari email student dari pelbagai sumber
     let studentEmail = booking.studentEmail;
     
-    // Jika tiada email, cuba cari dari localStorage students
     if (!studentEmail || studentEmail === '') {
-        let students = JSON.parse(localStorage.getItem('students')) || [];
-        let student = students.find(s => s.id === booking.studentId || s.matric_no === booking.studentMatric);
-        if (student && student.email) {
-            studentEmail = student.email;
-        }
-    }
-    
-    // Jika masih tiada, cuba cari dari premium slots
-    if (!studentEmail || studentEmail === '') {
-        let premiumSlots = JSON.parse(localStorage.getItem('premiumSlots')) || [];
-        let slot = premiumSlots.find(s => s.id == booking.slotId);
-        if (slot && slot.studentEmail) {
-            studentEmail = slot.studentEmail;
-        }
-    }
-    
-    // Jika masih tiada, cuba cari dari allBasicBookings
-    if (!studentEmail || studentEmail === '') {
-        let allBasicBookings = JSON.parse(localStorage.getItem('allBasicBookings')) || [];
-        let basicBooking = allBasicBookings.find(b => b.studentId === booking.studentId);
-        if (basicBooking && basicBooking.studentEmail) {
-            studentEmail = basicBooking.studentEmail;
-        }
-    }
-    
-    // Jika masih tiada, alert dan return
-    if (!studentEmail || studentEmail === '') {
-        console.error('❌ Cannot send email: No email address found for', booking.studentName);
-        showToast('⚠️ No email found for ' + booking.studentName + '. Email not sent.', 'warning');
+        console.error('❌ No email for:', booking.studentName);
+        showToast('⚠️ No email found for ' + booking.studentName, 'warning');
         return;
     }
     
-    // Kira tarikh akhir bayaran (2 hari dari sekarang)
     const deadline = new Date();
     deadline.setDate(deadline.getDate() + 2);
     const deadlineFormatted = deadline.toLocaleDateString('ms-MY', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
+        day: 'numeric', month: 'long', year: 'numeric'
     });
     
-    // Format tarikh booking
     const bookingDate = new Date(booking.bookingTime).toLocaleDateString('ms-MY', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
+        day: 'numeric', month: 'long', year: 'numeric'
     });
     
     const bookingTime = new Date(booking.bookingTime).toLocaleTimeString('ms-MY', {
-        hour: '2-digit',
-        minute: '2-digit'
+        hour: '2-digit', minute: '2-digit'
     });
     
-    // Dapatkan harga berdasarkan jenis parking
     const type = (booking.type || 'basic').toLowerCase();
     const price = PARKING_PRICES[type] || 30.00;
     
-    // Nama jenis parking dengan emoji
     const typeLabels = {
         'basic': '🅿️ Basic',
         'premium': '⭐ Premium',
@@ -860,7 +802,6 @@ function sendApprovalEmail(booking) {
     };
     const parkingTypeLabel = typeLabels[type] || '🅿️ Basic';
     
-    // Data untuk email
     const templateParams = {
         to_email: studentEmail,
         to_name: booking.studentName || 'Student',
@@ -877,16 +818,14 @@ function sendApprovalEmail(booking) {
     console.log('📧 Sending email to:', studentEmail);
     console.log('📧 Template params:', templateParams);
     
-    // Hantar email guna EmailJS
     emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
         .then(function(response) {
-            console.log('✅ Email sent successfully!', response.status, response.text);
+            console.log('✅ Email sent successfully!', response.status);
             showToast('✅ Email sent to ' + studentEmail);
         })
         .catch(function(error) {
-            console.error('❌ Failed to send email:', error);
-            console.log('⚠️ Booking approved but email failed. Check EmailJS setup.');
-            showToast('⚠️ Booking approved but email failed to send. Check EmailJS setup.', 'error');
+            console.error('❌ EmailJS Error:', error);
+            showToast('❌ Email failed to send. Check console.', 'error');
         });
 }
 
@@ -894,11 +833,8 @@ function sendApprovalEmail(booking) {
 // APPROVE BOOKING + SEND EMAIL
 // ============================================================
 function approveBooking(booking) {
-    let studentEmail = booking.studentEmail || 'No email found';
-    
-    if(confirm(`Approve booking for ${booking.studentName} (${booking.type.toUpperCase()})?\n\nMatric: ${booking.studentMatric}\nCourse: ${booking.studentCourse}\n\n📧 Email will be sent to: ${studentEmail}`)) {
+    if(confirm(`Approve booking for ${booking.studentName} (${booking.type.toUpperCase()})?\n\nMatric: ${booking.studentMatric}\nCourse: ${booking.studentCourse}\n\n📧 Email: ${booking.studentEmail || '❌ No email'}`)) {
         
-        // ===== UPDATE STATUS =====
         if(booking.type === 'premium') {
             let premiumSlots = JSON.parse(localStorage.getItem('premiumSlots')) || [];
             let slot = premiumSlots.find(s => s.id == booking.slotId);
@@ -930,7 +866,7 @@ function approveBooking(booking) {
             }
         }
         
-        // ===== SEND EMAIL =====
+        // ✅ SEND EMAIL
         sendApprovalEmail(booking);
         
         alert('✅ Booking for ' + booking.studentName + ' has been APPROVED.\n\n📧 Email notification sent to student.');
@@ -1043,7 +979,7 @@ function resetFilters() {
 }
 
 // ============================================================
-// RENDER TABLE
+// RENDER TABLE - DENGAN EMAIL
 // ============================================================
 function renderTable(bookings) {
     let tbody = document.getElementById('bookingsBody');
@@ -1063,19 +999,14 @@ function renderTable(bookings) {
         let nameSpan = document.createElement('span');
         nameSpan.className = 'clickable-name';
         nameSpan.textContent = booking.studentName || 'Unknown';
-        nameSpan.title = 'Click for details';
-        nameSpan.style.cursor = 'pointer';
         nameSpan.onclick = function() { openStudentModal(booking); };
         nameCell.appendChild(nameSpan);
         
-        // Show email badge if available
-        if (booking.studentEmail) {
-            let emailSmall = document.createElement('div');
-            emailSmall.style.fontSize = '11px';
-            emailSmall.style.color = '#666';
-            emailSmall.textContent = '📧 ' + booking.studentEmail;
-            nameCell.appendChild(emailSmall);
-        }
+        // ✅ TUNJUK EMAIL
+        let emailDiv = document.createElement('div');
+        emailDiv.className = 'email-badge';
+        emailDiv.textContent = '📧 ' + (booking.studentEmail || 'No email');
+        nameCell.appendChild(emailDiv);
         
         row.insertCell(2).innerHTML = `<span class="course-tag">${booking.studentCourse || 'N/A'}</span>`;
         row.insertCell(3).innerHTML = `<span class="semester-tag">Sem ${booking.studentSemester || 'N/A'}</span>`;

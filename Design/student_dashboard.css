@@ -1,0 +1,843 @@
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f0f4ff, #e8edf5);
+            color: #1a1a2e;
+            min-height: 100vh;
+        }
+
+        .main-title {
+            font-size: 28px;
+            margin-bottom: 30px;
+            color: #1a1a2e;
+            text-shadow: 0 0 20px rgba(0, 245, 255, 0.3), 0 0 40px rgba(0, 245, 255, 0.1);
+            text-align: center;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid rgba(0, 245, 255, 0.3);
+            box-shadow: 0 2px 20px rgba(0, 245, 255, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            font-weight: bold;
+            color: #1a1a2e;
+            letter-spacing: 1px;
+            text-shadow: 0 0 20px rgba(0, 245, 255, 0.2);
+        }
+
+        .menu-icon {
+            font-size: 28px;
+            cursor: pointer;
+            color: #ff00cc;
+            text-shadow: 0 0 20px rgba(255, 0, 204, 0.3);
+            transition: 0.3s;
+        }
+
+        .menu-icon:hover {
+            text-shadow: 0 0 40px rgba(255, 0, 204, 0.6);
+        }
+
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(3px);
+            display: none;
+            z-index: 998;
+        }
+
+        #overlay.active {
+            display: block;
+        }
+
+        .menu {
+            position: fixed;
+            top: 0;
+            right: -250px;
+            width: 220px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(15px);
+            transition: 0.4s ease;
+            padding-top: 80px;
+            z-index: 999;
+            box-shadow: -5px 0 30px rgba(0, 0, 0, 0.1);
+            border-left: 2px solid rgba(0, 245, 255, 0.2);
+        }
+
+        .menu.active {
+            right: 0;
+        }
+
+        .menu a {
+            display: block;
+            padding: 15px 25px;
+            color: #1a1a2e;
+            text-decoration: none;
+            transition: 0.3s;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .menu a:hover {
+            background: rgba(0, 245, 255, 0.1);
+            color: #00f5ff;
+            text-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+        }
+
+        .menu .logout-link {
+            color: #ff1744;
+            border-top: 1px solid rgba(255, 23, 68, 0.2);
+            margin-top: 20px;
+        }
+
+        .menu .logout-link:hover {
+            background: rgba(255, 23, 68, 0.1);
+            color: #ff1744;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(0, 245, 255, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05), 0 0 20px rgba(0, 245, 255, 0.05);
+        }
+
+        .dashboard-wrapper {
+            display: flex;
+            margin-top: 70px;
+            min-height: calc(100vh - 70px);
+        }
+
+        /* LEFT SIDEBAR - Student Info */
+        .sidebar {
+            width: 300px;
+            min-width: 300px;
+            padding: 25px 20px;
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(0, 245, 255, 0.1);
+            height: calc(100vh - 70px);
+            position: sticky;
+            top: 70px;
+            overflow-y: auto;
+        }
+
+        .sidebar .profile-icon {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .sidebar .profile-icon .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00f5ff, #ff00cc);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            margin: 0 auto 10px;
+            color: white;
+        }
+
+        .sidebar .profile-name {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #1a1a2e;
+            margin-bottom: 5px;
+        }
+
+        .sidebar .profile-role {
+            text-align: center;
+            color: #6a6a8a;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        .sidebar .info-divider {
+            border: none;
+            border-top: 1px solid rgba(0, 0, 0, 0.08);
+            margin: 15px 0;
+        }
+
+        .sidebar .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .sidebar .info-item .label {
+            color: #6a6a8a;
+            font-size: 13px;
+        }
+
+        .sidebar .info-item .value {
+            color: #1a1a2e;
+            font-size: 13px;
+            font-weight: 500;
+            text-align: right;
+            max-width: 60%;
+            word-break: break-word;
+        }
+
+        .sidebar .info-item .value.highlight {
+            color: #00b4d8;
+        }
+
+        .sidebar .info-item .value.plate {
+            color: #ff00cc;
+            font-weight: bold;
+        }
+
+        .sidebar .info-item .value.vehicle {
+            color: #6a6a8a;
+            font-size: 12px;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            padding: 25px 30px;
+            overflow-y: auto;
+            max-height: calc(100vh - 70px);
+        }
+
+        .welcome-card {
+            background: rgba(0, 245, 255, 0.08);
+            border: 1px solid rgba(0, 245, 255, 0.2);
+            border-radius: 20px;
+            padding: 20px 25px;
+            margin-bottom: 30px;
+        }
+
+        .welcome-card h2 {
+            color: #1a1a2e;
+            margin-bottom: 10px;
+            font-size: 22px;
+        }
+
+        .welcome-card p {
+            color: #4a4a6a;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        .welcome-card .plate-display {
+            margin-top: 8px;
+            color: #ff00cc;
+            font-weight: 500;
+        }
+
+        /* ===== CURRENT BOOKING CARD ===== */
+        .current-booking-card {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 0, 204, 0.2);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            display: block;
+        }
+
+        .current-booking-card h4 {
+            color: #ff00cc;
+            margin-bottom: 15px;
+        }
+
+        .booking-details {
+            background: rgba(0, 245, 255, 0.05);
+            border-radius: 15px;
+            padding: 15px;
+        }
+
+        .booking-details p {
+            margin: 8px 0;
+            color: #1a1a2e;
+        }
+
+        .no-booking-state {
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .no-booking-state .icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .no-booking-state h3 {
+            color: #1a1a2e;
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+
+        .no-booking-state p {
+            color: #6a6a8a;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .no-booking-state .btn-book-now {
+            display: inline-block;
+            padding: 10px 30px;
+            background: linear-gradient(135deg, #ff00cc, #00f5ff);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: 0.3s;
+            text-decoration: none;
+        }
+
+        .no-booking-state .btn-book-now:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 0, 204, 0.3);
+        }
+
+        /* ===== PARKING TYPE SECTION ===== */
+        .parking-type-section {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(0, 245, 255, 0.2);
+            border-radius: 25px;
+            padding: 30px 25px 25px 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+            transition: 0.3s;
+        }
+
+        .parking-type-section:hover {
+            border-color: rgba(255, 0, 204, 0.3);
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        .parking-type-section .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(0, 245, 255, 0.15);
+        }
+
+        .parking-type-section .section-header h3 {
+            color: #1a1a2e;
+            font-size: 20px;
+            margin: 0;
+        }
+
+        .choice-container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .choice-card {
+            flex: 1;
+            min-width: 200px;
+            max-width: 280px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(0, 0, 0, 0.08);
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .choice-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 20px;
+            opacity: 0;
+            transition: 0.3s;
+            z-index: 0;
+        }
+
+        .choice-card:hover::before {
+            opacity: 1;
+        }
+
+        .choice-card > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .choice-card:hover {
+            transform: translateY(-8px);
+        }
+
+        .premium-card {
+            border-color: rgba(255, 0, 204, 0.2);
+        }
+
+        .premium-card::before {
+            background: linear-gradient(135deg, rgba(255, 0, 204, 0.05), rgba(255, 0, 204, 0.02));
+        }
+
+        .premium-card:hover {
+            border-color: #ff00cc;
+            box-shadow: 0 8px 35px rgba(255, 0, 204, 0.2);
+        }
+
+        .basic-card {
+            border-color: rgba(0, 180, 216, 0.2);
+        }
+
+        .basic-card::before {
+            background: linear-gradient(135deg, rgba(0, 180, 216, 0.05), rgba(0, 180, 216, 0.02));
+        }
+
+        .basic-card:hover {
+            border-color: #00b4d8;
+            box-shadow: 0 8px 35px rgba(0, 180, 216, 0.2);
+        }
+
+        .choice-card .card-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 10px;
+            padding: 2px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        .premium-card .card-badge {
+            background: rgba(255, 0, 204, 0.15);
+            color: #ff00cc;
+        }
+
+        .basic-card .card-badge {
+            background: rgba(0, 180, 216, 0.15);
+            color: #00b4d8;
+        }
+
+        .choice-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .choice-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .premium-title { color: #ff00cc; }
+        .basic-title { color: #00b4d8; }
+
+        .choice-desc {
+            font-size: 13px;
+            color: #6a6a8a;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .choice-price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #00e676;
+            display: inline-block;
+            padding: 4px 16px;
+            background: rgba(0, 230, 118, 0.08);
+            border-radius: 20px;
+            border: 1px solid rgba(0, 230, 118, 0.15);
+        }
+
+        .choice-card .arrow-hint {
+            display: inline-block;
+            margin-top: 12px;
+            font-size: 14px;
+            color: #6a6a8a;
+            transition: 0.3s;
+        }
+
+        .premium-card:hover .arrow-hint {
+            color: #ff00cc;
+            transform: translateX(5px);
+        }
+
+        .basic-card:hover .arrow-hint {
+            color: #00b4d8;
+            transform: translateX(5px);
+        }
+
+        .parking-section {
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .map-container {
+            position: relative;
+            width: 100%;
+            max-width: 550px;
+            height: auto;
+            min-height: 700px;
+            background: rgba(200, 210, 230, 0.5);
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            margin: 0 auto;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .parking-spot {
+            position: absolute;
+            width: 65px;
+            height: 45px;
+            border: 2px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .parking-spot:hover { transform: scale(1.02); }
+        .parking-spot.selected { border: 3px solid #ff00cc; box-shadow: 0 0 15px #ff00cc; }
+
+        .parking-spot.available { 
+            background-color: #2ecc71; 
+            color: white; 
+            border-color: #27ae60; 
+            cursor: pointer;
+        }
+        
+        .parking-spot.pending { 
+            background-color: #f1c40f; 
+            color: #333; 
+            border-color: #d4ac0d; 
+            cursor: not-allowed;
+        }
+        
+        .parking-spot.occupied { 
+            background-color: #e74c3c; 
+            color: white; 
+            border-color: #c0392b; 
+            cursor: not-allowed;
+        }
+
+        #spot1 { top: 80px; left: 80px; }
+        #spot2 { top: 180px; left: 80px; }
+        #spot3 { top: 230px; left: 80px; }
+        #spot4 { top: 340px; left: 80px; }
+        #spot5 { top: 480px; left: 50px; width: 45px; height: 60px; }
+        #spot6 { top: 480px; left: 5px; width: 45px; height: 60px; }
+        #spot7 { top: 570px; left: 60px; width: 45px; height: 70px; transform: rotate(25deg); }
+
+        .right-column {
+            position: absolute;
+            right: 40px;
+            top: 50px;
+        }
+        .right-column .parking-spot {
+            position: relative;
+            width: 60px;
+            height: 40px;
+            margin-bottom: 8px;
+        }
+        .right-column .parking-spot:last-child { margin-bottom: 0; }
+
+        #spot8, #spot9, #spot10, #spot11, #spot12, #spot13, #spot14, #spot15 {
+            position: relative;
+        }
+
+        .booking-info {
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .booking-info h4 {
+            color: #1a1a2e;
+            margin-bottom: 15px;
+        }
+        .booking-info p {
+            color: #4a4a6a;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        .basic-info {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .basic-info h3 {
+            color: #00b4d8;
+            margin-bottom: 20px;
+        }
+
+        .btn-book-basic {
+            background: linear-gradient(135deg, #00b4d8, #00f5ff);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 180, 216, 0.3);
+        }
+
+        .btn-book-basic:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 180, 216, 0.4);
+        }
+
+        .btn-book-basic:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            color: #6a6a8a;
+            text-decoration: none;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .back-link:hover {
+            color: #00f5ff;
+        }
+
+        .note {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 12px;
+            color: #6a6a8a;
+        }
+
+        /* ===== MODAL PAYMENT ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(0, 245, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-content h3 {
+            color: #1a1a2e;
+            margin-bottom: 20px;
+        }
+
+        .modal-content p {
+            color: #4a4a6a;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .modal-content .plate-display {
+            background: rgba(255, 0, 204, 0.08);
+            padding: 12px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border: 1px solid rgba(255, 0, 204, 0.2);
+        }
+
+        .modal-content .plate-display strong {
+            color: #ff00cc;
+            font-size: 18px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .modal-buttons button {
+            padding: 10px 25px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-confirm {
+            background: linear-gradient(135deg, #ff00cc, #00f5ff);
+            color: white;
+        }
+
+        .btn-cancel {
+            background: rgba(255, 23, 68, 0.1);
+            color: #ff1744;
+        }
+
+        .pay-btn {
+            background: linear-gradient(135deg, #00e676, #00f5ff);
+            color: #1a1a2e;
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+
+        .pay-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 30px rgba(0, 230, 118, 0.3);
+        }
+
+        /* Scrollbar styling */
+        .sidebar::-webkit-scrollbar,
+        .main-content::-webkit-scrollbar {
+            width: 4px;
+        }
+        .sidebar::-webkit-scrollbar-track,
+        .main-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .sidebar::-webkit-scrollbar-thumb,
+        .main-content::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .dashboard-wrapper {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                min-width: unset;
+                height: auto;
+                position: relative;
+                top: 0;
+                border-right: none;
+                border-bottom: 1px solid rgba(0, 245, 255, 0.1);
+                padding: 15px;
+            }
+            .main-content {
+                padding: 15px;
+                max-height: none;
+            }
+            .choice-card {
+                min-width: 150px;
+                max-width: 100%;
+                flex: 1 1 100%;
+            }
+            .sidebar .info-item {
+                padding: 8px 0;
+            }
+            .sidebar .profile-icon .avatar {
+                width: 60px;
+                height: 60px;
+                font-size: 28px;
+            }
+            .parking-type-section {
+                padding: 20px 15px;
+            }
+            .parking-type-section .section-header {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .topbar .brand {
+                font-size: 14px;
+            }
+            .main-content {
+                padding: 10px;
+            }
+            .welcome-card h2 {
+                font-size: 18px;
+            }
+            .no-booking-state .icon {
+                font-size: 36px;
+            }
+            .choice-card {
+                padding: 20px 15px;
+            }
+            .choice-icon {
+                font-size: 36px;
+            }
+            .choice-title {
+                font-size: 17px;
+            }
+            .choice-price {
+                font-size: 16px;
+            }
+        }

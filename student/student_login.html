@@ -1,0 +1,106 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Login - TVET Parking System</title>
+   
+</head>
+<link rel="stylesheet" href="C:\xampp\htdocs\parking_system\Design\student_login.css">
+<body>
+
+<div class="topbar">
+    <div class="brand">TVETMARA LUMUT</div>
+    <div class="menu-icon" onclick="toggleMenu()">☰</div>
+</div>
+
+<div id="overlay" onclick="toggleMenu()"></div>
+
+<div id="menu" class="menu">
+    <a href="index.php">🏠 Home</a>
+    <a href="student_login.php">🎓 Student Login</a>
+    <a href="warden_login.php" class="warden-link">👮 Warden / Staff Login</a>
+    <a href="#">ℹ️ About</a>
+</div>
+
+<div class="dashboard-container">
+    <div class="login-box glass">
+        <h2 class="main-title">🎓 Student Login</h2>
+
+        <div id="successMsg" class="success-msg" style="display: none;"></div>
+        <div id="errorMsg" class="error-msg" style="display: none;"></div>
+
+        <form id="loginForm" onsubmit="return loginStudent()">
+            <div class="input-group">
+                <label>📧 Email Address</label>
+                <input type="email" id="email" placeholder="student@tvetmara.edu.my" required>
+            </div>
+
+            <div class="input-group">
+                <label>🔒 Password</label>
+                <input type="password" id="password" placeholder="Enter your password" required>
+            </div>
+
+            <button type="submit" class="btn-start">Login →</button>
+        </form>
+
+        <div class="signup-link">
+            Don't have an account? <a href="C:\xampp\htdocs\parking_system\student\student_signup.html">Sign Up here</a>
+        </div>
+
+        <a href="C:\xampp\htdocs\parking_system\index.html" class="back-link">← Back to Home</a>
+    </div>
+</div>
+
+<script>
+function toggleMenu(){
+    var menu = document.getElementById("menu");
+    var overlay = document.getElementById("overlay");
+    menu.classList.toggle("active");
+    overlay.classList.toggle("active");
+}
+
+// Check for success message from signup
+const urlParams = new URLSearchParams(window.location.search);
+const success = urlParams.get('success');
+if(success) {
+    document.getElementById('successMsg').style.display = 'block';
+    document.getElementById('successMsg').innerHTML = '✅ ' + success;
+}
+
+function loginStudent() {
+    let email = document.getElementById('email').value;
+    let password = document.getElementById('password').value;
+    let errorMsg = document.getElementById('errorMsg');
+    let successMsg = document.getElementById('successMsg');
+
+    errorMsg.style.display = 'none';
+    successMsg.style.display = 'none';
+
+    let students = JSON.parse(localStorage.getItem('students')) || [];
+    let student = students.find(s => s.email === email && s.password === password);
+
+    if(student) {
+        sessionStorage.setItem('loggedInStudent', JSON.stringify({
+            id: student.id,
+            name: student.name,
+            email: student.email,
+            matric_no: student.matric_no,
+            ic_no: student.ic_no,
+            phone_no: student.phone_no,
+            plate_no: student.plate_no || '',
+            semester: student.semester,
+            course: student.course
+        }));
+        window.location.href = 'C:\xampp\htdocs\parking_system\student\student_dashboard.html';
+    } else {
+        errorMsg.style.display = 'block';
+        errorMsg.innerHTML = '❌ Invalid email or password. Please try again.';
+    }
+    return false;
+}
+</script>
+
+</body>
+</html>

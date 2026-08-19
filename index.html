@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TVET Parking System - Dashboard</title>
+	<link rel="stylesheet" href="C:\xampp\htdocs\parking_system\Design\index.css">
+</head>
+<body>
+
+<div class="topbar">
+    <div class="brand">TVETMARA LUMUT</div>
+    <div class="menu-icon" onclick="toggleMenu()">☰</div>
+</div>
+
+<div id="overlay" onclick="toggleMenu()"></div>
+
+<div id="menu" class="menu">
+    <a href="index.html">🏠 Home</a>
+    <a href="C:\xampp\htdocs\parking_system\student\student_login.html">🎓 Student Login</a>
+    <a href="C:\xampp\htdocs\parking_system\warden\warden_dashboard.html" class="warden-link">👮 Warden / Staff Login</a>
+    <a href="#">ℹ️ About</a>
+</div>
+
+<div class="dashboard-container">
+    <h2 class="main-title">Welcome to Parking System TVETMARA LUMUT</h2>
+
+    <div class="stats-grid">
+        <div class="stat-section glass">
+            <div class="stat-section-title premium">⭐ PREMIUM PARKING</div>
+            <div class="stat-row">
+                <div class="stat-item"><p>Total Lots</p><h3 class="number neon-pink">15</h3></div>
+                <div class="stat-item"><p>Occupied</p><h3 class="number neon-red" id="premiumOccupied">0</h3></div>
+                <div class="stat-item"><p>Available</p><h3 class="number neon-green" id="premiumAvailable">0</h3></div>
+            </div>
+        </div>
+        <div class="stat-section glass">
+            <div class="stat-section-title basic">🅿️ BASIC PARKING</div>
+            <div class="stat-row">
+                <div class="stat-item"><p>Total Lots</p><h3 class="number neon-blue">55</h3></div>
+                <div class="stat-item"><p>Occupied</p><h3 class="number neon-red" id="basicOccupied">0</h3></div>
+                <div class="stat-item"><p>Available</p><h3 class="number neon-green" id="basicAvailable">0</h3></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-section">
+        <div class="info-header">
+            <h3>📰 Maklumat Terkini TVETMARA Lumut</h3>
+            <div class="live-badge">● LIVE</div>
+        </div>
+        <div class="scroll-container">
+            <div class="info-card glass"><div class="card-icon">🎓</div><div class="card-title">Pendaftaran Pelajar Baru Sesi 2026/2027</div><div class="card-date">📅 13 Mei 2026 | 👤 Admin TVET</div><div class="card-desc">Pendaftaran pelajar baru bagi sesi 2026/2027 akan dibuka mulai 1 Jun 2026.</div><a href="#" class="read-more">Baca selanjutnya →</a></div>
+            <div class="info-card glass"><div class="card-icon">🅿️</div><div class="card-title">Peraturan Tempat Letak Kereta Baharu</div><div class="card-date">📅 10 Mei 2026 | 👤 Unit Keselamatan</div><div class="card-desc">Peraturan baru untuk kawasan parking pelajar akan berkuat kuasa mulai 1 Jun 2026.</div><a href="#" class="read-more">Baca selanjutnya →</a></div>
+            <div class="info-card glass"><div class="card-icon">⚙️</div><div class="card-title">Kursus TVET Percuma Untuk Pelajar</div><div class="card-date">📅 5 Mei 2026 | 👤 TVETMARA</div><div class="card-desc">Kursus percuma dalam bidang Automotive, Welding, dan Electrical akan diadakan pada bulan Jun.</div><a href="#" class="read-more">Baca selanjutnya →</a></div>
+            <div class="info-card glass"><div class="card-icon">🔧</div><div class="card-title">Jadual Penyelenggaraan Bengkel</div><div class="card-date">📅 28 April 2026 | 👤 Jabatan Teknikal</div><div class="card-desc">Bengkel automotive akan ditutup sementara pada 15-17 Mei 2026 untuk kerja penyelenggaraan.</div><a href="#" class="read-more">Baca selanjutnya →</a></div>
+            <div class="info-card glass"><div class="card-icon">📢</div><div class="card-title">Cuti Umum Hari Wesak</div><div class="card-date">📅 20 Mei 2026 | 👤 Pentadbiran</div><div class="card-desc">Pejabat pentadbiran dan bengkel akan ditutup pada 21 Mei 2026 sempena Hari Wesak.</div><a href="#" class="read-more">Baca selanjutnya →</a></div>
+            <div class="info-card glass"><div class="card-icon">🏆</div><div class="card-title">Kejohanan Sukan Tahunan TVET</div><div class="card-date">📅 15 Mei 2026 | 👤 Unit Sukan</div><div class="card-desc">Penyertaan untuk kejohanan sukan tahunan dibuka hingga 30 Mei 2026.</div><a href="#" class="read-more">Baca selanjutnya →</a></div>
+            <div class="info-card glass"><div class="card-icon">💼</div><div class="card-title">Gotong Royong Perdana Kampus</div><div class="card-date">📅 8 Mei 2026 | 👤 HEP</div><div class="card-desc">Gotong royong perdana akan diadakan pada 28 Mei 2026. Kehadiran adalah wajib.</div><a href="#" class="read-more">Baca selanjutnya →</a></div>
+        </div>
+    </div>
+
+    <div class="action-area">
+        <a href="login.html">
+            <button class="btn-start">Start →</button>
+        </a>
+    </div>
+    <div class="refresh-note">📊 Data parking adalah live mengikut booking terkini</div>
+</div>
+
+<script>
+function updateParkingStats() {
+    let premiumSlots = JSON.parse(localStorage.getItem('premiumSlots')) || [];
+    let premiumOccupied = premiumSlots.filter(s => s.status === 'paid' || s.status === 'occupied').length;
+    let premiumTotal = 15;
+    let premiumAvailable = premiumTotal - premiumOccupied;
+    
+    let basicBookings = JSON.parse(localStorage.getItem('allBasicBookings')) || [];
+    let basicOccupied = basicBookings.filter(b => b.status === 'paid').length;
+    let basicTotal = 55;
+    let basicAvailable = basicTotal - basicOccupied;
+    
+    document.getElementById('premiumOccupied').innerText = premiumOccupied;
+    document.getElementById('premiumAvailable').innerText = premiumAvailable;
+    document.getElementById('basicOccupied').innerText = basicOccupied;
+    document.getElementById('basicAvailable').innerText = basicAvailable;
+}
+
+updateParkingStats();
+window.addEventListener('storage', function(e) {
+    if(e.key === 'premiumSlots' || e.key === 'allBasicBookings') {
+        updateParkingStats();
+    }
+});
+setInterval(updateParkingStats, 5000);
+
+function toggleMenu(){
+    var menu = document.getElementById("menu");
+    var overlay = document.getElementById("overlay");
+    menu.classList.toggle("active");
+    overlay.classList.toggle("active");
+}
+
+document.querySelectorAll('.menu a').forEach(function(link) {
+    link.addEventListener('click', function() {
+        document.getElementById("menu").classList.remove("active");
+        document.getElementById("overlay").classList.remove("active");
+    });
+});
+</script>
+
+</body>
+</html>

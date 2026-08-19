@@ -1,0 +1,275 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Sign Up - TVET Parking System</title>
+   
+</head>
+<link rel="stylesheet" href="C:\xampp\htdocs\parking_system\Design\student_signup.css">
+<body>
+
+<div class="topbar">
+    <div class="brand">TVETMARA LUMUT</div>
+    <div class="menu-icon" onclick="toggleMenu()">☰</div>
+</div>
+
+<div id="overlay" onclick="toggleMenu()"></div>
+
+<div id="menu" class="menu">
+    <a href="C:\xampp\htdocs\parking_system\index.html">🏠 Home</a>
+    <a href="C:\xampp\htdocs\parking_system\student\student_login.html">🎓 Student Login</a>
+    <a href="C:\xampp\htdocs\parking_system\login.html" class="warden-link">👮 Warden / Staff Login</a>
+    <a href="#">ℹ️ About</a>
+</div>
+
+<div class="dashboard-container">
+    <div class="signup-box glass">
+        <h2 class="main-title">📝 Student Registration</h2>
+
+        <div id="errorMsg" class="error-msg" style="display: none;"></div>
+
+        <form id="signupForm" onsubmit="return registerStudent()">
+            <div class="form-grid">
+                <div class="input-group full-width">
+                    <label>👤 Full Name</label>
+                    <input type="text" id="fullname" placeholder="Enter Your Full Name" required>
+                </div>
+
+                <div class="input-group">
+                    <label>🆔 IC Number</label>
+                    <input type="text" id="ic_no" placeholder="Enter Your IC Number" required>
+                </div>
+
+                <div class="input-group">
+                    <label>🎓 Matric Number</label>
+                    <input type="text" id="matric_no" placeholder="Enter Your Matric Number" required>
+                </div>
+
+                <div class="input-group">
+                    <label>📚 Semester</label>
+                    <select id="semester" required>
+                        <option value="">Select Semester</option>
+                        <option value="1">Semester 1</option>
+                        <option value="2">Semester 2</option>
+                        <option value="3">Semester 3</option>
+                        <option value="4">Semester 4</option>
+                        <option value="5">Semester 5</option>
+                        <option value="6">Semester 6</option>
+                    </select>
+                </div>
+
+                <!-- ===== PROGRAM (dulu COURSE) ===== -->
+                <div class="input-group">
+                    <label>📖 Program</label>
+                    <select id="program" required>
+                        <option value="">Select Program</option>
+                        <option value="ITW">ITW</option>
+                        <option value="DFD">DFD</option>
+                        <option value="DNS">DNS</option>
+                        <option value="DTB">DTB</option>
+                        <option value="DCP">DCP</option>
+                        <option value="DCS">DCS</option>
+                        <option value="DGA">DGA</option>
+                        <option value="DCB">DCB</option>
+                        <option value="DTF">DTF</option>
+                        <option value="DTW">DTW</option>
+                        <option value="SBN">SBN</option>
+                        <option value="SLR">SLR</option>
+                        <option value="SSB">SSB</option>
+                        <option value="STF">STF</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>📱 Phone Number</label>
+                    <input type="text" id="phone_no" placeholder="Enter Your Phone Number" required>
+                </div>
+
+                <div class="input-group">
+                    <label>📧 Email</label>
+                    <input type="email" id="email" placeholder="name@gmail.com" required>
+                </div>
+
+                <!-- ===== VEHICLE DETAILS SECTION ===== -->
+                <div class="vehicle-details">
+                    <div class="vehicle-title">🚗 Vehicle Details</div>
+                    <div class="form-grid-inner">
+                        <div class="input-group">
+                            <label>🚗 Plate Number</label>
+                            <input type="text" id="plate_no" placeholder="ABC1234" style="text-transform: uppercase;" required>
+                            <span class="hint">e.g., ABC1234, WUE5678</span>
+                        </div>
+
+                        <div class="input-group">
+                            <label>🚙 Vehicle Type / Model</label>
+                            <input type="text" id="vehicle_type" placeholder="e.g., Myvi, Vios, Axia" required>
+                            <span class="hint">Enter your car model</span>
+                        </div>
+
+                        <!-- ===== VEHICLE COLOR - TEXT INPUT ===== -->
+                        <div class="input-group" style="grid-column: span 2;">
+                            <label>🎨 Vehicle Color</label>
+                            <input type="text" id="vehicle_color" placeholder="e.g., White, Red, Black, Silver" required>
+                            <span class="hint">Enter your car color</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>🔒 Password</label>
+                    <input type="password" id="password" placeholder="Create a password (min 6 chars)" required>
+                </div>
+
+                <div class="input-group">
+                    <label>🔒 Confirm Password</label>
+                    <input type="password" id="confirm_password" placeholder="Confirm your password" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-start">Register →</button>
+        </form>
+
+        <div class="login-link">
+            Already have an account? <a href="C:\xampp\htdocs\parking_system\student\student_login.html">Login here</a>
+        </div>
+
+        <a href="C:\xampp\htdocs\parking_system\index.html" class="back-link">← Back to Home</a>
+    </div>
+</div>
+
+<script>
+function toggleMenu(){
+    var menu = document.getElementById("menu");
+    var overlay = document.getElementById("overlay");
+    menu.classList.toggle("active");
+    overlay.classList.toggle("active");
+}
+
+function registerStudent() {
+    // Get form values
+    let fullname = document.getElementById('fullname').value.trim();
+    let ic_no = document.getElementById('ic_no').value.trim();
+    let matric_no = document.getElementById('matric_no').value.trim();
+    let semester = document.getElementById('semester').value;
+    let program = document.getElementById('program').value;
+    let phone_no = document.getElementById('phone_no').value.trim();
+    let email = document.getElementById('email').value.trim();
+    let plate_no = document.getElementById('plate_no').value.trim().toUpperCase();
+    let vehicle_type = document.getElementById('vehicle_type').value.trim();
+    let vehicle_color = document.getElementById('vehicle_color').value.trim();
+    let password = document.getElementById('password').value;
+    let confirm_password = document.getElementById('confirm_password').value;
+    let errorMsg = document.getElementById('errorMsg');
+
+    // Clear previous error
+    errorMsg.style.display = 'none';
+    errorMsg.innerHTML = '';
+
+    // Validation - Password
+    if(password !== confirm_password) {
+        errorMsg.style.display = 'block';
+        errorMsg.innerHTML = '❌ Passwords do not match';
+        return false;
+    }
+
+    if(password.length < 6) {
+        errorMsg.style.display = 'block';
+        errorMsg.innerHTML = '❌ Password must be at least 6 characters';
+        return false;
+    }
+
+    // Validation - Plate Number
+    if(plate_no.length < 3) {
+        errorMsg.style.display = 'block';
+        errorMsg.innerHTML = '❌ Please enter a valid vehicle plate number (min 3 characters)';
+        return false;
+    }
+
+    // Validation - Vehicle Type
+    if(vehicle_type.length < 2) {
+        errorMsg.style.display = 'block';
+        errorMsg.innerHTML = '❌ Please enter your vehicle type/model';
+        return false;
+    }
+
+    // Validation - Vehicle Color
+    if(vehicle_color.length < 2) {
+        errorMsg.style.display = 'block';
+        errorMsg.innerHTML = '❌ Please enter your vehicle color';
+        return false;
+    }
+
+    // Get existing students
+    let students = JSON.parse(localStorage.getItem('students'));
+    if(!students) {
+        students = [];
+    }
+
+    // Check if email already exists
+    if(students.some(s => s.email === email)) {
+        errorMsg.style.display = 'block';
+        errorMsg.innerHTML = '❌ Email already registered. Please login.';
+        return false;
+    }
+
+    // Check if matric number already exists
+    if(students.some(s => s.matric_no === matric_no)) {
+        errorMsg.style.display = 'block';
+        errorMsg.innerHTML = '❌ Matric number already registered';
+        return false;
+    }
+
+    // Check if plate number already exists
+    if(students.some(s => s.plate_no === plate_no)) {
+        errorMsg.style.display = 'block';
+        errorMsg.innerHTML = '❌ This plate number is already registered by another student';
+        return false;
+    }
+
+    // Create new student object WITH vehicle details
+    let newStudent = {
+        id: Date.now(),
+        name: fullname,
+        ic_no: ic_no,
+        matric_no: matric_no,
+        semester: semester,
+        program: program,
+        phone_no: phone_no,
+        email: email,
+        password: password,
+        plate_no: plate_no,
+        vehicle_type: vehicle_type,
+        vehicle_color: vehicle_color
+    };
+
+    // Save to localStorage
+    students.push(newStudent);
+    localStorage.setItem('students', JSON.stringify(students));
+
+    // Save to sessionStorage for auto login
+    let loggedInStudent = {
+        id: newStudent.id,
+        name: newStudent.name,
+        email: newStudent.email,
+        matric_no: newStudent.matric_no,
+        ic_no: newStudent.ic_no,
+        phone_no: newStudent.phone_no,
+        plate_no: newStudent.plate_no,
+        vehicle_type: newStudent.vehicle_type,
+        vehicle_color: newStudent.vehicle_color,
+        semester: newStudent.semester,
+        program: newStudent.program
+    };
+    sessionStorage.setItem('loggedInStudent', JSON.stringify(loggedInStudent));
+
+    // Redirect to student dashboard
+    window.location.href = 'student_dashboard.php';
+    
+    return false;
+}
+</script>
+
+</body>
+</html>

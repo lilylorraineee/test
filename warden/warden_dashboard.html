@@ -1,0 +1,962 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warden Dashboard - TVET Parking System</title>
+   
+</head>
+<link rel="stylesheet" href="C:\xampp\htdocs\parking_system\Design\warden_dashboard.css">
+<body>
+
+<div class="topbar">
+    <div class="brand">TVETMARA LUMUT - Warden Portal</div>
+    <div class="menu-icon" onclick="toggleMenu()">☰</div>
+</div>
+
+<div id="overlay" onclick="toggleMenu()"></div>
+
+<div id="menu" class="menu">
+    <a href="index.php">🏠 Home</a>
+    <a href="login.php">🔐 Login</a>
+    <a href="student_signup.php">📝 Student Sign Up</a>
+    <a href="lecturer_signup.php">📝 Lecturer Sign Up</a>
+    <a href="#" class="logout-link" onclick="logout()">🚪 Logout</a>
+</div>
+
+<div class="dashboard-container">
+    <h2 class="main-title">👮 Parking Management Dashboard</h2>
+    <p class="subtitle">Manage and filter all student parking bookings (Premium & Basic)</p>
+
+    <!-- ===== STATISTICS ===== -->
+    <div class="stats-grid">
+        <div class="stat-box" id="statAll" onclick="filterByStatus('all')">
+            <span class="stat-icon">📋</span>
+            <div class="stat-label">Total Bookings</div>
+            <div class="number blue" id="totalBookings">0</div>
+            <div class="stat-sub click-hint">👆 Click to view all</div>
+        </div>
+        <div class="stat-box" id="statPending" onclick="filterByStatus('pending')">
+            <span class="stat-icon">🟡</span>
+            <div class="stat-label">Pending</div>
+            <div class="number yellow" id="pendingCount">0</div>
+            <div class="stat-sub click-hint">👆 Click to filter</div>
+        </div>
+        <div class="stat-box" id="statApproved" onclick="filterByStatus('approved')">
+            <span class="stat-icon">🟢</span>
+            <div class="stat-label">Approved</div>
+            <div class="number green" id="approvedCount">0</div>
+            <div class="stat-sub click-hint">👆 Click to filter</div>
+        </div>
+        <div class="stat-box" id="statPaid" onclick="filterByStatus('paid')">
+            <span class="stat-icon">🔵</span>
+            <div class="stat-label">Paid / Confirmed</div>
+            <div class="number purple" id="paidCount">0</div>
+            <div class="stat-sub click-hint">👆 Click to filter</div>
+        </div>
+    </div>
+
+    <!-- ===== FILTER BAR ===== -->
+    <div class="filter-bar">
+        <div class="filter-info">
+            📊 Showing: <span id="filterResultCount">0</span> bookings
+            <span id="filterBadges"></span>
+        </div>
+        <div class="filter-btn-group">
+            <button class="btn-filter" onclick="openFilterModal()">🔍 Filter</button>
+            <button class="btn-filter reset" onclick="resetFilters()">↺ Reset</button>
+            <button class="btn-refresh" onclick="loadAllData()">🔄 Refresh</button>
+        </div>
+    </div>
+
+    <!-- ===== PARKING BALANCE ===== -->
+    <div class="parking-balance">
+        <div class="balance-grid">
+            <div class="balance-box premium" onclick="filterPaidPremium()">
+                <div class="balance-icon">⭐</div>
+                <div class="balance-info">
+                    <div class="balance-label">Premium Parking</div>
+                    <div class="balance-numbers">
+                        <span class="available" id="premiumAvailable">0</span>
+                        <span class="total">/ <span id="premiumTotal">0</span></span>
+                    </div>
+                    <div class="balance-bar">
+                        <div class="bar-fill premium-fill" id="premiumBar" style="width: 0%;"></div>
+                    </div>
+                    <div class="click-hint">👆 Click to view Paid Premium</div>
+                </div>
+            </div>
+            <div class="balance-box basic" onclick="filterPaidBasic()">
+                <div class="balance-icon">🅿️</div>
+                <div class="balance-info">
+                    <div class="balance-label">Basic Parking</div>
+                    <div class="balance-numbers">
+                        <span class="available" id="basicAvailable">0</span>
+                        <span class="total">/ <span id="basicTotal">55</span></span>
+                    </div>
+                    <div class="balance-bar">
+                        <div class="bar-fill basic-fill" id="basicBar" style="width: 0%;"></div>
+                    </div>
+                    <div class="click-hint">👆 Click to view Paid Basic</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== STUDENT LIST (Booking Table) ===== -->
+    <div class="student-section">
+        <div class="section-header">
+            <div class="section-title">
+                🎓 Student List
+                <span class="badge-count" id="studentTotalCount">0</span>
+            </div>
+            <button class="btn-refresh" onclick="loadAllBookings()" style="font-size:13px; padding:8px 16px;">
+                🔄 Refresh List
+            </button>
+        </div>
+
+        <div class="glass">
+            <div class="table-wrapper">
+                <table class="bookings-table" id="bookingsTable">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Name</th>
+                            <th>Program</th>
+                            <th>Semester</th>
+                            <th>Plate No.</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bookingsBody">
+                        <tr>
+                            <td colspan="6" class="empty-msg">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== LECTURER SECTION ===== -->
+    <div class="lecturer-section">
+        <div class="section-header">
+            <div class="section-title">
+                👨‍🏫 Registered Lecturers
+                <span class="badge-count" id="lecturerTotalCount">0</span>
+            </div>
+            <button class="btn-refresh" onclick="loadLecturers()" style="font-size:13px; padding:8px 16px;">
+                🔄 Refresh List
+            </button>
+        </div>
+
+        <div class="glass">
+            <div class="lecturer-table-wrapper">
+                <table class="lecturer-table" id="lecturerTable">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Name</th>
+                            <th>Staff ID</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Program</th>
+                            <th>Plate No.</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lecturerBody">
+                        <tr>
+                            <td colspan="8" class="empty-msg">Loading lecturers...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== INSTRUCTIONS ===== -->
+    <div class="instructions-box">
+        <h4>📌 Instructions:</h4>
+        <p>✅ <span class="highlight-green">Approve</span> - Student will be notified to make payment</p>
+        <p>❌ <span class="highlight-red">Reject</span> - Booking will be cancelled, slot becomes available again</p>
+        <p>👆 Click <span class="highlight-orange">Total, Pending, Approved, or Paid</span> stat boxes to filter bookings by status</p>
+        <p>👆 Click <span class="highlight-blue">Premium</span> or <span class="highlight-green">Basic</span> balance boxes to view paid bookings</p>
+        <p>👆 Click on <span class="highlight-blue">Student Name</span> or <span class="highlight-green">View</span> button to see full details</p>
+        <p style="margin-top: 8px; color: #666; font-size: 13px;">🔄 Table auto-refreshes every 10 seconds</p>
+    </div>
+</div>
+
+<!-- ===== STUDENT DETAIL MODAL ===== -->
+<div id="studentModal" class="student-modal">
+    <div class="student-modal-content">
+        <div class="modal-header">
+            <h2>📋 Student Details</h2>
+            <button class="modal-close" onclick="closeStudentModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="studentModalBody">
+            <!-- Content will be inserted here -->
+        </div>
+        <div class="modal-footer">
+            <button class="btn-close-modal" onclick="closeStudentModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== FILTER MODAL ===== -->
+<div id="filterModal" class="filter-modal">
+    <div class="filter-modal-content">
+        <h2>🔍 Filter Bookings</h2>
+        <p class="subtitle">Select your filter options below</p>
+
+        <div class="filter-group">
+            <label>🎯 Course</label>
+            <select id="filterCourse">
+                <option value="all">All Courses</option>
+                <option value="ITW">ITW</option>
+                <option value="DFD">DFD</option>
+                <option value="DNS">DNS</option>
+                <option value="DTB">DTB</option>
+                <option value="DCP">DCP</option>
+                <option value="DCS">DCS</option>
+                <option value="DGA">DGA</option>
+                <option value="DCB">DCB</option>
+                <option value="DTF">DTF</option>
+                <option value="DTW">DTW</option>
+                <option value="SBN">SBN</option>
+                <option value="SLR">SLR</option>
+                <option value="SSB">SSB</option>
+                <option value="STF">STF</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label>📅 Semester</label>
+            <select id="filterSemester">
+                <option value="all">All Semesters</option>
+                <option value="1">Semester 1</option>
+                <option value="2">Semester 2</option>
+                <option value="3">Semester 3</option>
+                <option value="4">Semester 4</option>
+                <option value="5">Semester 5</option>
+                <option value="6">Semester 6</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label>🅿️ Parking Type</label>
+            <select id="filterType">
+                <option value="all">All Types</option>
+                <option value="premium">⭐ Premium</option>
+                <option value="basic">🅿️ Basic</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label>📌 Status</label>
+            <select id="filterStatus">
+                <option value="all">All Status</option>
+                <option value="pending">🟡 Pending</option>
+                <option value="approved">🟢 Approved</option>
+                <option value="paid">🔵 Paid</option>
+            </select>
+        </div>
+
+        <div class="filter-modal-actions">
+            <button class="btn-apply-filter" onclick="applyFilterFromModal()">✅ Apply Filter</button>
+            <button class="btn-close-filter" onclick="closeFilterModal()">❌ Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ============================================================
+// CHECK LOGIN
+// ============================================================
+let loggedInWarden = JSON.parse(sessionStorage.getItem('loggedInWarden'));
+let loggedInAdmin = JSON.parse(sessionStorage.getItem('loggedInAdmin'));
+
+if(!loggedInWarden && !loggedInAdmin) {
+    window.location.href = '../login.html';
+}
+
+// ============================================================
+// VARIABLES
+// ============================================================
+let allBookings = [];
+let filteredBookings = [];
+let activeStatusFilter = null;
+let allLecturers = [];
+
+// ============================================================
+// MENU FUNCTIONS
+// ============================================================
+function toggleMenu(){
+    var menu = document.getElementById("menu");
+    var overlay = document.getElementById("overlay");
+    menu.classList.toggle("active");
+    overlay.classList.toggle("active");
+}
+
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        sessionStorage.removeItem('loggedInWarden');
+        sessionStorage.removeItem('loggedInAdmin');
+        window.location.href = 'login.php';
+    }
+}
+
+// ============================================================
+// STUDENT MODAL FUNCTIONS
+// ============================================================
+function openStudentModal(booking) {
+    let body = document.getElementById('studentModalBody');
+    
+    let statusClass = '';
+    if (booking.status === 'pending') statusClass = 'tag-pending';
+    else if (booking.status === 'approved') statusClass = 'tag-approved';
+    else if (booking.status === 'paid' || booking.status === 'occupied') statusClass = 'tag-paid';
+    
+    let typeClass = booking.type === 'premium' ? 'tag-premium' : 'tag-basic';
+    
+    body.innerHTML = `
+        <div class="detail-grid">
+            <div class="detail-item full-width">
+                <span class="label">👤 Name</span>
+                <span class="value">${booking.studentName || 'N/A'}</span>
+            </div>
+            <div class="detail-item">
+                <span class="label">🪪 IC Number</span>
+                <span class="value">${booking.studentIC || 'N/A'}</span>
+            </div>
+            <div class="detail-item">
+                <span class="label">🎓 Matric No.</span>
+                <span class="value">${booking.studentMatric || 'N/A'}</span>
+            </div>
+            <div class="detail-item">
+                <span class="label">📖 Program</span>
+                <span class="value">${booking.studentCourse || 'N/A'}</span>
+            </div>
+            <div class="detail-item">
+                <span class="label">📅 Semester</span>
+                <span class="value">${booking.studentSemester || 'N/A'}</span>
+            </div>
+            <div class="detail-item">
+                <span class="label">📱 Phone</span>
+                <span class="value">${booking.studentPhone || 'N/A'}</span>
+            </div>
+            <div class="detail-item">
+                <span class="label">🚗 Plate No.</span>
+                <span class="value">${booking.plateNo || 'N/A'}</span>
+            </div>
+            <div class="detail-item">
+                <span class="label">🚙 Vehicle Type</span>
+                <span class="value">${booking.vehicleType || 'N/A'}</span>
+            </div>
+            <div class="detail-item">
+                <span class="label">🎨 Vehicle Color</span>
+                <span class="value">${booking.vehicleColor || 'N/A'}</span>
+            </div>
+            <div class="detail-divider"></div>
+            <div class="detail-item">
+                <span class="label">🅿️ Booking Type</span>
+                <span class="value"><span class="tag ${typeClass}">${booking.type || 'N/A'}</span></span>
+            </div>
+            <div class="detail-item">
+                <span class="label">📍 Slot</span>
+                <span class="value">${booking.slotId || 'Random'}</span>
+            </div>
+            <div class="detail-item">
+                <span class="label">📌 Status</span>
+                <span class="value"><span class="tag ${statusClass}">${booking.status || 'N/A'}</span></span>
+            </div>
+            <div class="detail-item">
+                <span class="label">🕐 Booking Time</span>
+                <span class="value">${new Date(booking.bookingTime).toLocaleString()}</span>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('studentModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeStudentModal() {
+    document.getElementById('studentModal').classList.remove('active');
+    document.body.style.overflow = 'auto';
+}
+
+// Close modal when clicking outside
+document.getElementById('studentModal').addEventListener('click', function(e) {
+    if(e.target === this) {
+        closeStudentModal();
+    }
+});
+
+// ============================================================
+// FILTER PAID PREMIUM
+// ============================================================
+function filterPaidPremium() {
+    document.getElementById('filterCourse').value = 'all';
+    document.getElementById('filterSemester').value = 'all';
+    document.getElementById('filterType').value = 'premium';
+    document.getElementById('filterStatus').value = 'paid';
+    
+    document.querySelectorAll('.stat-box').forEach(box => {
+        box.classList.remove('active-filter');
+    });
+    
+    activeStatusFilter = null;
+    applyFilters();
+}
+
+// ============================================================
+// FILTER PAID BASIC
+// ============================================================
+function filterPaidBasic() {
+    document.getElementById('filterCourse').value = 'all';
+    document.getElementById('filterSemester').value = 'all';
+    document.getElementById('filterType').value = 'basic';
+    document.getElementById('filterStatus').value = 'paid';
+    
+    document.querySelectorAll('.stat-box').forEach(box => {
+        box.classList.remove('active-filter');
+    });
+    
+    activeStatusFilter = null;
+    applyFilters();
+}
+
+// ============================================================
+// UPDATE PARKING BALANCE - HANYA PAID SAHAJA
+// ============================================================
+function updateParkingBalance() {
+    // ===== PREMIUM SLOTS =====
+    let premiumSlots = JSON.parse(localStorage.getItem('premiumSlots')) || [];
+    let premiumTotal = premiumSlots.length;
+    
+    // Kira PREMIUM yang PAID sahaja
+    let premiumPaid = premiumSlots.filter(s => s.bookedBy && s.bookedBy !== '' && (s.status === 'paid' || s.status === 'occupied')).length;
+    
+    document.getElementById('premiumAvailable').innerText = premiumPaid;
+    document.getElementById('premiumTotal').innerText = premiumTotal;
+    
+    let premiumPercent = premiumTotal > 0 ? (premiumPaid / premiumTotal) * 100 : 0;
+    document.getElementById('premiumBar').style.width = Math.min(premiumPercent, 100) + '%';
+    
+    // ===== BASIC SLOTS - 55 TOTAL =====
+    let basicTotal = 55;
+    
+    // Kumpul BASIC yang PAID sahaja
+    let basicPaid = 0;
+    let basicStudentIds = new Set();
+    
+    // 1. Dari allBasicBookings - hanya PAID
+    let allBasicBookings = JSON.parse(localStorage.getItem('allBasicBookings')) || [];
+    allBasicBookings.forEach(b => {
+        if (b.studentId && (b.status === 'paid' || b.status === 'occupied')) {
+            if (!basicStudentIds.has(b.studentId)) {
+                basicStudentIds.add(b.studentId);
+                basicPaid++;
+            }
+        }
+    });
+    
+    // 2. Dari myBasicBooking_* - hanya PAID
+    for(let key in localStorage) {
+        if(key.startsWith('myBasicBooking_')) {
+            try {
+                let booking = JSON.parse(localStorage.getItem(key));
+                if (booking && booking.studentId && (booking.status === 'paid' || booking.status === 'occupied')) {
+                    if (!basicStudentIds.has(booking.studentId)) {
+                        basicStudentIds.add(booking.studentId);
+                        basicPaid++;
+                    }
+                }
+            } catch(e) {}
+        }
+    }
+    
+    if (basicPaid > basicTotal) basicPaid = basicTotal;
+    
+    document.getElementById('basicAvailable').innerText = basicPaid;
+    document.getElementById('basicTotal').innerText = basicTotal;
+    
+    let basicPercent = basicTotal > 0 ? (basicPaid / basicTotal) * 100 : 0;
+    document.getElementById('basicBar').style.width = Math.min(basicPercent, 100) + '%';
+}
+
+// ============================================================
+// FILTER BY STATUS
+// ============================================================
+function filterByStatus(status) {
+    document.getElementById('filterType').value = 'all';
+    
+    document.querySelectorAll('.stat-box').forEach(box => {
+        box.classList.remove('active-filter');
+    });
+    
+    if (activeStatusFilter === status) {
+        activeStatusFilter = null;
+        document.getElementById('filterStatus').value = 'all';
+        applyFilters();
+        return;
+    }
+    
+    activeStatusFilter = status;
+    
+    if (status === 'all') {
+        document.getElementById('statAll').classList.add('active-filter');
+        document.getElementById('filterStatus').value = 'all';
+    } else if (status === 'pending') {
+        document.getElementById('statPending').classList.add('active-filter');
+        document.getElementById('filterStatus').value = 'pending';
+    } else if (status === 'approved') {
+        document.getElementById('statApproved').classList.add('active-filter');
+        document.getElementById('filterStatus').value = 'approved';
+    } else if (status === 'paid') {
+        document.getElementById('statPaid').classList.add('active-filter');
+        document.getElementById('filterStatus').value = 'paid';
+    }
+    
+    applyFilters();
+}
+
+// ============================================================
+// FILTER MODAL
+// ============================================================
+function openFilterModal() {
+    document.getElementById('filterModal').classList.add('active');
+}
+
+function closeFilterModal() {
+    document.getElementById('filterModal').classList.remove('active');
+}
+
+function applyFilterFromModal() {
+    closeFilterModal();
+    activeStatusFilter = null;
+    document.querySelectorAll('.stat-box').forEach(box => {
+        box.classList.remove('active-filter');
+    });
+    applyFilters();
+}
+
+// ============================================================
+// UPDATE STATS
+// ============================================================
+function updateStats(bookings) {
+    let total = bookings.length;
+    let pending = bookings.filter(b => b.status === 'pending').length;
+    let approved = bookings.filter(b => b.status === 'approved').length;
+    let paid = bookings.filter(b => b.status === 'paid' || b.status === 'occupied').length;
+    
+    document.getElementById('totalBookings').innerText = total;
+    document.getElementById('pendingCount').innerText = pending;
+    document.getElementById('approvedCount').innerText = approved;
+    document.getElementById('paidCount').innerText = paid;
+    document.getElementById('studentTotalCount').innerText = total;
+}
+
+// ============================================================
+// GET ALL BOOKINGS - PROGRAM BETUL
+// ============================================================
+function getAllBookings() {
+    let bookings = [];
+    let seen = new Set();
+    
+    let premiumSlots = JSON.parse(localStorage.getItem('premiumSlots')) || [];
+    premiumSlots.forEach(slot => {
+        if(slot.bookedBy) {
+            let key = 'premium_' + slot.bookedBy + '_' + slot.id;
+            if(!seen.has(key)) {
+                seen.add(key);
+                bookings.push({
+                    studentId: slot.bookedBy,
+                    studentName: slot.bookedByName || 'Unknown',
+                    studentIC: slot.studentIC || 'N/A',
+                    studentMatric: slot.studentMatric || 'N/A',
+                    studentCourse: slot.studentCourse || slot.program || 'N/A',
+                    studentSemester: slot.studentSemester || 'N/A',
+                    studentPhone: slot.studentPhone || 'N/A',
+                    plateNo: slot.plateNo || 'N/A',
+                    slotId: slot.id,
+                    type: 'premium',
+                    status: slot.status || 'pending',
+                    bookingTime: slot.bookingTime || new Date().toISOString(),
+                    vehicleType: slot.vehicleType || 'N/A',
+                    vehicleColor: slot.vehicleColor || 'N/A'
+                });
+            }
+        }
+    });
+    
+    for(let key in localStorage) {
+        if(key.startsWith('myPremiumBooking_')) {
+            try {
+                let booking = JSON.parse(localStorage.getItem(key));
+                if(booking && booking.studentId) {
+                    let uniqueKey = 'premium_' + booking.studentId + '_' + (booking.slotId || '');
+                    if(!seen.has(uniqueKey)) {
+                        seen.add(uniqueKey);
+                        bookings.push({
+                            studentId: booking.studentId,
+                            studentName: booking.studentName || 'Unknown',
+                            studentIC: booking.studentIC || 'N/A',
+                            studentMatric: booking.studentMatric || 'N/A',
+                            studentCourse: booking.studentCourse || booking.program || 'N/A',
+                            studentSemester: booking.studentSemester || 'N/A',
+                            studentPhone: booking.studentPhone || 'N/A',
+                            plateNo: booking.plateNo || 'N/A',
+                            slotId: booking.slotId || 'N/A',
+                            type: 'premium',
+                            status: booking.status || 'pending',
+                            bookingTime: booking.bookingTime || new Date().toISOString(),
+                            vehicleType: booking.vehicleType || 'N/A',
+                            vehicleColor: booking.vehicleColor || 'N/A'
+                        });
+                    }
+                }
+            } catch(e) {}
+        }
+    }
+    
+    let allBasicBookings = JSON.parse(localStorage.getItem('allBasicBookings')) || [];
+    allBasicBookings.forEach(booking => {
+        if(booking.studentId) {
+            let key = 'basic_' + booking.studentId;
+            if(!seen.has(key)) {
+                seen.add(key);
+                bookings.push({
+                    studentId: booking.studentId,
+                    studentName: booking.studentName || 'Unknown',
+                    studentIC: booking.studentIC || 'N/A',
+                    studentMatric: booking.studentMatric || 'N/A',
+                    studentCourse: booking.studentCourse || booking.program || 'N/A',
+                    studentSemester: booking.studentSemester || 'N/A',
+                    studentPhone: booking.studentPhone || 'N/A',
+                    plateNo: booking.plateNo || 'N/A',
+                    slotId: 'Random',
+                    type: 'basic',
+                    status: booking.status || 'pending',
+                    bookingTime: booking.bookingTime || new Date().toISOString(),
+                    vehicleType: booking.vehicleType || 'N/A',
+                    vehicleColor: booking.vehicleColor || 'N/A'
+                });
+            }
+        }
+    });
+    
+    for(let key in localStorage) {
+        if(key.startsWith('myBasicBooking_')) {
+            try {
+                let booking = JSON.parse(localStorage.getItem(key));
+                if(booking && booking.studentId) {
+                    let uniqueKey = 'basic_' + booking.studentId;
+                    if(!seen.has(uniqueKey)) {
+                        seen.add(uniqueKey);
+                        bookings.push({
+                            studentId: booking.studentId,
+                            studentName: booking.studentName || 'Unknown',
+                            studentIC: booking.studentIC || 'N/A',
+                            studentMatric: booking.studentMatric || 'N/A',
+                            studentCourse: booking.studentCourse || booking.program || 'N/A',
+                            studentSemester: booking.studentSemester || 'N/A',
+                            studentPhone: booking.studentPhone || 'N/A',
+                            plateNo: booking.plateNo || 'N/A',
+                            slotId: 'Random',
+                            type: 'basic',
+                            status: booking.status || 'pending',
+                            bookingTime: booking.bookingTime || new Date().toISOString(),
+                            vehicleType: booking.vehicleType || 'N/A',
+                            vehicleColor: booking.vehicleColor || 'N/A'
+                        });
+                    }
+                }
+            } catch(e) {}
+        }
+    }
+    
+    return bookings;
+}
+
+// ============================================================
+// APPLY FILTERS
+// ============================================================
+function applyFilters() {
+    let course = document.getElementById('filterCourse').value;
+    let semester = document.getElementById('filterSemester').value;
+    let type = document.getElementById('filterType').value;
+    let status = document.getElementById('filterStatus').value;
+    
+    filteredBookings = allBookings.filter(booking => {
+        if(course !== 'all' && booking.studentCourse !== course) return false;
+        if(semester !== 'all' && booking.studentSemester !== semester) return false;
+        if(type !== 'all' && booking.type !== type) return false;
+        if(status !== 'all' && booking.status !== status) return false;
+        return true;
+    });
+    
+    filteredBookings.sort((a, b) => new Date(b.bookingTime) - new Date(a.bookingTime));
+    
+    document.getElementById('filterResultCount').innerText = filteredBookings.length;
+    updateFilterBadges(course, semester, type, status);
+    renderTable(filteredBookings);
+}
+
+// ============================================================
+// UPDATE FILTER BADGES
+// ============================================================
+function updateFilterBadges(course, semester, type, status) {
+    let badgesHtml = '';
+    
+    if(course !== 'all') {
+        badgesHtml += `<span class="badge-filter badge-course">📚 ${course}</span>`;
+    }
+    if(semester !== 'all') {
+        badgesHtml += `<span class="badge-filter badge-semester">📅 Sem ${semester}</span>`;
+    }
+    if(type !== 'all') {
+        badgesHtml += `<span class="badge-filter badge-type">${type === 'premium' ? '⭐ Premium' : '🅿️ Basic'}</span>`;
+    }
+    if(status !== 'all') {
+        let statusLabel = status === 'pending' ? '🟡 Pending' : status === 'approved' ? '🟢 Approved' : '🔵 Paid';
+        badgesHtml += `<span class="badge-filter badge-status">${statusLabel}</span>`;
+    }
+    
+    document.getElementById('filterBadges').innerHTML = badgesHtml;
+}
+
+// ============================================================
+// RESET FILTERS
+// ============================================================
+function resetFilters() {
+    document.getElementById('filterCourse').value = 'all';
+    document.getElementById('filterSemester').value = 'all';
+    document.getElementById('filterType').value = 'all';
+    document.getElementById('filterStatus').value = 'all';
+    
+    activeStatusFilter = null;
+    document.querySelectorAll('.stat-box').forEach(box => {
+        box.classList.remove('active-filter');
+    });
+    
+    applyFilters();
+}
+
+// ============================================================
+// RENDER TABLE
+// ============================================================
+function renderTable(bookings) {
+    let tbody = document.getElementById('bookingsBody');
+    
+    if(bookings.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-msg">📭 No bookings found matching the filters.</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = '';
+    bookings.forEach((booking, index) => {
+        let row = tbody.insertRow();
+        
+        row.insertCell(0).innerText = index + 1;
+        
+        let nameCell = row.insertCell(1);
+        let nameSpan = document.createElement('span');
+        nameSpan.className = 'clickable-name';
+        nameSpan.textContent = booking.studentName || 'Unknown';
+        nameSpan.onclick = function() { openStudentModal(booking); };
+        nameCell.appendChild(nameSpan);
+        
+        row.insertCell(2).innerHTML = `<span class="course-tag">${booking.studentCourse || 'N/A'}</span>`;
+        row.insertCell(3).innerHTML = `<span class="semester-tag">Sem ${booking.studentSemester || 'N/A'}</span>`;
+        row.insertCell(4).innerHTML = `<strong style="color:#1a237e;">${booking.plateNo || 'N/A'}</strong>`;
+        
+        let actionCell = row.insertCell(5);
+        actionCell.style.display = 'flex';
+        actionCell.style.gap = '5px';
+        actionCell.style.flexWrap = 'wrap';
+        
+        let viewBtn = document.createElement('button');
+        viewBtn.innerText = '👁️ View';
+        viewBtn.className = 'btn-view';
+        viewBtn.onclick = function() { openStudentModal(booking); };
+        actionCell.appendChild(viewBtn);
+        
+        if(booking.status === 'pending') {
+            let approveBtn = document.createElement('button');
+            approveBtn.innerText = 'Approve';
+            approveBtn.className = 'btn-approve';
+            approveBtn.onclick = (function(b) { return function() { approveBooking(b); }; })(booking);
+            actionCell.appendChild(approveBtn);
+            
+            let rejectBtn = document.createElement('button');
+            rejectBtn.innerText = 'Reject';
+            rejectBtn.className = 'btn-reject';
+            rejectBtn.onclick = (function(b) { return function() { rejectBooking(b); }; })(booking);
+            actionCell.appendChild(rejectBtn);
+        }
+    });
+}
+
+// ============================================================
+// LOAD ALL BOOKINGS
+// ============================================================
+function loadAllBookings() {
+    allBookings = getAllBookings();
+    updateStats(allBookings);
+    applyFilters();
+}
+
+// ============================================================
+// APPROVE BOOKING
+// ============================================================
+function approveBooking(booking) {
+    if(confirm(`Approve booking for ${booking.studentName} (${booking.type.toUpperCase()})?\n\nMatric: ${booking.studentMatric}\nCourse: ${booking.studentCourse}`)) {
+        
+        if(booking.type === 'premium') {
+            let premiumSlots = JSON.parse(localStorage.getItem('premiumSlots')) || [];
+            let slot = premiumSlots.find(s => s.id == booking.slotId);
+            if(slot && slot.status === 'pending') {
+                slot.status = 'approved';
+                localStorage.setItem('premiumSlots', JSON.stringify(premiumSlots));
+            }
+            
+            let premiumKey = 'myPremiumBooking_' + booking.studentId;
+            let myPremiumBooking = JSON.parse(localStorage.getItem(premiumKey));
+            if(myPremiumBooking && myPremiumBooking.slotId == booking.slotId) {
+                myPremiumBooking.status = 'approved';
+                localStorage.setItem(premiumKey, JSON.stringify(myPremiumBooking));
+            }
+            
+        } else if(booking.type === 'basic') {
+            let allBasicBookings = JSON.parse(localStorage.getItem('allBasicBookings')) || [];
+            let index = allBasicBookings.findIndex(b => b.studentId === booking.studentId);
+            if(index !== -1) {
+                allBasicBookings[index].status = 'approved';
+                localStorage.setItem('allBasicBookings', JSON.stringify(allBasicBookings));
+            }
+            
+            let basicKey = 'myBasicBooking_' + booking.studentId;
+            let myBasicBooking = JSON.parse(localStorage.getItem(basicKey));
+            if(myBasicBooking && myBasicBooking.studentId === booking.studentId) {
+                myBasicBooking.status = 'approved';
+                localStorage.setItem(basicKey, JSON.stringify(myBasicBooking));
+            }
+        }
+        
+        alert('✅ Booking for ' + booking.studentName + ' has been APPROVED.\n\nStudent can now make payment.');
+        loadAllData();
+    }
+}
+
+// ============================================================
+// REJECT BOOKING
+// ============================================================
+function rejectBooking(booking) {
+    if(confirm(`Reject booking for ${booking.studentName} (${booking.type.toUpperCase()})?\n\nSlot will become available again.`)) {
+        
+        if(booking.type === 'premium') {
+            let premiumSlots = JSON.parse(localStorage.getItem('premiumSlots')) || [];
+            let slot = premiumSlots.find(s => s.id == booking.slotId);
+            if(slot) {
+                slot.status = 'available';
+                delete slot.bookedBy;
+                delete slot.bookedByName;
+                delete slot.studentIC;
+                delete slot.studentMatric;
+                delete slot.studentCourse;
+                delete slot.studentSemester;
+                delete slot.studentPhone;
+                delete slot.plateNo;
+                delete slot.bookingTime;
+                localStorage.setItem('premiumSlots', JSON.stringify(premiumSlots));
+            }
+            
+            let premiumKey = 'myPremiumBooking_' + booking.studentId;
+            localStorage.removeItem(premiumKey);
+            
+        } else if(booking.type === 'basic') {
+            let allBasicBookings = JSON.parse(localStorage.getItem('allBasicBookings')) || [];
+            let newBookings = allBasicBookings.filter(b => b.studentId !== booking.studentId);
+            localStorage.setItem('allBasicBookings', JSON.stringify(newBookings));
+            
+            let basicKey = 'myBasicBooking_' + booking.studentId;
+            localStorage.removeItem(basicKey);
+        }
+        
+        alert('❌ Booking for ' + booking.studentName + ' has been REJECTED.\n\nSlot is now available for other students.');
+        loadAllData();
+    }
+}
+
+// ============================================================
+// LECTURER FUNCTIONS
+// ============================================================
+function loadLecturers() {
+    let lecturers = JSON.parse(localStorage.getItem('lecturers')) || [];
+    allLecturers = lecturers;
+    
+    document.getElementById('lecturerTotalCount').innerText = lecturers.length;
+    
+    let tbody = document.getElementById('lecturerBody');
+    
+    if(lecturers.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="empty-msg">📭 No lecturers registered yet.</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = '';
+    lecturers.forEach((lecturer, index) => {
+        let row = tbody.insertRow();
+        
+        row.insertCell(0).innerText = index + 1;
+        row.insertCell(1).innerHTML = `<strong>${lecturer.name || 'N/A'}</strong>`;
+        row.insertCell(2).innerHTML = `<span class="staff-badge">${lecturer.staff_id || 'N/A'}</span>`;
+        row.insertCell(3).innerText = lecturer.email || 'N/A';
+        row.insertCell(4).innerText = lecturer.phone_no || 'N/A';
+        row.insertCell(5).innerHTML = `<span class="program-tag">${lecturer.program || 'N/A'}</span>`;
+        row.insertCell(6).innerHTML = lecturer.plate_no ? `<strong style="color:#1a237e;">${lecturer.plate_no}</strong>` : '<span style="color:#999;">-</span>';
+        
+        let actionCell = row.insertCell(7);
+        let viewBtn = document.createElement('button');
+        viewBtn.innerText = '👁️ View';
+        viewBtn.className = 'btn-view';
+        viewBtn.onclick = function() {
+            alert(`📋 Lecturer Details\n\nName: ${lecturer.name}\nStaff ID: ${lecturer.staff_id}\nEmail: ${lecturer.email}\nPhone: ${lecturer.phone_no}\nProgram: ${lecturer.program || 'N/A'}\nPlate No: ${lecturer.plate_no || 'Not registered'}`);
+        };
+        actionCell.appendChild(viewBtn);
+    });
+}
+
+// ============================================================
+// LOAD ALL DATA
+// ============================================================
+function loadAllData() {
+    loadAllBookings();
+    updateParkingBalance();
+}
+
+// ============================================================
+// CLOSE MODAL ON CLICK OUTSIDE
+// ============================================================
+document.getElementById('filterModal').addEventListener('click', function(e) {
+    if(e.target === this) {
+        closeFilterModal();
+    }
+});
+
+// ============================================================
+// LOAD ON PAGE LOAD
+// ============================================================
+loadAllData();
+loadLecturers();
+
+// Auto refresh every 10 seconds
+setInterval(loadAllData, 10000);
+setInterval(loadLecturers, 30000);
+</script>
+
+</body>
+</html>

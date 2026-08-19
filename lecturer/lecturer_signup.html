@@ -1,0 +1,268 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecturer Sign Up - TVET Parking System</title>
+    
+</head>
+<link rel="stylesheet" href="C:\xampp\htdocs\parking_system\Design\lecturer_signup.css">
+
+<body>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <div class="loading-text">Creating Account & Logging in...</div>
+</div>
+
+<div class="topbar">
+    <div class="brand">TVETMARA LUMUT</div>
+    <div class="menu-icon" onclick="toggleMenu()">☰</div>
+</div>
+
+<div id="overlay" onclick="toggleMenu()"></div>
+
+<div id="menu" class="menu">
+    <a href="index.php">🏠 Home</a>
+    <a href="student_login.php">🎓 Student Login</a>
+    <a href="student_signup.php">📝 Student Sign Up</a>
+    <a href="lecturer_login.php">👨‍🏫 Lecturer Login</a>
+    <a href="lecturer_signup.php">📝 Lecturer Sign Up</a>
+    <a href="warden_login.php" class="warden-link">👮 Warden Login</a>
+</div>
+
+<div class="dashboard-container">
+    <div class="signup-box glass">
+        <h2 class="main-title">👨‍🏫 Lecturer Registration</h2>
+
+        <div id="errorMsg" class="error-msg" style="display: none;"></div>
+
+        <form id="signupForm" onsubmit="return registerLecturer()">
+            <div class="form-grid">
+                <!-- Full Name - Full Width -->
+                <div class="input-group full-width">
+                    <label>👤 Full Name</label>
+                    <input type="text" id="fullname" placeholder="Dr. Ahmad Bin Abdullah" required>
+                </div>
+
+                <!-- Staff ID - 6 digit number sahaja -->
+                <div class="input-group">
+                    <label>🆔 Staff ID</label>
+                    <input type="text" id="staff_id" placeholder="123456" maxlength="6" required>
+                    <span class="hint">6 digit number only</span>
+                </div>
+
+                <!-- Email -->
+                <div class="input-group">
+                    <label>📧 Email</label>
+                    <input type="email" id="email" placeholder="lecturer@tvetmara.edu.my" required>
+                </div>
+
+                <!-- Phone Number -->
+                <div class="input-group">
+                    <label>📱 Phone Number</label>
+                    <input type="text" id="phone_no" placeholder="012-3456789" required>
+                </div>
+
+                <!-- Program - Sebelah Phone Number -->
+                <div class="input-group">
+                    <label>📖 Program</label>
+                    <select id="program" required>
+                        <option value="">Select Program</option>
+                        <option value="ITW">ITW</option>
+                        <option value="DFD">DFD</option>
+                        <option value="DNS">DNS</option>
+                        <option value="DTB">DTB</option>
+                        <option value="DCP">DCP</option>
+                        <option value="DCS">DCS</option>
+                        <option value="DGA">DGA</option>
+                        <option value="DCB">DCB</option>
+                        <option value="DTF">DTF</option>
+                        <option value="DTW">DTW</option>
+                        <option value="SBN">SBN</option>
+                        <option value="SLR">SLR</option>
+                        <option value="SSB">SSB</option>
+                        <option value="STF">STF</option>
+                        <option value="Pengajian Am">Pengajian Am</option>
+                    </select>
+                </div>
+
+                <!-- ===== STAFF VEHICLE DETAILS (Optional) ===== -->
+                <div class="staff-details">
+                    <div class="staff-title">🚗 Staff Vehicle Details (Optional)</div>
+                    <div class="form-grid-inner">
+                        <div class="input-group">
+                            <label>🚗 Plate Number</label>
+                            <input type="text" id="plate_no" placeholder="ABC1234" style="text-transform: uppercase;">
+                            <span class="hint">e.g., ABC1234 (optional)</span>
+                        </div>
+
+                        <div class="input-group">
+                            <label>🚙 Vehicle Type / Model</label>
+                            <input type="text" id="vehicle_type" placeholder="e.g., Myvi, Vios, Axia">
+                            <span class="hint">Car model (optional)</span>
+                        </div>
+
+                        <div class="input-group" style="grid-column: span 2;">
+                            <label>🎨 Vehicle Color</label>
+                            <input type="text" id="vehicle_color" placeholder="e.g., White, Red, Black, Silver">
+                            <span class="hint">Car color (optional)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="input-group">
+                    <label>🔒 Password</label>
+                    <input type="password" id="password" placeholder="Create a password (min 6 chars)" required>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="input-group">
+                    <label>🔒 Confirm Password</label>
+                    <input type="password" id="confirm_password" placeholder="Confirm your password" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-start">Register & Login →</button>
+        </form>
+
+        <div class="login-link">
+            Already have an account? <a href="C:\xampp\htdocs\parking_system\lecturer\lecturer_login.html">Login here</a>
+        </div>
+
+        <a href="C:\xampp\htdocs\parking_system\index.html" class="back-link">← Back to Home</a>
+    </div>
+</div>
+
+<script>
+function toggleMenu(){
+    var menu = document.getElementById("menu");
+    var overlay = document.getElementById("overlay");
+    menu.classList.toggle("active");
+    overlay.classList.toggle("active");
+}
+
+function registerLecturer() {
+    // Get form values
+    let fullname = document.getElementById('fullname').value.trim();
+    let staff_id = document.getElementById('staff_id').value.trim();
+    let email = document.getElementById('email').value.trim();
+    let phone_no = document.getElementById('phone_no').value.trim();
+    let program = document.getElementById('program').value;
+    let plate_no = document.getElementById('plate_no').value.trim().toUpperCase();
+    let vehicle_type = document.getElementById('vehicle_type').value.trim();
+    let vehicle_color = document.getElementById('vehicle_color').value.trim();
+    let password = document.getElementById('password').value;
+    let confirm_password = document.getElementById('confirm_password').value;
+    
+    let errorMsg = document.getElementById('errorMsg');
+
+    // Clear previous error
+    errorMsg.style.display = 'none';
+    errorMsg.innerHTML = '';
+
+    // Validation - Required fields
+    if(!fullname || !staff_id || !email || !phone_no || !program || !password || !confirm_password) {
+        errorMsg.style.display = 'block';
+        errorMsg.innerHTML = '❌ Please fill in all required fields';
+        return false;
+    }
+
+    // Validation - Staff ID must be 6 digits
+    if(!/^\d{6}$/.test(staff_id)) {
+        errorMsg.style.display = 'block';
+        errorMsg.innerHTML = '❌ Staff ID must be exactly 6 digits (e.g., 123456)';
+        return false;
+    }
+
+    // Validation - Password
+    if(password !== confirm_password) {
+        errorMsg.style.display = 'block';
+        errorMsg.innerHTML = '❌ Passwords do not match';
+        return false;
+    }
+
+    if(password.length < 6) {
+        errorMsg.style.display = 'block';
+        errorMsg.innerHTML = '❌ Password must be at least 6 characters';
+        return false;
+    }
+
+    // Get existing lecturers
+    let lecturers = JSON.parse(localStorage.getItem('lecturers'));
+    if(!lecturers) {
+        lecturers = [];
+    }
+
+    // Check if email already exists
+    if(lecturers.some(l => l.email === email)) {
+        errorMsg.style.display = 'block';
+        errorMsg.innerHTML = '❌ Email already registered. Please login.';
+        return false;
+    }
+
+    // Check if staff_id already exists
+    if(lecturers.some(l => l.staff_id === staff_id)) {
+        errorMsg.style.display = 'block';
+        errorMsg.innerHTML = '❌ Staff ID already registered';
+        return false;
+    }
+
+    // Check if plate number already exists (if provided)
+    if(plate_no && lecturers.some(l => l.plate_no === plate_no)) {
+        errorMsg.style.display = 'block';
+        errorMsg.innerHTML = '❌ This plate number is already registered by another staff';
+        return false;
+    }
+
+    // Create new lecturer object
+    let newLecturer = {
+        id: Date.now(),
+        name: fullname,
+        staff_id: staff_id,
+        email: email,
+        phone_no: phone_no,
+        program: program,
+        plate_no: plate_no || '',
+        vehicle_type: vehicle_type || '',
+        vehicle_color: vehicle_color || '',
+        password: password,
+        registered_at: new Date().toISOString()
+    };
+
+    // Save to localStorage
+    lecturers.push(newLecturer);
+    localStorage.setItem('lecturers', JSON.stringify(lecturers));
+
+    // Show loading overlay
+    document.getElementById('loadingOverlay').classList.add('active');
+
+    // Auto login - Save to sessionStorage
+    let lecturerData = {
+        id: newLecturer.id,
+        name: newLecturer.name,
+        email: newLecturer.email,
+        staff_id: newLecturer.staff_id,
+        phone_no: newLecturer.phone_no,
+        program: newLecturer.program,
+        plate_no: newLecturer.plate_no,
+        vehicle_type: newLecturer.vehicle_type,
+        vehicle_color: newLecturer.vehicle_color
+    };
+    
+    sessionStorage.setItem('loggedInLecturer', JSON.stringify(lecturerData));
+
+    // Redirect to dashboard after 1.5 seconds
+    setTimeout(function() {
+        window.location.href = 'lecturer_dashboard.php';
+    }, 1500);
+
+    return false;
+}
+</script>
+
+</body>
+</html>

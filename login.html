@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login - TVET Parking</title>
+   
+</head>
+<link rel="stylesheet" href="C:\xampp\htdocs\parking_system\Design\login.css">
+<body>
+
+<!-- ===== TOP BAR ===== -->
+<div class="topbar">
+    <div class="brand">TVETMARA LUMUT</div>
+    <div class="menu-icon" onclick="toggleMenu()">☰</div>
+</div>
+
+<!-- ===== OVERLAY (for menu) ===== -->
+<div id="overlay" onclick="toggleMenu()"></div>
+
+<!-- ===== SIDE MENU ===== -->
+<div id="menu" class="menu">
+    <a href="index.html">🏠 Home</a>
+    <a href="C:\xampp\htdocs\parking_system\login.html">🔐 Login</a>
+    <a href="C:\xampp\htdocs\parking_system\student\student_signup.html">📝 Student Sign Up</a>
+    <a href="C:\xampp\htdocs\parking_system\warden\warden_dashboard.html">📝 Lecturer Sign Up</a>
+    <a href="#">ℹ️ About</a>
+</div>
+
+<!-- ===== LOGIN FORM ===== -->
+<div class="login-container">
+    <div class="login-box glass">
+        <h2 class="main-title" id="pageTitle">🔐 Student Login</h2>
+
+        <div id="errorMsg" class="error-msg"></div>
+
+        <!-- Role Selection Buttons -->
+        <div class="role-selection">
+            <button type="button" id="studentRoleBtn" class="role-btn student active" onclick="selectRole('student')">🎓 Student</button>
+            <button type="button" id="lecturerRoleBtn" class="role-btn lecturer" onclick="selectRole('lecturer')">👨‍🏫 Lecturer</button>
+            <button type="button" id="adminRoleBtn" class="role-btn admin" onclick="selectRole('admin')">👑 Admin</button>
+        </div>
+
+        <form id="loginForm" onsubmit="return handleLogin()">
+            <div class="input-group">
+                <label id="emailLabel">📧 Email Address</label>
+                <input type="email" id="email" placeholder="your@email.com" required>
+            </div>
+
+            <div class="input-group">
+                <label>🔒 Password</label>
+                <input type="password" id="password" placeholder="Enter your password" required>
+            </div>
+
+            <button type="submit" class="btn-login" id="loginBtn">🎓 Login →</button>
+        </form>
+
+        <!-- Signup Links -->
+        <div id="studentSignupLink" class="signup-link">
+            Don't have an account? <a href="C:\xampp\htdocs\parking_system\student\student_signup.html">Sign Up here</a>
+        </div>
+        <div id="lecturerSignupLink" class="signup-link" style="display: none;">
+            Don't have an account? <a href="C:\xampp\htdocs\parking_system\lecturer\lecturer_signup.html">Sign Up here</a>
+        </div>
+        <div id="adminSignupLink" class="signup-link" style="display: none; color: #999;">
+            🔒 Admin access is restricted
+        </div>
+
+        <a href="index.html" class="back-link">← Back to Home</a>
+    </div>
+</div>
+
+<!-- ===== JAVASCRIPT ===== -->
+<script>
+// ============================================
+// VARIABLE: Untuk simpan role yang dipilih
+// ============================================
+let selectedRole = 'student';
+
+// ============================================
+// FUNCTION 1: toggleMenu()
+// Tujuan: Buka / tutup side menu
+// ============================================
+function toggleMenu() {
+    var menu = document.getElementById("menu");
+    var overlay = document.getElementById("overlay");
+    menu.classList.toggle("active");
+    overlay.classList.toggle("active");
+}
+
+// ============================================
+// FUNCTION 2: selectRole(role)
+// Tujuan: Tukar UI mengikut role yang dipilih
+// Parameter: 'student', 'lecturer', atau 'admin'
+// ============================================
+function selectRole(role) {
+    selectedRole = role;
+    
+    const studentBtn = document.getElementById('studentRoleBtn');
+    const lecturerBtn = document.getElementById('lecturerRoleBtn');
+    const adminBtn = document.getElementById('adminRoleBtn');
+    const loginBtn = document.getElementById('loginBtn');
+    const pageTitle = document.getElementById('pageTitle');
+    const emailLabel = document.getElementById('emailLabel');
+    const emailInput = document.getElementById('email');
+    const errorMsg = document.getElementById('errorMsg');
+    
+    // Sembunyikan error (kalau ada)
+    errorMsg.style.display = 'none';
+    errorMsg.innerHTML = '';
+    
+    // Reset semua button active
+    studentBtn.classList.remove('active');
+    lecturerBtn.classList.remove('active');
+    adminBtn.classList.remove('active');
+    
+    // Sembunyikan semua signup links
+    document.getElementById('studentSignupLink').style.display = 'none';
+    document.getElementById('lecturerSignupLink').style.display = 'none';
+    document.getElementById('adminSignupLink').style.display = 'none';
+    
+    // --- STUDENT ---
+    if(role === 'student') {
+        studentBtn.classList.add('active');
+        document.getElementById('studentSignupLink').style.display = 'block';
+        loginBtn.className = 'btn-login';
+        loginBtn.innerHTML = '🎓 Login →';
+        pageTitle.textContent = '🔐 Student Login';
+        emailLabel.textContent = '📧 Email Address';
+        emailInput.type = 'email';
+        emailInput.placeholder = 'student@email.com';
+        emailInput.value = '';
+    
+    // --- LECTURER ---
+    } else if(role === 'lecturer') {
+        lecturerBtn.classList.add('active');
+        document.getElementById('lecturerSignupLink').style.display = 'block';
+        loginBtn.className = 'btn-login lecturer-btn';
+        loginBtn.innerHTML = '👨‍🏫 Lecturer Login →';
+        pageTitle.textContent = '👨‍🏫 Lecturer Login';
+        emailLabel.textContent = '📧 Email Address';
+        emailInput.type = 'email';
+        emailInput.placeholder = 'lecturer@tvetmara.edu.my';
+        emailInput.value = '';
+    
+    // --- ADMIN ---
+    } else if(role === 'admin') {
+        adminBtn.classList.add('active');
+        document.getElementById('adminSignupLink').style.display = 'block';
+        loginBtn.className = 'btn-login admin-btn';
+        loginBtn.innerHTML = '👑 Admin Login →';
+        pageTitle.textContent = '👑 Admin Login';
+        emailLabel.textContent = '👤 Username';
+        emailInput.type = 'text';
+        emailInput.placeholder = 'Enter your username';
+        emailInput.value = '';
+    }
+}
+
+// ============================================
+// FUNCTION 3: handleLogin()
+// Tujuan: Sahkan login dan redirect
+// ============================================
+function handleLogin() {
+    let email = document.getElementById('email').value.trim();
+    let password = document.getElementById('password').value.trim();
+    let errorMsg = document.getElementById('errorMsg');
+    
+    // Reset error
+    errorMsg.style.display = 'none';
+    errorMsg.innerHTML = '';
+    
+    // Validation: Check empty fields
+    if (!email || !password) {
+        errorMsg.style.display = 'block';
+        errorMsg.innerHTML = '❌ Please fill in all fields.';
+        return false;
+    }
+    
+    // --- STUDENT LOGIN ---
+    if(selectedRole === 'student') {
+        let students = JSON.parse(localStorage.getItem('students')) || [];
+        let student = students.find(s => s.email === email && s.password === password);
+        
+        if(student) {
+            // Simpan data student dalam sessionStorage
+            sessionStorage.setItem('loggedInStudent', JSON.stringify({
+                id: student.id,
+                name: student.name,
+                email: student.email,
+                matric_no: student.matric_no,
+                ic_no: student.ic_no,
+                phone_no: student.phone_no,
+                plate_no: student.plate_no || '',
+                vehicle_type: student.vehicle_type || '',
+                vehicle_color: student.vehicle_color || '',
+                semester: student.semester,
+                program: student.program
+            }));
+            // Redirect ke dashboard student
+            window.location.href = 'C:\xampp\htdocs\parking_system\student\student_dashboard.html';
+        } else {
+            errorMsg.style.display = 'block';
+            errorMsg.innerHTML = '❌ Invalid email or password. Please try again.';
+        }
+        return false;
+    
+    // --- LECTURER LOGIN ---
+    } else if(selectedRole === 'lecturer') {
+        let lecturers = JSON.parse(localStorage.getItem('lecturers')) || [];
+        let lecturer = lecturers.find(l => l.email === email && l.password === password);
+        
+        if(lecturer) {
+            sessionStorage.setItem('loggedInLecturer', JSON.stringify({
+                id: lecturer.id,
+                name: lecturer.name,
+                email: lecturer.email,
+                staff_id: lecturer.staff_id,
+                phone_no: lecturer.phone_no,
+                program: lecturer.program,
+                plate_no: lecturer.plate_no || '',
+                vehicle_type: lecturer.vehicle_type || '',
+                vehicle_color: lecturer.vehicle_color || ''
+            }));
+            window.location.href = 'lecturer_dashboard.html';
+        } else {
+            errorMsg.style.display = 'block';
+            errorMsg.innerHTML = '❌ Invalid email or password. Please try again.';
+        }
+        return false;
+    
+    // --- ADMIN LOGIN (Hardcoded) ---
+    } else if(selectedRole === 'admin') {
+        const ADMIN_USERNAME = 'admin';
+        const ADMIN_PASSWORD = 'admin123';
+        
+        if (email === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+            sessionStorage.setItem('loggedInAdmin', JSON.stringify({
+                name: 'Super Administrator',
+                username: ADMIN_USERNAME,
+                role: 'admin'
+            }));
+            window.location.href = 'C:\xampp\htdocs\parking_system\warden\warden_dashboard.html';
+        } else {
+            errorMsg.style.display = 'block';
+            errorMsg.innerHTML = '❌ Invalid username or password.';
+        }
+        return false;
+    }
+    
+    return false;
+}
+
+// ============================================
+// FUNCTION 4: Auto-select role from URL
+// Tujuan: Boleh guna ?role=admin di URL
+// ============================================
+window.onload = function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const role = urlParams.get('role');
+    if(role === 'admin') {
+        selectRole('admin');
+    } else if(role === 'lecturer') {
+        selectRole('lecturer');
+    }
+};
+</script>
+
+</body>
+</html>

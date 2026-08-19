@@ -317,7 +317,7 @@
 
 <script>
 // ============================================================
-// EMAILJS SETUP - GUNAKAN ID ANDA
+// EMAILJS SETUP
 // ============================================================
 
 // 🔴 Public Key dari EmailJS
@@ -625,31 +625,62 @@ function updateStats(bookings) {
 }
 
 // ============================================================
-// GET ALL BOOKINGS - DENGAN EMAIL STUDENT
+// GET ALL BOOKINGS - DENGAN EMAIL STUDENT (VERSION TERBAIK)
 // ============================================================
 function getAllBookings() {
     let bookings = [];
     let seen = new Set();
     
-    // Function untuk cari email student
-    function getStudentEmail(studentId, matricNo) {
+    // ===== FUNCTION CARI EMAIL STUDENT =====
+    function getStudentEmail(studentId, matricNo, studentName) {
         let students = JSON.parse(localStorage.getItem('students')) || [];
-        let student = students.find(s => s.id === studentId || s.matric_no === matricNo);
-        return student ? student.email : '';
+        
+        // Cara 1: Cari dengan ID (convert to string for comparison)
+        let student = students.find(s => String(s.id) === String(studentId));
+        if (student && student.email) return student.email;
+        
+        // Cara 2: Cari dengan Matric No
+        student = students.find(s => s.matric_no === matricNo);
+        if (student && student.email) return student.email;
+        
+        // Cara 3: Cari dengan Name (jika ID tak match)
+        if (studentName) {
+            student = students.find(s => s.name === studentName);
+            if (student && student.email) return student.email;
+        }
+        
+        // Cara 4: Cari dari booking data dalam localStorage
+        for(let key in localStorage) {
+            if(key.startsWith('myPremiumBooking_') || key.startsWith('myBasicBooking_')) {
+                try {
+                    let booking = JSON.parse(localStorage.getItem(key));
+                    if (booking && String(booking.studentId) === String(studentId)) {
+                        if (booking.studentEmail) return booking.studentEmail;
+                    }
+                } catch(e) {}
+            }
+        }
+        
+        // Cara 5: Cari dari premiumSlots
+        let premiumSlots = JSON.parse(localStorage.getItem('premiumSlots')) || [];
+        let slot = premiumSlots.find(s => String(s.bookedBy) === String(studentId));
+        if (slot && slot.studentEmail) return slot.studentEmail;
+        
+        return '';
     }
     
-    // Premium Slots
+    // ===== PREMIUM SLOTS =====
     let premiumSlots = JSON.parse(localStorage.getItem('premiumSlots')) || [];
     premiumSlots.forEach(slot => {
         if(slot.bookedBy) {
             let key = 'premium_' + slot.bookedBy + '_' + slot.id;
             if(!seen.has(key)) {
                 seen.add(key);
-                let email = slot.studentEmail || getStudentEmail(slot.bookedBy, slot.studentMatric);
+                let email = slot.studentEmail || getStudentEmail(slot.bookedBy, slot.studentMatric, slot.bookedByName);
                 bookings.push({
                     studentId: slot.bookedBy,
                     studentName: slot.bookedByName || 'Unknown',
-                    studentEmail: email,  // ✅ TAMBAH EMAIL
+                    studentEmail: email,
                     studentIC: slot.studentIC || 'N/A',
                     studentMatric: slot.studentMatric || 'N/A',
                     studentCourse: slot.studentCourse || slot.program || 'N/A',
@@ -667,7 +698,7 @@ function getAllBookings() {
         }
     });
     
-    // myPremiumBooking_
+    // ===== MY PREMIUM BOOKING =====
     for(let key in localStorage) {
         if(key.startsWith('myPremiumBooking_')) {
             try {
@@ -676,11 +707,11 @@ function getAllBookings() {
                     let uniqueKey = 'premium_' + booking.studentId + '_' + (booking.slotId || '');
                     if(!seen.has(uniqueKey)) {
                         seen.add(uniqueKey);
-                        let email = booking.studentEmail || getStudentEmail(booking.studentId, booking.studentMatric);
+                        let email = booking.studentEmail || getStudentEmail(booking.studentId, booking.studentMatric, booking.studentName);
                         bookings.push({
                             studentId: booking.studentId,
                             studentName: booking.studentName || 'Unknown',
-                            studentEmail: email,  // ✅ TAMBAH EMAIL
+                            studentEmail: email,
                             studentIC: booking.studentIC || 'N/A',
                             studentMatric: booking.studentMatric || 'N/A',
                             studentCourse: booking.studentCourse || booking.program || 'N/A',
@@ -700,18 +731,18 @@ function getAllBookings() {
         }
     }
     
-    // allBasicBookings
+    // ===== ALL BASIC BOOKINGS =====
     let allBasicBookings = JSON.parse(localStorage.getItem('allBasicBookings')) || [];
     allBasicBookings.forEach(booking => {
         if(booking.studentId) {
             let key = 'basic_' + booking.studentId;
             if(!seen.has(key)) {
                 seen.add(key);
-                let email = booking.studentEmail || getStudentEmail(booking.studentId, booking.studentMatric);
+                let email = booking.studentEmail || getStudentEmail(booking.studentId, booking.studentMatric, booking.studentName);
                 bookings.push({
                     studentId: booking.studentId,
                     studentName: booking.studentName || 'Unknown',
-                    studentEmail: email,  // ✅ TAMBAH EMAIL
+                    studentEmail: email,
                     studentIC: booking.studentIC || 'N/A',
                     studentMatric: booking.studentMatric || 'N/A',
                     studentCourse: booking.studentCourse || booking.program || 'N/A',
@@ -729,7 +760,7 @@ function getAllBookings() {
         }
     });
     
-    // myBasicBooking_
+    // ===== MY BASIC BOOKING =====
     for(let key in localStorage) {
         if(key.startsWith('myBasicBooking_')) {
             try {
@@ -738,11 +769,11 @@ function getAllBookings() {
                     let uniqueKey = 'basic_' + booking.studentId;
                     if(!seen.has(uniqueKey)) {
                         seen.add(uniqueKey);
-                        let email = booking.studentEmail || getStudentEmail(booking.studentId, booking.studentMatric);
+                        let email = booking.studentEmail || getStudentEmail(booking.studentId, booking.studentMatric, booking.studentName);
                         bookings.push({
                             studentId: booking.studentId,
                             studentName: booking.studentName || 'Unknown',
-                            studentEmail: email,  // ✅ TAMBAH EMAIL
+                            studentEmail: email,
                             studentIC: booking.studentIC || 'N/A',
                             studentMatric: booking.studentMatric || 'N/A',
                             studentCourse: booking.studentCourse || booking.program || 'N/A',

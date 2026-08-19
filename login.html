@@ -18,10 +18,10 @@
 
 <!-- ===== SIDE MENU ===== -->
 <div id="menu" class="menu">
-    <a href="index.html">🏠 Home</a>
-    <a href="login.html">🔐 Login</a>
-    <a href="student_signup.html">📝 Student Sign Up</a>
-    <a href="lecturer_signup.html">📝 Lecturer Sign Up</a>
+    <a href="https://saver-systm.lilylorraineee.workers.dev/index.html">🏠 Home</a>
+    <a href="https://saver-systm.lilylorraineee.workers.dev/login.html">🔐 Login</a>
+    <a href="https://saver-systm.lilylorraineee.workers.dev/student/student_signup.html">📝 Student Sign Up</a>
+    <a href="https://saver-systm.lilylorraineee.workers.dev/lecturer/lecturer_signup.html">📝 Lecturer Sign Up</a>
     <a href="#">ℹ️ About</a>
 </div>
 
@@ -55,16 +55,16 @@
 
         <!-- Signup Links -->
         <div id="studentSignupLink" class="signup-link">
-            Don't have an account? <a href="student_signup.html">Sign Up here</a>
+            Don't have an account? <a href="https://saver-systm.lilylorraineee.workers.dev/student/student_signup.html">Sign Up here</a>
         </div>
         <div id="lecturerSignupLink" class="signup-link" style="display: none;">
-            Don't have an account? <a href="lecturer_signup.html">Sign Up here</a>
+            Don't have an account? <a href="https://saver-systm.lilylorraineee.workers.dev/lecturer/lecturer_signup.html">Sign Up here</a>
         </div>
         <div id="adminSignupLink" class="signup-link" style="display: none; color: #999;">
             🔒 Admin access is restricted
         </div>
 
-        <a href="index.html" class="back-link">← Back to Home</a>
+        <a href="https://saver-systm.lilylorraineee.workers.dev/index.html" class="back-link">← Back to Home</a>
     </div>
 </div>
 
@@ -223,7 +223,7 @@ function handleLogin() {
                 program: student.program
             }));
             // Redirect ke dashboard student
-            window.location.href = 'student_dashboard.html';
+            window.location.href = 'https://saver-systm.lilylorraineee.workers.dev/student/student_dashboard.html';
         } else {
             if (errorMsg) {
                 errorMsg.style.display = 'block';
@@ -249,7 +249,7 @@ function handleLogin() {
                 vehicle_type: lecturer.vehicle_type || '',
                 vehicle_color: lecturer.vehicle_color || ''
             }));
-            window.location.href = 'lecturer_dashboard.html';
+            window.location.href = 'https://saver-systm.lilylorraineee.workers.dev/lecturer/lecturer_dashboard.html';
         } else {
             if (errorMsg) {
                 errorMsg.style.display = 'block';
@@ -269,7 +269,7 @@ function handleLogin() {
                 username: ADMIN_USERNAME,
                 role: 'admin'
             }));
-            window.location.href = 'warden_dashboard.html';
+            window.location.href = 'https://saver-systm.lilylorraineee.workers.dev/warden/warden_dashboard.html';
         } else {
             if (errorMsg) {
                 errorMsg.style.display = 'block';

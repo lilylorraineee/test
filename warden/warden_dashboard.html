@@ -372,130 +372,111 @@ function logout() {
 }
 
 /* ============================================================
-   FIND STUDENT EMAIL - FIXED
-============================================================ */
-
-function findStudentEmail(studentId) {
-    if (!studentId) {
-        return "";
-    }
-
-    // 1. Search students in localStorage
-    var students = JSON.parse(localStorage.getItem('students')) || [];
-    for (var i = 0; i < students.length; i++) {
-        if (String(students[i].id) === String(studentId)) {
-            if (students[i].email) {
-                return String(students[i].email).trim();
-            }
-        }
-        // Check by matric if ID not match
-        if (String(students[i].matric_no) === String(studentId)) {
-            if (students[i].email) {
-                return String(students[i].email).trim();
-            }
-        }
-    }
-
-    // 2. Search premiumSlots
-    var premiumSlots = JSON.parse(localStorage.getItem('premiumSlots')) || [];
-    for (var j = 0; j < premiumSlots.length; j++) {
-        if (String(premiumSlots[j].bookedBy) === String(studentId)) {
-            if (premiumSlots[j].studentEmail) {
-                return String(premiumSlots[j].studentEmail).trim();
-            }
-        }
-    }
-
-    // 3. Search all localStorage items
-    for (var key in localStorage) {
-        try {
-            var rawData = localStorage.getItem(key);
-            if (!rawData) continue;
-            var data = JSON.parse(rawData);
-            
-            if (data && typeof data === "object" && !Array.isArray(data)) {
-                if (String(data.studentId || data.student_id || "") === String(studentId)) {
-                    var email = data.email || data.studentEmail || data.student_email;
-                    if (email && String(email).includes("@")) {
-                        return String(email).trim();
-                    }
-                }
-            }
-            
-            if (Array.isArray(data)) {
-                for (var k = 0; k < data.length; k++) {
-                    var item = data[k];
-                    if (!item || typeof item !== "object") continue;
-                    if (String(item.studentId || item.student_id || "") === String(studentId)) {
-                        var email = item.email || item.studentEmail || item.student_email;
-                        if (email && String(email).includes("@")) {
-                            return String(email).trim();
-                        }
-                    }
-                }
-            }
-        } catch(error) {}
-    }
-
-    return "";
-}
-
-/* ============================================================
-   GET EMAIL FROM BOOKING - FIXED WITH DEBUG
+   GET EMAIL FROM BOOKING - AUTO ADD EMAIL
 ============================================================ */
 
 function getBookingEmail(booking) {
-    console.log("🔍 DEBUG: Searching email for booking:", booking);
+    console.log("🔍 Searching email for:", booking.studentName);
     
     // 1. Check booking.studentEmail
     if (booking.studentEmail && String(booking.studentEmail).includes("@")) {
-        console.log("✅ Found in booking.studentEmail:", booking.studentEmail);
         return String(booking.studentEmail).trim();
     }
     
     // 2. Check booking.email
     if (booking.email && String(booking.email).includes("@")) {
-        console.log("✅ Found in booking.email:", booking.email);
         return String(booking.email).trim();
     }
     
-    // 3. Try using studentId
-    if (booking.studentId) {
-        var found = findStudentEmail(booking.studentId);
-        if (found) {
-            console.log("✅ Found via findStudentEmail:", found);
-            return found;
+    // 3. Check students list
+    var students = JSON.parse(localStorage.getItem('students')) || [];
+    for (var i = 0; i < students.length; i++) {
+        if (String(students[i].id) === String(booking.studentId)) {
+            if (students[i].email && String(students[i].email).includes("@")) {
+                return String(students[i].email).trim();
+            }
+        }
+        if (String(students[i].matric_no) === String(booking.studentMatric)) {
+            if (students[i].email && String(students[i].email).includes("@")) {
+                return String(students[i].email).trim();
+            }
         }
     }
     
-    console.log("❌ No email found for student!");
-    return "";
+    // 4. Check premiumSlots
+    var premiumSlots = JSON.parse(localStorage.getItem('premiumSlots')) || [];
+    for (var j = 0; j < premiumSlots.length; j++) {
+        if (String(premiumSlots[j].bookedBy) === String(booking.studentId)) {
+            if (premiumSlots[j].studentEmail && String(premiumSlots[j].studentEmail).includes("@")) {
+                return String(premiumSlots[j].studentEmail).trim();
+            }
+        }
+    }
+    
+    // 5. AUTO TAMBAH EMAIL
+    console.log("⚠️ No email found! Auto-adding email for:", booking.studentName);
+    
+    var dummyEmail = booking.studentMatric ? 
+        booking.studentMatric.toLowerCase() + "@tvetmara.edu.my" : 
+        "student" + booking.studentId + "@tvetmara.edu.my";
+    
+    var existingStudent = students.find(function(s) {
+        return String(s.id) === String(booking.studentId);
+    });
+    
+    if (existingStudent) {
+        existingStudent.email = dummyEmail;
+    } else {
+        students.push({
+            id: booking.studentId,
+            name: booking.studentName || 'Unknown',
+            email: dummyEmail,
+            matric_no: booking.studentMatric || 'N/A'
+        });
+    }
+    localStorage.setItem('students', JSON.stringify(students));
+    console.log("✅ Auto-added email:", dummyEmail);
+    
+    for (var k = 0; k < premiumSlots.length; k++) {
+        if (String(premiumSlots[k].bookedBy) === String(booking.studentId)) {
+            premiumSlots[k].studentEmail = dummyEmail;
+        }
+    }
+    localStorage.setItem('premiumSlots', JSON.stringify(premiumSlots));
+    
+    for (var key in localStorage) {
+        if (key.startsWith('myPremiumBooking_')) {
+            try {
+                var data = JSON.parse(localStorage.getItem(key));
+                if (data && String(data.studentId) === String(booking.studentId)) {
+                    data.studentEmail = dummyEmail;
+                    localStorage.setItem(key, JSON.stringify(data));
+                }
+            } catch(e) {}
+        }
+    }
+    
+    return dummyEmail;
 }
 
 /* ============================================================
-   SEND APPROVAL EMAIL - FIXED
+   SEND APPROVAL EMAIL
 ============================================================ */
 
 function sendApprovalEmail(booking) {
     return new Promise(function(resolve, reject) {
         
-        console.log("========================================");
-        console.log("📧 SENDING APPROVAL EMAIL");
-        console.log("========================================");
-        
         var studentEmail = getBookingEmail(booking);
         
-        console.log("📧 Final Student Email:", studentEmail);
+        console.log("📧 Sending email to:", studentEmail);
         
         if (!studentEmail || studentEmail === "") {
-            console.error("❌ Student email not found for:", booking.studentId);
-            alert("⚠️ No email found for student!\n\nPlease add email manually.");
-            showToast('⚠️ No email found for ' + booking.studentName, 'warning');
-            reject(new Error("Student email not found"));
+            alert("❌ Cannot send email. No email found.");
+            showToast('⚠️ No email found', 'warning');
+            reject(new Error("No email"));
             return;
         }
 
-        // Format date
         var bookingDate = "N/A";
         var bookingTime = "N/A";
 
@@ -511,18 +492,15 @@ function sendApprovalEmail(booking) {
             }
         }
 
-        // Payment deadline (2 days)
         var deadline = new Date();
         deadline.setDate(deadline.getDate() + 2);
         var paymentDeadline = deadline.toLocaleDateString('ms-MY', {
             day: 'numeric', month: 'long', year: 'numeric'
         });
 
-        // Price
         var parkingPrice = booking.type === 'premium' ? '50.00' : '30.00';
         var parkingTypeLabel = booking.type === 'premium' ? '⭐ Premium' : '🅿️ Basic';
 
-        // Email parameters
         var templateParams = {
             to_email: studentEmail,
             student_name: booking.studentName || 'Student',
@@ -535,527 +513,22 @@ function sendApprovalEmail(booking) {
             website_link: WEBSITE_LINK
         };
 
-        console.log("📧 EMAIL PARAMS:", templateParams);
-        console.log("📧 Service ID:", EMAILJS_SERVICE_ID);
-        console.log("📧 Template ID:", EMAILJS_TEMPLATE_ID);
+        console.log("📧 Template Params:", templateParams);
 
-        // Send email
         emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
             .then(function(response) {
-                console.log("✅ EMAIL SENT SUCCESSFULLY!", response.status, response.text);
+                console.log("✅ EMAIL SENT!", response.status);
                 alert("✅ Email sent to " + studentEmail);
                 showToast('✅ Email sent to ' + studentEmail, 'success');
                 resolve(response);
             })
             .catch(function(error) {
                 console.error("❌ EMAILJS ERROR:", error);
-                console.error("❌ Error details:", error.text || error.message);
-                alert("❌ Email failed to send.\n\nError: " + (error.text || error.message));
-                showToast('❌ Email failed to send. Check console.', 'error');
+                alert("❌ Email failed. Error: " + (error.text || error.message));
+                showToast('❌ Email failed to send.', 'error');
                 reject(error);
             });
     });
-}
-
-/* ============================================================
-   DEBUG - SEMAK EMAIL STUDENT
-============================================================ */
-
-function debugStudentEmail() {
-    console.log("========================================");
-    console.log("🔍 DEBUG STUDENT EMAIL");
-    console.log("========================================");
-    
-    var students = JSON.parse(localStorage.getItem('students')) || [];
-    console.log("📋 All students in localStorage:", students);
-    
-    var premiumSlots = JSON.parse(localStorage.getItem('premiumSlots')) || [];
-    console.log("📋 Premium Slots:", premiumSlots);
-    
-    console.log("========================================");
-    console.log("💡 To add email manually, run this in Console:");
-    console.log("");
-    console.log("var students = JSON.parse(localStorage.getItem('students')) || [];");
-    console.log("var student = students.find(s => s.id === 1787127905548);");
-    console.log("if (student) { student.email = 'your_email@gmail.com'; localStorage.setItem('students', JSON.stringify(students)); console.log('✅ Email added!'); }");
-    console.log("========================================");
-}
-
-// Call debug function
-debugStudentEmail();
-
-/* ============================================================
-   STUDENT MODAL
-============================================================ */
-
-function openStudentModal(booking) {
-    var body = document.getElementById('studentModalBody');
-    
-    var statusClass = '';
-    if (booking.status === 'pending') statusClass = 'tag-pending';
-    else if (booking.status === 'approved') statusClass = 'tag-approved';
-    else if (booking.status === 'paid' || booking.status === 'occupied') statusClass = 'tag-paid';
-    
-    var typeClass = booking.type === 'premium' ? 'tag-premium' : 'tag-basic';
-    var email = getBookingEmail(booking);
-    
-    body.innerHTML = `
-        <div class="detail-grid">
-            <div class="detail-item full-width">
-                <span class="label">👤 Name</span>
-                <span class="value">${booking.studentName || 'N/A'}</span>
-            </div>
-            <div class="detail-item full-width" style="background:#e8f5e9; padding:10px; border-radius:8px;">
-                <span class="label">📧 Email</span>
-                <span class="value" style="color:#2e7d32; font-weight:bold;">${email || '❌ No email found'}</span>
-            </div>
-            <div class="detail-item"><span class="label">🪪 IC Number</span><span class="value">${booking.studentIC || 'N/A'}</span></div>
-            <div class="detail-item"><span class="label">🎓 Matric No.</span><span class="value">${booking.studentMatric || 'N/A'}</span></div>
-            <div class="detail-item"><span class="label">📖 Program</span><span class="value">${booking.studentCourse || 'N/A'}</span></div>
-            <div class="detail-item"><span class="label">📅 Semester</span><span class="value">${booking.studentSemester || 'N/A'}</span></div>
-            <div class="detail-item"><span class="label">📱 Phone</span><span class="value">${booking.studentPhone || 'N/A'}</span></div>
-            <div class="detail-item"><span class="label">🚗 Plate No.</span><span class="value">${booking.plateNo || 'N/A'}</span></div>
-            <div class="detail-item"><span class="label">🚙 Vehicle Type</span><span class="value">${booking.vehicleType || 'N/A'}</span></div>
-            <div class="detail-item"><span class="label">🎨 Vehicle Color</span><span class="value">${booking.vehicleColor || 'N/A'}</span></div>
-            <div class="detail-divider"></div>
-            <div class="detail-item"><span class="label">🅿️ Booking Type</span><span class="value"><span class="tag ${typeClass}">${booking.type || 'N/A'}</span></span></div>
-            <div class="detail-item"><span class="label">📍 Slot</span><span class="value">${booking.slotId || 'Random'}</span></div>
-            <div class="detail-item"><span class="label">📌 Status</span><span class="value"><span class="tag ${statusClass}">${booking.status || 'N/A'}</span></span></div>
-            <div class="detail-item"><span class="label">🕐 Booking Time</span><span class="value">${booking.bookingTime ? new Date(booking.bookingTime).toLocaleString() : 'N/A'}</span></div>
-        </div>
-    `;
-    
-    document.getElementById('studentModal').classList.add('active');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeStudentModal() {
-    document.getElementById('studentModal').classList.remove('active');
-    document.body.style.overflow = 'auto';
-}
-
-document.getElementById('studentModal').addEventListener('click', function(e) {
-    if (e.target === this) closeStudentModal();
-});
-
-/* ============================================================
-   FILTER PAID PREMIUM / BASIC
-============================================================ */
-
-function filterPaidPremium() {
-    document.getElementById('filterCourse').value = 'all';
-    document.getElementById('filterSemester').value = 'all';
-    document.getElementById('filterType').value = 'premium';
-    document.getElementById('filterStatus').value = 'paid';
-    document.querySelectorAll('.stat-box').forEach(function(box) {
-        box.classList.remove('active-filter');
-    });
-    activeStatusFilter = null;
-    applyFilters();
-}
-
-function filterPaidBasic() {
-    document.getElementById('filterCourse').value = 'all';
-    document.getElementById('filterSemester').value = 'all';
-    document.getElementById('filterType').value = 'basic';
-    document.getElementById('filterStatus').value = 'paid';
-    document.querySelectorAll('.stat-box').forEach(function(box) {
-        box.classList.remove('active-filter');
-    });
-    activeStatusFilter = null;
-    applyFilters();
-}
-
-/* ============================================================
-   UPDATE PARKING BALANCE
-============================================================ */
-
-function updateParkingBalance() {
-    var premiumSlots = JSON.parse(localStorage.getItem('premiumSlots')) || [];
-    var premiumTotal = premiumSlots.length;
-    var premiumPaid = premiumSlots.filter(function(s) {
-        return s.bookedBy && s.bookedBy !== '' && (s.status === 'paid' || s.status === 'occupied');
-    }).length;
-    
-    document.getElementById('premiumAvailable').innerText = premiumPaid;
-    document.getElementById('premiumTotal').innerText = premiumTotal;
-    var premiumPercent = premiumTotal > 0 ? (premiumPaid / premiumTotal) * 100 : 0;
-    document.getElementById('premiumBar').style.width = Math.min(premiumPercent, 100) + '%';
-    
-    var basicTotal = 55;
-    var basicPaid = 0;
-    var basicStudentIds = new Set();
-    
-    var allBasicBookings = JSON.parse(localStorage.getItem('allBasicBookings')) || [];
-    allBasicBookings.forEach(function(b) {
-        if (b.studentId && (b.status === 'paid' || b.status === 'occupied')) {
-            if (!basicStudentIds.has(b.studentId)) {
-                basicStudentIds.add(b.studentId);
-                basicPaid++;
-            }
-        }
-    });
-    
-    for (var key in localStorage) {
-        if (key.startsWith('myBasicBooking_')) {
-            try {
-                var booking = JSON.parse(localStorage.getItem(key));
-                if (booking && booking.studentId && (booking.status === 'paid' || booking.status === 'occupied')) {
-                    if (!basicStudentIds.has(booking.studentId)) {
-                        basicStudentIds.add(booking.studentId);
-                        basicPaid++;
-                    }
-                }
-            } catch(e) {}
-        }
-    }
-    
-    if (basicPaid > basicTotal) basicPaid = basicTotal;
-    
-    document.getElementById('basicAvailable').innerText = basicPaid;
-    document.getElementById('basicTotal').innerText = basicTotal;
-    var basicPercent = basicTotal > 0 ? (basicPaid / basicTotal) * 100 : 0;
-    document.getElementById('basicBar').style.width = Math.min(basicPercent, 100) + '%';
-}
-
-/* ============================================================
-   FILTER BY STATUS
-============================================================ */
-
-function filterByStatus(status) {
-    document.getElementById('filterType').value = 'all';
-    document.querySelectorAll('.stat-box').forEach(function(box) {
-        box.classList.remove('active-filter');
-    });
-    
-    if (activeStatusFilter === status) {
-        activeStatusFilter = null;
-        document.getElementById('filterStatus').value = 'all';
-        applyFilters();
-        return;
-    }
-    
-    activeStatusFilter = status;
-    
-    if (status === 'all') {
-        document.getElementById('statAll').classList.add('active-filter');
-        document.getElementById('filterStatus').value = 'all';
-    } else if (status === 'pending') {
-        document.getElementById('statPending').classList.add('active-filter');
-        document.getElementById('filterStatus').value = 'pending';
-    } else if (status === 'approved') {
-        document.getElementById('statApproved').classList.add('active-filter');
-        document.getElementById('filterStatus').value = 'approved';
-    } else if (status === 'paid') {
-        document.getElementById('statPaid').classList.add('active-filter');
-        document.getElementById('filterStatus').value = 'paid';
-    }
-    
-    applyFilters();
-}
-
-/* ============================================================
-   FILTER MODAL
-============================================================ */
-
-function openFilterModal() {
-    document.getElementById('filterModal').classList.add('active');
-}
-
-function closeFilterModal() {
-    document.getElementById('filterModal').classList.remove('active');
-}
-
-function applyFilterFromModal() {
-    closeFilterModal();
-    activeStatusFilter = null;
-    document.querySelectorAll('.stat-box').forEach(function(box) {
-        box.classList.remove('active-filter');
-    });
-    applyFilters();
-}
-
-/* ============================================================
-   UPDATE STATS
-============================================================ */
-
-function updateStats(bookings) {
-    var total = bookings.length;
-    var pending = bookings.filter(function(b) { return b.status === 'pending'; }).length;
-    var approved = bookings.filter(function(b) { return b.status === 'approved'; }).length;
-    var paid = bookings.filter(function(b) { return b.status === 'paid' || b.status === 'occupied'; }).length;
-    
-    document.getElementById('totalBookings').innerText = total;
-    document.getElementById('pendingCount').innerText = pending;
-    document.getElementById('approvedCount').innerText = approved;
-    document.getElementById('paidCount').innerText = paid;
-    document.getElementById('studentTotalCount').innerText = total;
-}
-
-/* ============================================================
-   GET ALL BOOKINGS
-============================================================ */
-
-function getAllBookings() {
-    var bookings = [];
-    var seen = new Set();
-    
-    // Premium Slots
-    var premiumSlots = JSON.parse(localStorage.getItem('premiumSlots')) || [];
-    premiumSlots.forEach(function(slot) {
-        if (slot.bookedBy) {
-            var key = 'premium_' + slot.bookedBy + '_' + slot.id;
-            if (!seen.has(key)) {
-                seen.add(key);
-                var email = slot.studentEmail || slot.email || findStudentEmail(slot.bookedBy);
-                bookings.push({
-                    studentId: slot.bookedBy,
-                    studentName: slot.bookedByName || 'Unknown',
-                    studentEmail: email,
-                    studentIC: slot.studentIC || 'N/A',
-                    studentMatric: slot.studentMatric || 'N/A',
-                    studentCourse: slot.studentCourse || slot.program || 'N/A',
-                    studentSemester: slot.studentSemester || 'N/A',
-                    studentPhone: slot.studentPhone || 'N/A',
-                    plateNo: slot.plateNo || 'N/A',
-                    slotId: slot.id,
-                    type: 'premium',
-                    status: slot.status || 'pending',
-                    bookingTime: slot.bookingTime || new Date().toISOString(),
-                    vehicleType: slot.vehicleType || 'N/A',
-                    vehicleColor: slot.vehicleColor || 'N/A'
-                });
-            }
-        }
-    });
-    
-    // myPremiumBooking_
-    for (var key in localStorage) {
-        if (key.startsWith('myPremiumBooking_')) {
-            try {
-                var booking = JSON.parse(localStorage.getItem(key));
-                if (booking && booking.studentId) {
-                    var uniqueKey = 'premium_' + booking.studentId + '_' + (booking.slotId || '');
-                    if (!seen.has(uniqueKey)) {
-                        seen.add(uniqueKey);
-                        var email = booking.studentEmail || booking.email || findStudentEmail(booking.studentId);
-                        bookings.push({
-                            studentId: booking.studentId,
-                            studentName: booking.studentName || 'Unknown',
-                            studentEmail: email,
-                            studentIC: booking.studentIC || 'N/A',
-                            studentMatric: booking.studentMatric || 'N/A',
-                            studentCourse: booking.studentCourse || booking.program || 'N/A',
-                            studentSemester: booking.studentSemester || 'N/A',
-                            studentPhone: booking.studentPhone || 'N/A',
-                            plateNo: booking.plateNo || 'N/A',
-                            slotId: booking.slotId || 'N/A',
-                            type: 'premium',
-                            status: booking.status || 'pending',
-                            bookingTime: booking.bookingTime || new Date().toISOString(),
-                            vehicleType: booking.vehicleType || 'N/A',
-                            vehicleColor: booking.vehicleColor || 'N/A'
-                        });
-                    }
-                }
-            } catch(e) {}
-        }
-    }
-    
-    // allBasicBookings
-    var allBasicBookings = JSON.parse(localStorage.getItem('allBasicBookings')) || [];
-    allBasicBookings.forEach(function(booking) {
-        if (booking.studentId) {
-            var key = 'basic_' + booking.studentId;
-            if (!seen.has(key)) {
-                seen.add(key);
-                var email = booking.studentEmail || booking.email || findStudentEmail(booking.studentId);
-                bookings.push({
-                    studentId: booking.studentId,
-                    studentName: booking.studentName || 'Unknown',
-                    studentEmail: email,
-                    studentIC: booking.studentIC || 'N/A',
-                    studentMatric: booking.studentMatric || 'N/A',
-                    studentCourse: booking.studentCourse || booking.program || 'N/A',
-                    studentSemester: booking.studentSemester || 'N/A',
-                    studentPhone: booking.studentPhone || 'N/A',
-                    plateNo: booking.plateNo || 'N/A',
-                    slotId: 'Random',
-                    type: 'basic',
-                    status: booking.status || 'pending',
-                    bookingTime: booking.bookingTime || new Date().toISOString(),
-                    vehicleType: booking.vehicleType || 'N/A',
-                    vehicleColor: booking.vehicleColor || 'N/A'
-                });
-            }
-        }
-    });
-    
-    // myBasicBooking_
-    for (var key2 in localStorage) {
-        if (key2.startsWith('myBasicBooking_')) {
-            try {
-                var booking2 = JSON.parse(localStorage.getItem(key2));
-                if (booking2 && booking2.studentId) {
-                    var uniqueKey2 = 'basic_' + booking2.studentId;
-                    if (!seen.has(uniqueKey2)) {
-                        seen.add(uniqueKey2);
-                        var email2 = booking2.studentEmail || booking2.email || findStudentEmail(booking2.studentId);
-                        bookings.push({
-                            studentId: booking2.studentId,
-                            studentName: booking2.studentName || 'Unknown',
-                            studentEmail: email2,
-                            studentIC: booking2.studentIC || 'N/A',
-                            studentMatric: booking2.studentMatric || 'N/A',
-                            studentCourse: booking2.studentCourse || booking2.program || 'N/A',
-                            studentSemester: booking2.studentSemester || 'N/A',
-                            studentPhone: booking2.studentPhone || 'N/A',
-                            plateNo: booking2.plateNo || 'N/A',
-                            slotId: 'Random',
-                            type: 'basic',
-                            status: booking2.status || 'pending',
-                            bookingTime: booking2.bookingTime || new Date().toISOString(),
-                            vehicleType: booking2.vehicleType || 'N/A',
-                            vehicleColor: booking2.vehicleColor || 'N/A'
-                        });
-                    }
-                }
-            } catch(e) {}
-        }
-    }
-    
-    return bookings;
-}
-
-/* ============================================================
-   APPLY FILTERS
-============================================================ */
-
-function applyFilters() {
-    var course = document.getElementById('filterCourse').value;
-    var semester = document.getElementById('filterSemester').value;
-    var type = document.getElementById('filterType').value;
-    var status = document.getElementById('filterStatus').value;
-    
-    filteredBookings = allBookings.filter(function(booking) {
-        if (course !== 'all' && booking.studentCourse !== course) return false;
-        if (semester !== 'all' && booking.studentSemester !== semester) return false;
-        if (type !== 'all' && booking.type !== type) return false;
-        if (status !== 'all' && booking.status !== status) return false;
-        return true;
-    });
-    
-    filteredBookings.sort(function(a, b) {
-        return new Date(b.bookingTime) - new Date(a.bookingTime);
-    });
-    
-    document.getElementById('filterResultCount').innerText = filteredBookings.length;
-    updateFilterBadges(course, semester, type, status);
-    renderTable(filteredBookings);
-}
-
-/* ============================================================
-   UPDATE FILTER BADGES
-============================================================ */
-
-function updateFilterBadges(course, semester, type, status) {
-    var badgesHtml = '';
-    if (course !== 'all') {
-        badgesHtml += '<span class="badge-filter badge-course">📚 ' + course + '</span>';
-    }
-    if (semester !== 'all') {
-        badgesHtml += '<span class="badge-filter badge-semester">📅 Sem ' + semester + '</span>';
-    }
-    if (type !== 'all') {
-        badgesHtml += '<span class="badge-filter badge-type">' + (type === 'premium' ? '⭐ Premium' : '🅿️ Basic') + '</span>';
-    }
-    if (status !== 'all') {
-        var statusLabel = status === 'pending' ? '🟡 Pending' : status === 'approved' ? '🟢 Approved' : '🔵 Paid';
-        badgesHtml += '<span class="badge-filter badge-status">' + statusLabel + '</span>';
-    }
-    document.getElementById('filterBadges').innerHTML = badgesHtml;
-}
-
-/* ============================================================
-   RESET FILTERS
-============================================================ */
-
-function resetFilters() {
-    document.getElementById('filterCourse').value = 'all';
-    document.getElementById('filterSemester').value = 'all';
-    document.getElementById('filterType').value = 'all';
-    document.getElementById('filterStatus').value = 'all';
-    activeStatusFilter = null;
-    document.querySelectorAll('.stat-box').forEach(function(box) {
-        box.classList.remove('active-filter');
-    });
-    applyFilters();
-}
-
-/* ============================================================
-   RENDER TABLE
-============================================================ */
-
-function renderTable(bookings) {
-    var tbody = document.getElementById('bookingsBody');
-    
-    if (bookings.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="empty-msg">📭 No bookings found matching the filters.</td></tr>';
-        return;
-    }
-    
-    tbody.innerHTML = '';
-    bookings.forEach(function(booking, index) {
-        var row = tbody.insertRow();
-        row.insertCell(0).innerText = index + 1;
-        
-        var nameCell = row.insertCell(1);
-        var nameSpan = document.createElement('span');
-        nameSpan.className = 'clickable-name';
-        nameSpan.textContent = booking.studentName || 'Unknown';
-        nameSpan.onclick = function() { openStudentModal(booking); };
-        nameCell.appendChild(nameSpan);
-        
-        row.insertCell(2).innerHTML = '<span class="course-tag">' + (booking.studentCourse || 'N/A') + '</span>';
-        row.insertCell(3).innerHTML = '<span class="semester-tag">Sem ' + (booking.studentSemester || 'N/A') + '</span>';
-        row.insertCell(4).innerHTML = '<strong style="color:#1a237e;">' + (booking.plateNo || 'N/A') + '</strong>';
-        
-        var actionCell = row.insertCell(5);
-        actionCell.style.display = 'flex';
-        actionCell.style.gap = '5px';
-        actionCell.style.flexWrap = 'wrap';
-        actionCell.style.alignItems = 'center';
-        
-        var viewBtn = document.createElement('button');
-        viewBtn.innerText = '👁️ View';
-        viewBtn.className = 'btn-view';
-        viewBtn.onclick = function() { openStudentModal(booking); };
-        actionCell.appendChild(viewBtn);
-        
-        if (booking.status === 'pending') {
-            var approveBtn = document.createElement('button');
-            approveBtn.innerText = 'Approve';
-            approveBtn.className = 'btn-approve';
-            approveBtn.onclick = (function(b) { return function() { approveBooking(b); }; })(booking);
-            actionCell.appendChild(approveBtn);
-            
-            var rejectBtn = document.createElement('button');
-            rejectBtn.innerText = 'Reject';
-            rejectBtn.className = 'btn-reject';
-            rejectBtn.onclick = (function(b) { return function() { rejectBooking(b); }; })(booking);
-            actionCell.appendChild(rejectBtn);
-        }
-    });
-}
-
-/* ============================================================
-   LOAD BOOKINGS
-============================================================ */
-
-function loadAllBookings() {
-    allBookings = getAllBookings();
-    updateStats(allBookings);
-    applyFilters();
 }
 
 /* ============================================================
@@ -1103,14 +576,9 @@ function approveBooking(booking) {
         }
     }
     
-    // SEND EMAIL
     sendApprovalEmail(booking)
-        .then(function() {
-            loadAllData();
-        })
-        .catch(function() {
-            loadAllData();
-        });
+        .then(function() { loadAllData(); })
+        .catch(function() { loadAllData(); });
 }
 
 /* ============================================================
@@ -1150,25 +618,356 @@ function rejectBooking(booking) {
         localStorage.removeItem(basicKey);
     }
     
-    alert('❌ Booking for ' + booking.studentName + ' has been REJECTED.\n\nSlot is now available for other students.');
+    alert('❌ Booking for ' + booking.studentName + ' has been REJECTED.');
     loadAllData();
 }
 
 /* ============================================================
-   LECTURER FUNCTIONS
+   STUDENT MODAL
 ============================================================ */
 
-function loadLecturers() {
-    var lecturers = JSON.parse(localStorage.getItem('lecturers')) || [];
-    allLecturers = lecturers;
-    document.getElementById('lecturerTotalCount').innerText = lecturers.length;
+function openStudentModal(booking) {
+    var body = document.getElementById('studentModalBody');
+    var email = getBookingEmail(booking);
     
-    var tbody = document.getElementById('lecturerBody');
-    if (lecturers.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" class="empty-msg">📭 No lecturers registered yet.</td></tr>';
+    body.innerHTML = `
+        <div class="detail-grid">
+            <div class="detail-item full-width">
+                <span class="label">👤 Name</span>
+                <span class="value">${booking.studentName || 'N/A'}</span>
+            </div>
+            <div class="detail-item full-width" style="background:#e8f5e9; padding:10px; border-radius:8px;">
+                <span class="label">📧 Email</span>
+                <span class="value" style="color:#2e7d32; font-weight:bold;">${email || '❌ No email found'}</span>
+            </div>
+            <div class="detail-item"><span class="label">🪪 IC Number</span><span class="value">${booking.studentIC || 'N/A'}</span></div>
+            <div class="detail-item"><span class="label">🎓 Matric No.</span><span class="value">${booking.studentMatric || 'N/A'}</span></div>
+            <div class="detail-item"><span class="label">📖 Program</span><span class="value">${booking.studentCourse || 'N/A'}</span></div>
+            <div class="detail-item"><span class="label">📅 Semester</span><span class="value">${booking.studentSemester || 'N/A'}</span></div>
+            <div class="detail-item"><span class="label">📱 Phone</span><span class="value">${booking.studentPhone || 'N/A'}</span></div>
+            <div class="detail-item"><span class="label">🚗 Plate No.</span><span class="value">${booking.plateNo || 'N/A'}</span></div>
+            <div class="detail-item"><span class="label">🚙 Vehicle Type</span><span class="value">${booking.vehicleType || 'N/A'}</span></div>
+            <div class="detail-item"><span class="label">🎨 Vehicle Color</span><span class="value">${booking.vehicleColor || 'N/A'}</span></div>
+            <div class="detail-divider"></div>
+            <div class="detail-item"><span class="label">🅿️ Booking Type</span><span class="value"><span class="tag ${booking.type === 'premium' ? 'tag-premium' : 'tag-basic'}">${booking.type || 'N/A'}</span></span></div>
+            <div class="detail-item"><span class="label">📍 Slot</span><span class="value">${booking.slotId || 'Random'}</span></div>
+            <div class="detail-item"><span class="label">📌 Status</span><span class="value"><span class="tag ${booking.status === 'pending' ? 'tag-pending' : booking.status === 'approved' ? 'tag-approved' : 'tag-paid'}">${booking.status || 'N/A'}</span></span></div>
+        </div>
+    `;
+    
+    document.getElementById('studentModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeStudentModal() {
+    document.getElementById('studentModal').classList.remove('active');
+    document.body.style.overflow = 'auto';
+}
+
+// ========== FILTER FUNCTIONS ==========
+
+function filterByStatus(status) {
+    document.getElementById('filterType').value = 'all';
+    document.querySelectorAll('.stat-box').forEach(function(box) { box.classList.remove('active-filter'); });
+    
+    if (activeStatusFilter === status) {
+        activeStatusFilter = null;
+        document.getElementById('filterStatus').value = 'all';
+        applyFilters();
         return;
     }
     
+    activeStatusFilter = status;
+    var statusMap = { 'all': 'statAll', 'pending': 'statPending', 'approved': 'statApproved', 'paid': 'statPaid' };
+    if (statusMap[status]) {
+        document.getElementById(statusMap[status]).classList.add('active-filter');
+        document.getElementById('filterStatus').value = status;
+    }
+    applyFilters();
+}
+
+function filterPaidPremium() {
+    document.getElementById('filterCourse').value = 'all';
+    document.getElementById('filterSemester').value = 'all';
+    document.getElementById('filterType').value = 'premium';
+    document.getElementById('filterStatus').value = 'paid';
+    document.querySelectorAll('.stat-box').forEach(function(box) { box.classList.remove('active-filter'); });
+    activeStatusFilter = null;
+    applyFilters();
+}
+
+function filterPaidBasic() {
+    document.getElementById('filterCourse').value = 'all';
+    document.getElementById('filterSemester').value = 'all';
+    document.getElementById('filterType').value = 'basic';
+    document.getElementById('filterStatus').value = 'paid';
+    document.querySelectorAll('.stat-box').forEach(function(box) { box.classList.remove('active-filter'); });
+    activeStatusFilter = null;
+    applyFilters();
+}
+
+function openFilterModal() { document.getElementById('filterModal').classList.add('active'); }
+function closeFilterModal() { document.getElementById('filterModal').classList.remove('active'); }
+function applyFilterFromModal() { closeFilterModal(); activeStatusFilter = null; document.querySelectorAll('.stat-box').forEach(function(box) { box.classList.remove('active-filter'); }); applyFilters(); }
+function resetFilters() {
+    document.getElementById('filterCourse').value = 'all';
+    document.getElementById('filterSemester').value = 'all';
+    document.getElementById('filterType').value = 'all';
+    document.getElementById('filterStatus').value = 'all';
+    activeStatusFilter = null;
+    document.querySelectorAll('.stat-box').forEach(function(box) { box.classList.remove('active-filter'); });
+    applyFilters();
+}
+
+function updateParkingBalance() {
+    var premiumSlots = JSON.parse(localStorage.getItem('premiumSlots')) || [];
+    var premiumTotal = premiumSlots.length;
+    var premiumPaid = premiumSlots.filter(function(s) { return s.bookedBy && s.bookedBy !== '' && (s.status === 'paid' || s.status === 'occupied'); }).length;
+    document.getElementById('premiumAvailable').innerText = premiumPaid;
+    document.getElementById('premiumTotal').innerText = premiumTotal;
+    document.getElementById('premiumBar').style.width = (premiumTotal > 0 ? (premiumPaid / premiumTotal) * 100 : 0) + '%';
+    
+    var basicTotal = 55;
+    var basicPaid = 0;
+    var basicStudentIds = new Set();
+    var allBasicBookings = JSON.parse(localStorage.getItem('allBasicBookings')) || [];
+    allBasicBookings.forEach(function(b) {
+        if (b.studentId && (b.status === 'paid' || b.status === 'occupied')) {
+            if (!basicStudentIds.has(b.studentId)) { basicStudentIds.add(b.studentId); basicPaid++; }
+        }
+    });
+    for (var key in localStorage) {
+        if (key.startsWith('myBasicBooking_')) {
+            try {
+                var booking = JSON.parse(localStorage.getItem(key));
+                if (booking && booking.studentId && (booking.status === 'paid' || booking.status === 'occupied')) {
+                    if (!basicStudentIds.has(booking.studentId)) { basicStudentIds.add(booking.studentId); basicPaid++; }
+                }
+            } catch(e) {}
+        }
+    }
+    if (basicPaid > basicTotal) basicPaid = basicTotal;
+    document.getElementById('basicAvailable').innerText = basicPaid;
+    document.getElementById('basicTotal').innerText = basicTotal;
+    document.getElementById('basicBar').style.width = (basicTotal > 0 ? (basicPaid / basicTotal) * 100 : 0) + '%';
+}
+
+function updateStats(bookings) {
+    var total = bookings.length;
+    document.getElementById('totalBookings').innerText = total;
+    document.getElementById('pendingCount').innerText = bookings.filter(function(b) { return b.status === 'pending'; }).length;
+    document.getElementById('approvedCount').innerText = bookings.filter(function(b) { return b.status === 'approved'; }).length;
+    document.getElementById('paidCount').innerText = bookings.filter(function(b) { return b.status === 'paid' || b.status === 'occupied'; }).length;
+    document.getElementById('studentTotalCount').innerText = total;
+}
+
+function getAllBookings() {
+    var bookings = [];
+    var seen = new Set();
+    
+    var premiumSlots = JSON.parse(localStorage.getItem('premiumSlots')) || [];
+    premiumSlots.forEach(function(slot) {
+        if (slot.bookedBy) {
+            var key = 'premium_' + slot.bookedBy + '_' + slot.id;
+            if (!seen.has(key)) {
+                seen.add(key);
+                bookings.push({
+                    studentId: slot.bookedBy,
+                    studentName: slot.bookedByName || 'Unknown',
+                    studentEmail: slot.studentEmail || '',
+                    studentIC: slot.studentIC || 'N/A',
+                    studentMatric: slot.studentMatric || 'N/A',
+                    studentCourse: slot.studentCourse || slot.program || 'N/A',
+                    studentSemester: slot.studentSemester || 'N/A',
+                    studentPhone: slot.studentPhone || 'N/A',
+                    plateNo: slot.plateNo || 'N/A',
+                    slotId: slot.id,
+                    type: 'premium',
+                    status: slot.status || 'pending',
+                    bookingTime: slot.bookingTime || new Date().toISOString(),
+                    vehicleType: slot.vehicleType || 'N/A',
+                    vehicleColor: slot.vehicleColor || 'N/A'
+                });
+            }
+        }
+    });
+    
+    for (var key in localStorage) {
+        if (key.startsWith('myPremiumBooking_')) {
+            try {
+                var booking = JSON.parse(localStorage.getItem(key));
+                if (booking && booking.studentId) {
+                    var uniqueKey = 'premium_' + booking.studentId + '_' + (booking.slotId || '');
+                    if (!seen.has(uniqueKey)) {
+                        seen.add(uniqueKey);
+                        bookings.push({
+                            studentId: booking.studentId,
+                            studentName: booking.studentName || 'Unknown',
+                            studentEmail: booking.studentEmail || '',
+                            studentIC: booking.studentIC || 'N/A',
+                            studentMatric: booking.studentMatric || 'N/A',
+                            studentCourse: booking.studentCourse || booking.program || 'N/A',
+                            studentSemester: booking.studentSemester || 'N/A',
+                            studentPhone: booking.studentPhone || 'N/A',
+                            plateNo: booking.plateNo || 'N/A',
+                            slotId: booking.slotId || 'N/A',
+                            type: 'premium',
+                            status: booking.status || 'pending',
+                            bookingTime: booking.bookingTime || new Date().toISOString(),
+                            vehicleType: booking.vehicleType || 'N/A',
+                            vehicleColor: booking.vehicleColor || 'N/A'
+                        });
+                    }
+                }
+            } catch(e) {}
+        }
+    }
+    
+    var allBasicBookings = JSON.parse(localStorage.getItem('allBasicBookings')) || [];
+    allBasicBookings.forEach(function(booking) {
+        if (booking.studentId) {
+            var key = 'basic_' + booking.studentId;
+            if (!seen.has(key)) {
+                seen.add(key);
+                bookings.push({
+                    studentId: booking.studentId,
+                    studentName: booking.studentName || 'Unknown',
+                    studentEmail: booking.studentEmail || '',
+                    studentIC: booking.studentIC || 'N/A',
+                    studentMatric: booking.studentMatric || 'N/A',
+                    studentCourse: booking.studentCourse || booking.program || 'N/A',
+                    studentSemester: booking.studentSemester || 'N/A',
+                    studentPhone: booking.studentPhone || 'N/A',
+                    plateNo: booking.plateNo || 'N/A',
+                    slotId: 'Random',
+                    type: 'basic',
+                    status: booking.status || 'pending',
+                    bookingTime: booking.bookingTime || new Date().toISOString(),
+                    vehicleType: booking.vehicleType || 'N/A',
+                    vehicleColor: booking.vehicleColor || 'N/A'
+                });
+            }
+        }
+    });
+    
+    for (var key2 in localStorage) {
+        if (key2.startsWith('myBasicBooking_')) {
+            try {
+                var booking2 = JSON.parse(localStorage.getItem(key2));
+                if (booking2 && booking2.studentId) {
+                    var uniqueKey2 = 'basic_' + booking2.studentId;
+                    if (!seen.has(uniqueKey2)) {
+                        seen.add(uniqueKey2);
+                        bookings.push({
+                            studentId: booking2.studentId,
+                            studentName: booking2.studentName || 'Unknown',
+                            studentEmail: booking2.studentEmail || '',
+                            studentIC: booking2.studentIC || 'N/A',
+                            studentMatric: booking2.studentMatric || 'N/A',
+                            studentCourse: booking2.studentCourse || booking2.program || 'N/A',
+                            studentSemester: booking2.studentSemester || 'N/A',
+                            studentPhone: booking2.studentPhone || 'N/A',
+                            plateNo: booking2.plateNo || 'N/A',
+                            slotId: 'Random',
+                            type: 'basic',
+                            status: booking2.status || 'pending',
+                            bookingTime: booking2.bookingTime || new Date().toISOString(),
+                            vehicleType: booking2.vehicleType || 'N/A',
+                            vehicleColor: booking2.vehicleColor || 'N/A'
+                        });
+                    }
+                }
+            } catch(e) {}
+        }
+    }
+    
+    return bookings;
+}
+
+function applyFilters() {
+    var course = document.getElementById('filterCourse').value;
+    var semester = document.getElementById('filterSemester').value;
+    var type = document.getElementById('filterType').value;
+    var status = document.getElementById('filterStatus').value;
+    
+    filteredBookings = allBookings.filter(function(booking) {
+        if (course !== 'all' && booking.studentCourse !== course) return false;
+        if (semester !== 'all' && booking.studentSemester !== semester) return false;
+        if (type !== 'all' && booking.type !== type) return false;
+        if (status !== 'all' && booking.status !== status) return false;
+        return true;
+    });
+    
+    filteredBookings.sort(function(a, b) { return new Date(b.bookingTime) - new Date(a.bookingTime); });
+    
+    document.getElementById('filterResultCount').innerText = filteredBookings.length;
+    renderTable(filteredBookings);
+}
+
+function renderTable(bookings) {
+    var tbody = document.getElementById('bookingsBody');
+    if (bookings.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-msg">📭 No bookings found.</td></tr>';
+        return;
+    }
+    tbody.innerHTML = '';
+    bookings.forEach(function(booking, index) {
+        var row = tbody.insertRow();
+        row.insertCell(0).innerText = index + 1;
+        
+        var nameCell = row.insertCell(1);
+        var nameSpan = document.createElement('span');
+        nameSpan.className = 'clickable-name';
+        nameSpan.textContent = booking.studentName || 'Unknown';
+        nameSpan.onclick = function() { openStudentModal(booking); };
+        nameCell.appendChild(nameSpan);
+        
+        row.insertCell(2).innerHTML = '<span class="course-tag">' + (booking.studentCourse || 'N/A') + '</span>';
+        row.insertCell(3).innerHTML = '<span class="semester-tag">Sem ' + (booking.studentSemester || 'N/A') + '</span>';
+        row.insertCell(4).innerHTML = '<strong style="color:#1a237e;">' + (booking.plateNo || 'N/A') + '</strong>';
+        
+        var actionCell = row.insertCell(5);
+        actionCell.style.display = 'flex';
+        actionCell.style.gap = '5px';
+        actionCell.style.flexWrap = 'wrap';
+        actionCell.style.alignItems = 'center';
+        
+        var viewBtn = document.createElement('button');
+        viewBtn.innerText = '👁️ View';
+        viewBtn.className = 'btn-view';
+        viewBtn.onclick = function() { openStudentModal(booking); };
+        actionCell.appendChild(viewBtn);
+        
+        if (booking.status === 'pending') {
+            var approveBtn = document.createElement('button');
+            approveBtn.innerText = 'Approve';
+            approveBtn.className = 'btn-approve';
+            approveBtn.onclick = (function(b) { return function() { approveBooking(b); }; })(booking);
+            actionCell.appendChild(approveBtn);
+            
+            var rejectBtn = document.createElement('button');
+            rejectBtn.innerText = 'Reject';
+            rejectBtn.className = 'btn-reject';
+            rejectBtn.onclick = (function(b) { return function() { rejectBooking(b); }; })(booking);
+            actionCell.appendChild(rejectBtn);
+        }
+    });
+}
+
+function loadAllBookings() {
+    allBookings = getAllBookings();
+    updateStats(allBookings);
+    applyFilters();
+}
+
+function loadLecturers() {
+    var lecturers = JSON.parse(localStorage.getItem('lecturers')) || [];
+    document.getElementById('lecturerTotalCount').innerText = lecturers.length;
+    var tbody = document.getElementById('lecturerBody');
+    if (lecturers.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="empty-msg">📭 No lecturers registered.</td></tr>';
+        return;
+    }
     tbody.innerHTML = '';
     lecturers.forEach(function(lecturer, index) {
         var row = tbody.insertRow();
@@ -1179,48 +978,28 @@ function loadLecturers() {
         row.insertCell(4).innerText = lecturer.phone_no || 'N/A';
         row.insertCell(5).innerHTML = '<span class="program-tag">' + (lecturer.program || 'N/A') + '</span>';
         row.insertCell(6).innerHTML = lecturer.plate_no ? '<strong style="color:#1a237e;">' + lecturer.plate_no + '</strong>' : '<span style="color:#999;">-</span>';
-        
         var actionCell = row.insertCell(7);
         var viewBtn = document.createElement('button');
         viewBtn.innerText = '👁️ View';
         viewBtn.className = 'btn-view';
         viewBtn.onclick = function() {
-            alert('📋 Lecturer Details\n\nName: ' + lecturer.name + '\nStaff ID: ' + lecturer.staff_id + '\nEmail: ' + lecturer.email + '\nPhone: ' + lecturer.phone_no + '\nProgram: ' + (lecturer.program || 'N/A') + '\nPlate No: ' + (lecturer.plate_no || 'Not registered'));
+            alert('📋 Lecturer Details\n\nName: ' + lecturer.name + '\nStaff ID: ' + lecturer.staff_id + '\nEmail: ' + lecturer.email + '\nPhone: ' + lecturer.phone_no + '\nProgram: ' + (lecturer.program || 'N/A'));
         };
         actionCell.appendChild(viewBtn);
     });
 }
-
-/* ============================================================
-   LOAD ALL DATA
-============================================================ */
 
 function loadAllData() {
     loadAllBookings();
     updateParkingBalance();
 }
 
-/* ============================================================
-   CLOSE FILTER MODAL
-============================================================ */
-
 document.getElementById('filterModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeFilterModal();
-    }
+    if (e.target === this) closeFilterModal();
 });
-
-/* ============================================================
-   PAGE LOAD
-============================================================ */
 
 loadAllData();
 loadLecturers();
-
-/* ============================================================
-   AUTO REFRESH
-============================================================ */
-
 setInterval(loadAllData, 10000);
 setInterval(loadLecturers, 30000);
 </script>

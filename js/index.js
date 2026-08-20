@@ -1,0 +1,245 @@
+<!-- ===== JAVASCRIPT ===== -->
+
+// ============================================
+// VARIABLE: Untuk simpan role yang dipilih
+// ============================================
+var selectedRole = 'student';
+
+// ============================================
+// FUNCTION 1: toggleMenu()
+// Tujuan: Buka / tutup side menu
+// ============================================
+function toggleMenu() {
+    var menu = document.getElementById("menu");
+    var overlay = document.getElementById("overlay");
+    if (menu) {
+        menu.classList.toggle("active");
+    }
+    if (overlay) {
+        overlay.classList.toggle("active");
+    }
+}
+
+// ============================================
+// FUNCTION 2: selectRole(role)
+// Tujuan: Tukar UI mengikut role yang dipilih
+// Parameter: 'student', 'lecturer', atau 'admin'
+// ============================================
+function selectRole(role) {
+    // Set global variable
+    selectedRole = role;
+    
+    var studentBtn = document.getElementById('studentRoleBtn');
+    var lecturerBtn = document.getElementById('lecturerRoleBtn');
+    var adminBtn = document.getElementById('adminRoleBtn');
+    var loginBtn = document.getElementById('loginBtn');
+    var pageTitle = document.getElementById('pageTitle');
+    var emailLabel = document.getElementById('emailLabel');
+    var emailInput = document.getElementById('email');
+    var errorMsg = document.getElementById('errorMsg');
+    
+    // Sembunyikan error (kalau ada)
+    if (errorMsg) {
+        errorMsg.style.display = 'none';
+        errorMsg.innerHTML = '';
+    }
+    
+    // Reset semua button active
+    if (studentBtn) studentBtn.classList.remove('active');
+    if (lecturerBtn) lecturerBtn.classList.remove('active');
+    if (adminBtn) adminBtn.classList.remove('active');
+    
+    // Sembunyikan semua signup links
+    var studentLink = document.getElementById('studentSignupLink');
+    var lecturerLink = document.getElementById('lecturerSignupLink');
+    var adminLink = document.getElementById('adminSignupLink');
+    
+    if (studentLink) studentLink.style.display = 'none';
+    if (lecturerLink) lecturerLink.style.display = 'none';
+    if (adminLink) adminLink.style.display = 'none';
+    
+    // --- STUDENT ---
+    if(role === 'student') {
+        if (studentBtn) studentBtn.classList.add('active');
+        if (studentLink) studentLink.style.display = 'block';
+        if (loginBtn) {
+            loginBtn.className = 'btn-login';
+            loginBtn.innerHTML = '🎓 Login →';
+        }
+        if (pageTitle) pageTitle.textContent = '🔐 Student Login';
+        if (emailLabel) emailLabel.textContent = '📧 Email Address';
+        if (emailInput) {
+            emailInput.type = 'email';
+            emailInput.placeholder = 'student@email.com';
+            emailInput.value = '';
+        }
+    
+    // --- LECTURER ---
+    } else if(role === 'lecturer') {
+        if (lecturerBtn) lecturerBtn.classList.add('active');
+        if (lecturerLink) lecturerLink.style.display = 'block';
+        if (loginBtn) {
+            loginBtn.className = 'btn-login lecturer-btn';
+            loginBtn.innerHTML = '👨‍🏫 Lecturer Login →';
+        }
+        if (pageTitle) pageTitle.textContent = '👨‍🏫 Lecturer Login';
+        if (emailLabel) emailLabel.textContent = '📧 Email Address';
+        if (emailInput) {
+            emailInput.type = 'email';
+            emailInput.placeholder = 'lecturer@tvetmara.edu.my';
+            emailInput.value = '';
+        }
+    
+    // --- ADMIN ---
+    } else if(role === 'admin') {
+        if (adminBtn) adminBtn.classList.add('active');
+        if (adminLink) adminLink.style.display = 'block';
+        if (loginBtn) {
+            loginBtn.className = 'btn-login admin-btn';
+            loginBtn.innerHTML = '👑 Admin Login →';
+        }
+        if (pageTitle) pageTitle.textContent = '👑 Admin Login';
+        if (emailLabel) emailLabel.textContent = '👤 Username';
+        if (emailInput) {
+            emailInput.type = 'text';
+            emailInput.placeholder = 'Enter your username';
+            emailInput.value = '';
+        }
+    }
+}
+
+// ============================================
+// FUNCTION 3: handleLogin()
+// Tujuan: Sahkan login dan redirect
+// ============================================
+function handleLogin() {
+    var email = document.getElementById('email').value.trim();
+    var password = document.getElementById('password').value.trim();
+    var errorMsg = document.getElementById('errorMsg');
+    
+    // Reset error
+    if (errorMsg) {
+        errorMsg.style.display = 'none';
+        errorMsg.innerHTML = '';
+    }
+    
+    // Validation: Check empty fields
+    if (!email || !password) {
+        if (errorMsg) {
+            errorMsg.style.display = 'block';
+            errorMsg.innerHTML = '❌ Please fill in all fields.';
+        }
+        return false;
+    }
+    
+    // --- STUDENT LOGIN ---
+    if(selectedRole === 'student') {
+        var students = JSON.parse(localStorage.getItem('students')) || [];
+        var student = null;
+        for (var i = 0; i < students.length; i++) {
+            if (students[i].email === email && students[i].password === password) {
+                student = students[i];
+                break;
+            }
+        }
+        
+        if(student) {
+            // Simpan data student dalam sessionStorage
+            sessionStorage.setItem('loggedInStudent', JSON.stringify({
+                id: student.id,
+                name: student.name,
+                email: student.email,
+                matric_no: student.matric_no,
+                ic_no: student.ic_no,
+                phone_no: student.phone_no,
+                plate_no: student.plate_no || '',
+                vehicle_type: student.vehicle_type || '',
+                vehicle_color: student.vehicle_color || '',
+                semester: student.semester,
+                program: student.program
+            }));
+            // Redirect ke dashboard student
+            window.location.href = 'https://saver-systm.lilylorraineee.workers.dev/student/student_dashboard.html';
+        } else {
+            if (errorMsg) {
+                errorMsg.style.display = 'block';
+                errorMsg.innerHTML = '❌ Invalid email or password. Please try again.';
+            }
+        }
+        return false;
+    
+    // --- LECTURER LOGIN ---
+    } else if(selectedRole === 'lecturer') {
+        var lecturers = JSON.parse(localStorage.getItem('lecturers')) || [];
+        var lecturer = null;
+        for (var j = 0; j < lecturers.length; j++) {
+            if (lecturers[j].email === email && lecturers[j].password === password) {
+                lecturer = lecturers[j];
+                break;
+            }
+        }
+        
+        if(lecturer) {
+            sessionStorage.setItem('loggedInLecturer', JSON.stringify({
+                id: lecturer.id,
+                name: lecturer.name,
+                email: lecturer.email,
+                staff_id: lecturer.staff_id,
+                phone_no: lecturer.phone_no,
+                program: lecturer.program,
+                plate_no: lecturer.plate_no || '',
+                vehicle_type: lecturer.vehicle_type || '',
+                vehicle_color: lecturer.vehicle_color || ''
+            }));
+            window.location.href = 'https://saver-systm.lilylorraineee.workers.dev/lecturer/lecturer_dashboard.html';
+        } else {
+            if (errorMsg) {
+                errorMsg.style.display = 'block';
+                errorMsg.innerHTML = '❌ Invalid email or password. Please try again.';
+            }
+        }
+        return false;
+    
+    // --- ADMIN LOGIN (Hardcoded) ---
+    } else if(selectedRole === 'admin') {
+        var ADMIN_USERNAME = 'admin';
+        var ADMIN_PASSWORD = 'admin123';
+        
+        if (email === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+            sessionStorage.setItem('loggedInAdmin', JSON.stringify({
+                name: 'Super Administrator',
+                username: ADMIN_USERNAME,
+                role: 'admin'
+            }));
+            window.location.href = 'https://saver-systm.lilylorraineee.workers.dev/warden/warden_dashboard.html';
+        } else {
+            if (errorMsg) {
+                errorMsg.style.display = 'block';
+                errorMsg.innerHTML = '❌ Invalid username or password.';
+            }
+        }
+        return false;
+    }
+    
+    return false;
+}
+
+// ============================================
+// FUNCTION 4: Auto-select role from URL
+// Tujuan: Boleh guna ?role=admin di URL
+// ============================================
+window.onload = function() {
+    var urlParams = new URLSearchParams(window.location.search);
+    var role = urlParams.get('role');
+    if(role === 'admin') {
+        selectRole('admin');
+    } else if(role === 'lecturer') {
+        selectRole('lecturer');
+    } else {
+        // Default to student
+        selectRole('student');
+    }
+};
+
+// Make sure selectRole is globally accessible
+window.selectRole = selectRole;

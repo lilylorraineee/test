@@ -80,11 +80,11 @@ if(!loggedInStudent) {
             matric_no: lastStudent.matric_no,
             ic_no: lastStudent.ic_no,
             phone_no: lastStudent.phone_no,
-            plate_no: lastStudent.plate_no,
-            vehicle_type: lastStudent.vehicle_type,
-            vehicle_color: lastStudent.vehicle_color,
+            plate_no: lastStudent.plate_no || '',
+            vehicle_type: lastStudent.vehicle_type || '',
+            vehicle_color: lastStudent.vehicle_color || '',
             semester: lastStudent.semester,
-            program: lastStudent.program
+            program: lastStudent.program || lastStudent.course || ''
         };
         // Save back to sessionStorage
         sessionStorage.setItem('loggedInStudent', JSON.stringify(loggedInStudent));
@@ -93,14 +93,17 @@ if(!loggedInStudent) {
     }
 }
 
-// If still no student, redirect to login
+// If still no student, redirect to login - FIXED URL
 if(!loggedInStudent) {
     console.error("❌ No student found! Redirecting to login...");
     window.location.href = 'https://saver-systm.lilylorraineee.workers.dev/student/student_login.html';
+    // Stop execution
+    throw new Error('No student logged in');
 }
 
 console.log("✅ Logged in as:", loggedInStudent.name);
 console.log("📧 Email:", loggedInStudent.email);
+console.log("📋 Full data:", loggedInStudent);
 
 // Update Welcome Card
 document.getElementById('studentName').innerText = loggedInStudent.name || 'Student';

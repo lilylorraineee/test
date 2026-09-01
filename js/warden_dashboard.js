@@ -168,7 +168,7 @@ function getBookingEmail(booking) {
 }
 
 /* ============================================================
-   SEND APPROVAL EMAIL - FIXED (GUNA "email")
+   SEND APPROVAL EMAIL - FINAL VERSION (HANTAR SEMUA PARAMETER)
 ============================================================ */
 
 function sendApprovalEmail(booking) {
@@ -217,9 +217,20 @@ function sendApprovalEmail(booking) {
         var parkingPrice = booking.type === 'premium' ? '50.00' : '30.00';
         var parkingTypeLabel = booking.type === 'premium' ? '⭐ Premium' : '🅿️ Basic';
 
-        // ===== PARAMETER UNTUK TEMPLATE - GUNA "email" BUKAN "to_email" =====
+        // ===== HANTAR SEMUA KEMUNGKINAN PARAMETER =====
         var templateParams = {
-            email: studentEmail,  // ← INI YANG BETUL!
+            // ===== PARAMETER EMAIL (CUBA SEMUA) =====
+            email: studentEmail,
+            to_email: studentEmail,
+            to: studentEmail,
+            recipient: studentEmail,
+            user_email: studentEmail,
+            receiver: studentEmail,
+            address: studentEmail,
+            mail_to: studentEmail,
+            send_to: studentEmail,
+            
+            // ===== PARAMETER CONTENT =====
             student_name: booking.studentName || 'Student',
             booking_date: bookingDate,
             booking_time: bookingTime,
@@ -252,7 +263,8 @@ function sendApprovalEmail(booking) {
             alert("❌ Email gagal dihantar.\n\n" +
                   "Error: " + errorMsg + "\n\n" +
                   "📌 Email: " + studentEmail + "\n" +
-                  "📌 Template ID: " + EMAILJS_TEMPLATE_ID);
+                  "📌 Template ID: " + EMAILJS_TEMPLATE_ID + "\n\n" +
+                  "📌 Sila semak parameter 'To Email' dalam template di EmailJS dashboard.");
             
             showToast('❌ Email failed to send.', 'error');
             reject(error);

@@ -1,4 +1,3 @@
-
 // ============================================================
 // VARIABLES GLOBAL
 // ============================================================
@@ -31,6 +30,7 @@ function toggleMenu(){
 
 function logout() {
     sessionStorage.removeItem('loggedInStudent');
+    sessionStorage.removeItem('freshLogin');
     window.location.href = 'https://saver-systm.lilylorraineee.workers.dev/index.html';
 }
 
@@ -60,19 +60,54 @@ function scrollToBooking() {
 }
 
 // ============================================================
-// LOAD STUDENT DATA
+// LOAD STUDENT DATA - FIXED
 // ============================================================
+// Try to get from sessionStorage first
 loggedInStudent = JSON.parse(sessionStorage.getItem('loggedInStudent'));
+
+// ===== FIX: If sessionStorage is empty, try to get from localStorage =====
 if(!loggedInStudent) {
-    window.location.href = 'https://saver-systm.lilylorraineee.workers.dev/student/studetn_login.html';
+    console.log("⚠️ SessionStorage empty, trying to get from localStorage...");
+    var students = JSON.parse(localStorage.getItem('students')) || [];
+    
+    // Get the most recently registered student
+    if(students.length > 0) {
+        var lastStudent = students[students.length - 1];
+        loggedInStudent = {
+            id: lastStudent.id,
+            name: lastStudent.name,
+            email: lastStudent.email,
+            matric_no: lastStudent.matric_no,
+            ic_no: lastStudent.ic_no,
+            phone_no: lastStudent.phone_no,
+            plate_no: lastStudent.plate_no,
+            vehicle_type: lastStudent.vehicle_type,
+            vehicle_color: lastStudent.vehicle_color,
+            semester: lastStudent.semester,
+            program: lastStudent.program
+        };
+        // Save back to sessionStorage
+        sessionStorage.setItem('loggedInStudent', JSON.stringify(loggedInStudent));
+        sessionStorage.setItem('freshLogin', 'true');
+        console.log("✅ Retrieved student from localStorage:", loggedInStudent.name);
+    }
 }
 
+// If still no student, redirect to login
+if(!loggedInStudent) {
+    console.error("❌ No student found! Redirecting to login...");
+    window.location.href = 'https://saver-systm.lilylorraineee.workers.dev/student/student_login.html';
+}
+
+console.log("✅ Logged in as:", loggedInStudent.name);
+console.log("📧 Email:", loggedInStudent.email);
+
 // Update Welcome Card
-document.getElementById('studentName').innerText = loggedInStudent.name;
+document.getElementById('studentName').innerText = loggedInStudent.name || 'Student';
 document.getElementById('welcomePlate').innerText = loggedInStudent.plate_no || 'Not set';
 
 // Update Sidebar
-document.getElementById('sidebarName').innerText = loggedInStudent.name;
+document.getElementById('sidebarName').innerText = loggedInStudent.name || 'Student';
 document.getElementById('sidebarMatric').innerText = loggedInStudent.matric_no || '-';
 document.getElementById('sidebarProgram').innerText = loggedInStudent.program || loggedInStudent.course || '-';
 document.getElementById('sidebarSemester').innerText = loggedInStudent.semester || '-';
@@ -83,8 +118,10 @@ document.getElementById('sidebarVehicleType').innerText = loggedInStudent.vehicl
 document.getElementById('sidebarVehicleColor').innerText = loggedInStudent.vehicle_color || '-';
 
 // Avatar initial
-let initial = loggedInStudent.name.charAt(0).toUpperCase();
-document.getElementById('avatarInitial').innerHTML = initial;
+if(loggedInStudent.name) {
+    let initial = loggedInStudent.name.charAt(0).toUpperCase();
+    document.getElementById('avatarInitial').innerHTML = initial;
+}
 
 // ============================================================
 // UPDATE AVAILABLE COUNT
@@ -110,6 +147,8 @@ function updateTotalAvailableCount() {
 // GET ACTIVE BOOKING
 // ============================================================
 function getActiveBooking() {
+    if(!loggedInStudent) return null;
+    
     let premiumKey = getPremiumBookingKey();
     let myPremiumBooking = JSON.parse(localStorage.getItem(premiumKey));
     
@@ -129,6 +168,8 @@ function getActiveBooking() {
 // REFRESH BOOKING DISPLAY
 // ============================================================
 function refreshBookingDisplay() {
+    if(!loggedInStudent) return;
+    
     let booking = getActiveBooking();
     let sidebarStatusElement = document.getElementById('sidebarBookingStatus');
     let bookingDetailsContainer = document.getElementById('bookingDetailsContainer');
@@ -455,6 +496,7 @@ function proceedWithBooking(spotId) {
         slot.studentProgram = loggedInStudent.program || loggedInStudent.course;
         slot.studentSemester = loggedInStudent.semester;
         slot.studentPhone = loggedInStudent.phone_no;
+        slot.studentEmail = loggedInStudent.email;
         slot.plateNo = loggedInStudent.plate_no || 'Not set';
         slot.vehicleType = loggedInStudent.vehicle_type || '';
         slot.vehicleColor = loggedInStudent.vehicle_color || '';
@@ -470,6 +512,7 @@ function proceedWithBooking(spotId) {
             studentProgram: loggedInStudent.program || loggedInStudent.course,
             studentSemester: loggedInStudent.semester,
             studentPhone: loggedInStudent.phone_no,
+            studentEmail: loggedInStudent.email,
             plateNo: loggedInStudent.plate_no || 'Not set',
             vehicleType: loggedInStudent.vehicle_type || '',
             vehicleColor: loggedInStudent.vehicle_color || '',
@@ -528,6 +571,7 @@ function bookBasicParking() {
             studentProgram: loggedInStudent.program || loggedInStudent.course,
             studentSemester: loggedInStudent.semester,
             studentPhone: loggedInStudent.phone_no,
+            studentEmail: loggedInStudent.email,
             plateNo: loggedInStudent.plate_no || 'Not set',
             vehicleType: loggedInStudent.vehicle_type || '',
             vehicleColor: loggedInStudent.vehicle_color || '',
@@ -584,6 +628,8 @@ function forceRefreshDashboard() {
 // INITIALIZATION
 // ============================================================
 (function init() {
+    if(!loggedInStudent) return;
+    
     let premiumKey = getPremiumBookingKey();
     let basicKey = getBasicBookingKey();
     
@@ -634,3 +680,7 @@ setInterval(function() {
 setInterval(function() {
     forceRefreshDashboard();
 }, 10000);
+
+console.log('✅ Student Dashboard initialized successfully!');
+console.log('👤 Student:', loggedInStudent ? loggedInStudent.name : 'Not logged in');
+console.log('📧 Email:', loggedInStudent ? loggedInStudent.email : 'No email');

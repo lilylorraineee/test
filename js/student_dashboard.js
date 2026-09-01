@@ -419,6 +419,9 @@ function bookPremiumSlot(spotId) {
     proceedWithBooking(spotId);
 }
 
+// ============================================================
+// PROCEED WITH BOOKING - TAMBAH EMAIL!
+// ============================================================
 function proceedWithBooking(spotId) {
     if (isBookingInProgress) return;
     isBookingInProgress = true;
@@ -438,7 +441,7 @@ function proceedWithBooking(spotId) {
         slot.studentProgram = loggedInStudent.program || loggedInStudent.course;
         slot.studentSemester = loggedInStudent.semester;
         slot.studentPhone = loggedInStudent.phone_no;
-        slot.studentEmail = loggedInStudent.email;
+        slot.studentEmail = loggedInStudent.email; // ← TAMBAH INI!
         slot.plateNo = loggedInStudent.plate_no || 'Not set';
         slot.vehicleType = loggedInStudent.vehicle_type || '';
         slot.vehicleColor = loggedInStudent.vehicle_color || '';
@@ -453,7 +456,7 @@ function proceedWithBooking(spotId) {
             studentProgram: loggedInStudent.program || loggedInStudent.course,
             studentSemester: loggedInStudent.semester,
             studentPhone: loggedInStudent.phone_no,
-            studentEmail: loggedInStudent.email,
+            studentEmail: loggedInStudent.email, // ← TAMBAH INI!
             plateNo: loggedInStudent.plate_no || 'Not set',
             vehicleType: loggedInStudent.vehicle_type || '',
             vehicleColor: loggedInStudent.vehicle_color || '',
@@ -477,7 +480,7 @@ function proceedWithBooking(spotId) {
 }
 
 // ============================================================
-// BASIC PARKING
+// BASIC PARKING - TAMBAH EMAIL!
 // ============================================================
 function bookBasicParking() {
     if (getActiveBooking()) {
@@ -501,7 +504,7 @@ function bookBasicParking() {
         studentProgram: loggedInStudent.program || loggedInStudent.course,
         studentSemester: loggedInStudent.semester,
         studentPhone: loggedInStudent.phone_no,
-        studentEmail: loggedInStudent.email,
+        studentEmail: loggedInStudent.email, // ← TAMBAH INI!
         plateNo: loggedInStudent.plate_no || 'Not set',
         vehicleType: loggedInStudent.vehicle_type || '',
         vehicleColor: loggedInStudent.vehicle_color || '',

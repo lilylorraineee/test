@@ -26,6 +26,8 @@ function showToast(message, type) {
     var toast = document.getElementById('toastEmail');
     var toastMsg = document.getElementById('toastMessage');
     
+    if (!toast) return;
+    
     toast.className = 'toast-email';
     if (type === 'error') {
         toast.style.background = '#dc3545';
@@ -37,7 +39,7 @@ function showToast(message, type) {
         toast.style.color = 'white';
     }
     
-    toastMsg.textContent = message;
+    if (toastMsg) toastMsg.textContent = message;
     toast.style.display = 'block';
     
     clearTimeout(toast._timeout);
@@ -73,8 +75,8 @@ var allLecturers = [];
 function toggleMenu() {
     var menu = document.getElementById("menu");
     var overlay = document.getElementById("overlay");
-    menu.classList.toggle("active");
-    overlay.classList.toggle("active");
+    if (menu) menu.classList.toggle("active");
+    if (overlay) overlay.classList.toggle("active");
 }
 
 function logout() {
@@ -383,6 +385,8 @@ function rejectBooking(booking) {
 
 function openStudentModal(booking) {
     var body = document.getElementById('studentModalBody');
+    if (!body) return;
+    
     var email = getBookingEmail(booking);
     
     body.innerHTML = `
@@ -410,24 +414,29 @@ function openStudentModal(booking) {
         </div>
     `;
     
-    document.getElementById('studentModal').classList.add('active');
+    var modal = document.getElementById('studentModal');
+    if (modal) modal.classList.add('active');
     document.body.style.overflow = 'hidden';
 }
 
 function closeStudentModal() {
-    document.getElementById('studentModal').classList.remove('active');
+    var modal = document.getElementById('studentModal');
+    if (modal) modal.classList.remove('active');
     document.body.style.overflow = 'auto';
 }
 
 // ========== FILTER FUNCTIONS ==========
 
 function filterByStatus(status) {
-    document.getElementById('filterType').value = 'all';
+    var filterType = document.getElementById('filterType');
+    if (filterType) filterType.value = 'all';
+    
     document.querySelectorAll('.stat-box').forEach(function(box) { box.classList.remove('active-filter'); });
     
     if (activeStatusFilter === status) {
         activeStatusFilter = null;
-        document.getElementById('filterStatus').value = 'all';
+        var filterStatus = document.getElementById('filterStatus');
+        if (filterStatus) filterStatus.value = 'all';
         applyFilters();
         return;
     }
@@ -435,27 +444,46 @@ function filterByStatus(status) {
     activeStatusFilter = status;
     var statusMap = { 'all': 'statAll', 'pending': 'statPending', 'approved': 'statApproved', 'paid': 'statPaid' };
     if (statusMap[status]) {
-        document.getElementById(statusMap[status]).classList.add('active-filter');
-        document.getElementById('filterStatus').value = status;
+        var statBox = document.getElementById(statusMap[status]);
+        if (statBox) statBox.classList.add('active-filter');
+        
+        var filterStatus = document.getElementById('filterStatus');
+        if (filterStatus) filterStatus.value = status;
     }
     applyFilters();
 }
 
 function filterPaidPremium() {
-    document.getElementById('filterCourse').value = 'all';
-    document.getElementById('filterSemester').value = 'all';
-    document.getElementById('filterType').value = 'premium';
-    document.getElementById('filterStatus').value = 'paid';
+    var filterCourse = document.getElementById('filterCourse');
+    if (filterCourse) filterCourse.value = 'all';
+    
+    var filterSemester = document.getElementById('filterSemester');
+    if (filterSemester) filterSemester.value = 'all';
+    
+    var filterType = document.getElementById('filterType');
+    if (filterType) filterType.value = 'premium';
+    
+    var filterStatus = document.getElementById('filterStatus');
+    if (filterStatus) filterStatus.value = 'paid';
+    
     document.querySelectorAll('.stat-box').forEach(function(box) { box.classList.remove('active-filter'); });
     activeStatusFilter = null;
     applyFilters();
 }
 
 function filterPaidBasic() {
-    document.getElementById('filterCourse').value = 'all';
-    document.getElementById('filterSemester').value = 'all';
-    document.getElementById('filterType').value = 'basic';
-    document.getElementById('filterStatus').value = 'paid';
+    var filterCourse = document.getElementById('filterCourse');
+    if (filterCourse) filterCourse.value = 'all';
+    
+    var filterSemester = document.getElementById('filterSemester');
+    if (filterSemester) filterSemester.value = 'all';
+    
+    var filterType = document.getElementById('filterType');
+    if (filterType) filterType.value = 'basic';
+    
+    var filterStatus = document.getElementById('filterStatus');
+    if (filterStatus) filterStatus.value = 'paid';
+    
     document.querySelectorAll('.stat-box').forEach(function(box) { box.classList.remove('active-filter'); });
     activeStatusFilter = null;
     applyFilters();
@@ -476,10 +504,18 @@ function applyFilterFromModal() {
     applyFilters(); 
 }
 function resetFilters() {
-    document.getElementById('filterCourse').value = 'all';
-    document.getElementById('filterSemester').value = 'all';
-    document.getElementById('filterType').value = 'all';
-    document.getElementById('filterStatus').value = 'all';
+    var filterCourse = document.getElementById('filterCourse');
+    if (filterCourse) filterCourse.value = 'all';
+    
+    var filterSemester = document.getElementById('filterSemester');
+    if (filterSemester) filterSemester.value = 'all';
+    
+    var filterType = document.getElementById('filterType');
+    if (filterType) filterType.value = 'all';
+    
+    var filterStatus = document.getElementById('filterStatus');
+    if (filterStatus) filterStatus.value = 'all';
+    
     activeStatusFilter = null;
     document.querySelectorAll('.stat-box').forEach(function(box) { box.classList.remove('active-filter'); });
     applyFilters();
@@ -489,9 +525,15 @@ function updateParkingBalance() {
     var premiumSlots = JSON.parse(localStorage.getItem('premiumSlots')) || [];
     var premiumTotal = premiumSlots.length;
     var premiumPaid = premiumSlots.filter(function(s) { return s.bookedBy && s.bookedBy !== '' && (s.status === 'paid' || s.status === 'occupied'); }).length;
-    document.getElementById('premiumAvailable').innerText = premiumPaid;
-    document.getElementById('premiumTotal').innerText = premiumTotal;
-    document.getElementById('premiumBar').style.width = (premiumTotal > 0 ? (premiumPaid / premiumTotal) * 100 : 0) + '%';
+    
+    var premiumAvailable = document.getElementById('premiumAvailable');
+    if (premiumAvailable) premiumAvailable.innerText = premiumPaid;
+    
+    var premiumTotalEl = document.getElementById('premiumTotal');
+    if (premiumTotalEl) premiumTotalEl.innerText = premiumTotal;
+    
+    var premiumBar = document.getElementById('premiumBar');
+    if (premiumBar) premiumBar.style.width = (premiumTotal > 0 ? (premiumPaid / premiumTotal) * 100 : 0) + '%';
     
     var basicTotal = 55;
     var basicPaid = 0;
@@ -513,18 +555,41 @@ function updateParkingBalance() {
         }
     }
     if (basicPaid > basicTotal) basicPaid = basicTotal;
-    document.getElementById('basicAvailable').innerText = basicPaid;
-    document.getElementById('basicTotal').innerText = basicTotal;
-    document.getElementById('basicBar').style.width = (basicTotal > 0 ? (basicPaid / basicTotal) * 100 : 0) + '%';
+    
+    var basicAvailable = document.getElementById('basicAvailable');
+    if (basicAvailable) basicAvailable.innerText = basicPaid;
+    
+    var basicTotalEl = document.getElementById('basicTotal');
+    if (basicTotalEl) basicTotalEl.innerText = basicTotal;
+    
+    var basicBar = document.getElementById('basicBar');
+    if (basicBar) basicBar.style.width = (basicTotal > 0 ? (basicPaid / basicTotal) * 100 : 0) + '%';
 }
 
 function updateStats(bookings) {
-    var total = bookings.length;
-    document.getElementById('totalBookings').innerText = total;
-    document.getElementById('pendingCount').innerText = bookings.filter(function(b) { return b.status === 'pending'; }).length;
-    document.getElementById('approvedCount').innerText = bookings.filter(function(b) { return b.status === 'approved'; }).length;
-    document.getElementById('paidCount').innerText = bookings.filter(function(b) { return b.status === 'paid' || b.status === 'occupied'; }).length;
-    document.getElementById('studentTotalCount').innerText = total;
+    console.log("📊 Updating stats with:", bookings ? bookings.length : 0, "bookings");
+    
+    var total = bookings ? bookings.length : 0;
+    var pending = bookings ? bookings.filter(function(b) { return b.status === 'pending'; }).length : 0;
+    var approved = bookings ? bookings.filter(function(b) { return b.status === 'approved'; }).length : 0;
+    var paid = bookings ? bookings.filter(function(b) { return b.status === 'paid' || b.status === 'occupied'; }).length : 0;
+    
+    var totalEl = document.getElementById('totalBookings');
+    if (totalEl) totalEl.innerText = total;
+    
+    var pendingEl = document.getElementById('pendingCount');
+    if (pendingEl) pendingEl.innerText = pending;
+    
+    var approvedEl = document.getElementById('approvedCount');
+    if (approvedEl) approvedEl.innerText = approved;
+    
+    var paidEl = document.getElementById('paidCount');
+    if (paidEl) paidEl.innerText = paid;
+    
+    var studentTotalEl = document.getElementById('studentTotalCount');
+    if (studentTotalEl) studentTotalEl.innerText = total;
+    
+    console.log("✅ Stats updated:", {total, pending, approved, paid});
 }
 
 function getAllBookings() {
@@ -651,27 +716,36 @@ function getAllBookings() {
 }
 
 function applyFilters() {
-    var course = document.getElementById('filterCourse').value;
-    var semester = document.getElementById('filterSemester').value;
-    var type = document.getElementById('filterType').value;
-    var status = document.getElementById('filterStatus').value;
+    var course = document.getElementById('filterCourse');
+    var semester = document.getElementById('filterSemester');
+    var type = document.getElementById('filterType');
+    var status = document.getElementById('filterStatus');
+    
+    var courseVal = course ? course.value : 'all';
+    var semesterVal = semester ? semester.value : 'all';
+    var typeVal = type ? type.value : 'all';
+    var statusVal = status ? status.value : 'all';
     
     filteredBookings = allBookings.filter(function(booking) {
-        if (course !== 'all' && booking.studentCourse !== course) return false;
-        if (semester !== 'all' && booking.studentSemester !== semester) return false;
-        if (type !== 'all' && booking.type !== type) return false;
-        if (status !== 'all' && booking.status !== status) return false;
+        if (courseVal !== 'all' && booking.studentCourse !== courseVal) return false;
+        if (semesterVal !== 'all' && booking.studentSemester !== semesterVal) return false;
+        if (typeVal !== 'all' && booking.type !== typeVal) return false;
+        if (statusVal !== 'all' && booking.status !== statusVal) return false;
         return true;
     });
     
     filteredBookings.sort(function(a, b) { return new Date(b.bookingTime) - new Date(a.bookingTime); });
     
-    document.getElementById('filterResultCount').innerText = filteredBookings.length;
+    var filterResult = document.getElementById('filterResultCount');
+    if (filterResult) filterResult.innerText = filteredBookings.length;
+    
     renderTable(filteredBookings);
 }
 
 function renderTable(bookings) {
     var tbody = document.getElementById('bookingsBody');
+    if (!tbody) return;
+    
     if (bookings.length === 0) {
         tbody.innerHTML = '<tr><td colspan="6" class="empty-msg">📭 No bookings found.</td></tr>';
         return;
@@ -728,8 +802,13 @@ function loadAllBookings() {
 
 function loadLecturers() {
     var lecturers = JSON.parse(localStorage.getItem('lecturers')) || [];
-    document.getElementById('lecturerTotalCount').innerText = lecturers.length;
+    
+    var lecturerTotal = document.getElementById('lecturerTotalCount');
+    if (lecturerTotal) lecturerTotal.innerText = lecturers.length;
+    
     var tbody = document.getElementById('lecturerBody');
+    if (!tbody) return;
+    
     if (lecturers.length === 0) {
         tbody.innerHTML = '<tr><td colspan="8" class="empty-msg">📭 No lecturers registered.</td></tr>';
         return;
@@ -760,7 +839,7 @@ function loadAllData() {
     updateParkingBalance();
 }
 
-// ===== FIX: Check if filterModal exists =====
+// ===== CHECK IF filterModal EXISTS =====
 var filterModalElement = document.getElementById('filterModal');
 if (filterModalElement) {
     filterModalElement.addEventListener('click', function(e) {

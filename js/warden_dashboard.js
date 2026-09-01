@@ -86,7 +86,7 @@ function logout() {
 }
 
 /* ============================================================
-   GET EMAIL FROM BOOKING - FIXED
+   GET EMAIL FROM BOOKING
 ============================================================ */
 
 function getBookingEmail(booking) {
@@ -168,7 +168,7 @@ function getBookingEmail(booking) {
 }
 
 /* ============================================================
-   SEND APPROVAL EMAIL - FIXED VERSION
+   SEND APPROVAL EMAIL - FIXED (GUNA "email")
 ============================================================ */
 
 function sendApprovalEmail(booking) {
@@ -217,9 +217,9 @@ function sendApprovalEmail(booking) {
         var parkingPrice = booking.type === 'premium' ? '50.00' : '30.00';
         var parkingTypeLabel = booking.type === 'premium' ? '⭐ Premium' : '🅿️ Basic';
 
-        // ===== PARAMETER UNTUK TEMPLATE =====
+        // ===== PARAMETER UNTUK TEMPLATE - GUNA "email" BUKAN "to_email" =====
         var templateParams = {
-            email: studentEmail,
+            email: studentEmail,  // ← INI YANG BETUL!
             student_name: booking.studentName || 'Student',
             booking_date: bookingDate,
             booking_time: bookingTime,

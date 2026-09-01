@@ -1,4 +1,3 @@
-<script>
 /* ============================================================
    EMAILJS CONFIGURATION
 ============================================================ */
@@ -87,7 +86,7 @@ function logout() {
 }
 
 /* ============================================================
-   GET EMAIL FROM BOOKING - AUTO ADD EMAIL
+   GET EMAIL FROM BOOKING - FIXED
 ============================================================ */
 
 function getBookingEmail(booking) {
@@ -95,11 +94,13 @@ function getBookingEmail(booking) {
     
     // 1. Check booking.studentEmail
     if (booking.studentEmail && String(booking.studentEmail).includes("@")) {
+        console.log("✅ Found in studentEmail:", booking.studentEmail);
         return String(booking.studentEmail).trim();
     }
     
     // 2. Check booking.email
     if (booking.email && String(booking.email).includes("@")) {
+        console.log("✅ Found in email:", booking.email);
         return String(booking.email).trim();
     }
     
@@ -108,11 +109,13 @@ function getBookingEmail(booking) {
     for (var i = 0; i < students.length; i++) {
         if (String(students[i].id) === String(booking.studentId)) {
             if (students[i].email && String(students[i].email).includes("@")) {
+                console.log("✅ Found in students list:", students[i].email);
                 return String(students[i].email).trim();
             }
         }
         if (String(students[i].matric_no) === String(booking.studentMatric)) {
             if (students[i].email && String(students[i].email).includes("@")) {
+                console.log("✅ Found in students list by matric:", students[i].email);
                 return String(students[i].email).trim();
             }
         }
@@ -123,59 +126,49 @@ function getBookingEmail(booking) {
     for (var j = 0; j < premiumSlots.length; j++) {
         if (String(premiumSlots[j].bookedBy) === String(booking.studentId)) {
             if (premiumSlots[j].studentEmail && String(premiumSlots[j].studentEmail).includes("@")) {
+                console.log("✅ Found in premiumSlots:", premiumSlots[j].studentEmail);
                 return String(premiumSlots[j].studentEmail).trim();
             }
         }
     }
     
-    // 5. AUTO TAMBAH EMAIL
-    console.log("⚠️ No email found! Auto-adding email for:", booking.studentName);
+    // 5. CREATE DUMMY EMAIL
+    console.log("⚠️ No email found! Creating one...");
+    var dummyEmail = "";
     
-    var dummyEmail = booking.studentMatric ? 
-        booking.studentMatric.toLowerCase() + "@tvetmara.edu.my" : 
-        "student" + booking.studentId + "@tvetmara.edu.my";
+    if (booking.studentMatric && booking.studentMatric !== "N/A") {
+        dummyEmail = booking.studentMatric.toLowerCase() + "@tvetmara.edu.my";
+    } else if (booking.studentId) {
+        dummyEmail = "student" + booking.studentId + "@tvetmara.edu.my";
+    } else {
+        dummyEmail = "unknown@tvetmara.edu.my";
+    }
     
-    var existingStudent = students.find(function(s) {
-        return String(s.id) === String(booking.studentId);
+    console.log("✅ Created email:", dummyEmail);
+    
+    // Save to localStorage
+    var studentsList = JSON.parse(localStorage.getItem('students')) || [];
+    var existingStudent = studentsList.find(function(s) { 
+        return String(s.id) === String(booking.studentId); 
     });
     
     if (existingStudent) {
         existingStudent.email = dummyEmail;
     } else {
-        students.push({
+        studentsList.push({
             id: booking.studentId,
             name: booking.studentName || 'Unknown',
             email: dummyEmail,
             matric_no: booking.studentMatric || 'N/A'
         });
     }
-    localStorage.setItem('students', JSON.stringify(students));
-    console.log("✅ Auto-added email:", dummyEmail);
-    
-    for (var k = 0; k < premiumSlots.length; k++) {
-        if (String(premiumSlots[k].bookedBy) === String(booking.studentId)) {
-            premiumSlots[k].studentEmail = dummyEmail;
-        }
-    }
-    localStorage.setItem('premiumSlots', JSON.stringify(premiumSlots));
-    
-    for (var key in localStorage) {
-        if (key.startsWith('myPremiumBooking_')) {
-            try {
-                var data = JSON.parse(localStorage.getItem(key));
-                if (data && String(data.studentId) === String(booking.studentId)) {
-                    data.studentEmail = dummyEmail;
-                    localStorage.setItem(key, JSON.stringify(data));
-                }
-            } catch(e) {}
-        }
-    }
+    localStorage.setItem('students', JSON.stringify(studentsList));
     
     return dummyEmail;
 }
 
 /* ============================================================
-   SEND APPROVAL EMAIL
+   SEND APPROVAL EMAIL - FIXED VERSION
 ============================================================ */
 
 function sendApprovalEmail(booking) {
@@ -185,13 +178,14 @@ function sendApprovalEmail(booking) {
         
         console.log("📧 Sending email to:", studentEmail);
         
-        if (!studentEmail || studentEmail === "") {
+        if (!studentEmail || studentEmail === "" || studentEmail === "undefined") {
             alert("❌ Cannot send email. No email found.");
             showToast('⚠️ No email found', 'warning');
             reject(new Error("No email"));
             return;
         }
 
+        // ===== FORMAT TARIKH =====
         var bookingDate = "N/A";
         var bookingTime = "N/A";
 
@@ -199,23 +193,31 @@ function sendApprovalEmail(booking) {
             var dateObject = new Date(booking.bookingTime);
             if (!isNaN(dateObject.getTime())) {
                 bookingDate = dateObject.toLocaleDateString('ms-MY', {
-                    day: 'numeric', month: 'long', year: 'numeric'
+                    day: 'numeric', 
+                    month: 'long', 
+                    year: 'numeric'
                 });
                 bookingTime = dateObject.toLocaleTimeString('ms-MY', {
-                    hour: '2-digit', minute: '2-digit'
+                    hour: '2-digit', 
+                    minute: '2-digit'
                 });
             }
         }
 
+        // ===== DEADLINE BAYARAN (2 hari) =====
         var deadline = new Date();
         deadline.setDate(deadline.getDate() + 2);
         var paymentDeadline = deadline.toLocaleDateString('ms-MY', {
-            day: 'numeric', month: 'long', year: 'numeric'
+            day: 'numeric', 
+            month: 'long', 
+            year: 'numeric'
         });
 
+        // ===== HARGA PARKING =====
         var parkingPrice = booking.type === 'premium' ? '50.00' : '30.00';
         var parkingTypeLabel = booking.type === 'premium' ? '⭐ Premium' : '🅿️ Basic';
 
+        // ===== PARAMETER UNTUK TEMPLATE =====
         var templateParams = {
             email: studentEmail,
             student_name: booking.studentName || 'Student',
@@ -230,19 +232,31 @@ function sendApprovalEmail(booking) {
 
         console.log("📧 Template Params:", templateParams);
 
-        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
-            .then(function(response) {
-                console.log("✅ EMAIL SENT!", response.status);
-                alert("✅ Email sent to " + studentEmail);
-                showToast('✅ Email sent to ' + studentEmail, 'success');
-                resolve(response);
-            })
-            .catch(function(error) {
-                console.error("❌ EMAILJS ERROR:", error);
-                alert("❌ Email failed. Error: " + (error.text || error.message));
-                showToast('❌ Email failed to send.', 'error');
-                reject(error);
-            });
+        // ===== SEND EMAIL =====
+        emailjs.send(
+            EMAILJS_SERVICE_ID,
+            EMAILJS_TEMPLATE_ID,
+            templateParams
+        )
+        .then(function(response) {
+            console.log("✅ EMAIL SENT!", response.status);
+            alert("✅ Email berjaya dihantar ke:\n" + studentEmail + 
+                  "\n\n📌 Sila semak inbox/spam student.");
+            showToast('✅ Email sent to ' + studentEmail, 'success');
+            resolve(response);
+        })
+        .catch(function(error) {
+            console.error("❌ EMAILJS ERROR:", error);
+            
+            var errorMsg = error.text || error.message || JSON.stringify(error);
+            alert("❌ Email gagal dihantar.\n\n" +
+                  "Error: " + errorMsg + "\n\n" +
+                  "📌 Email: " + studentEmail + "\n" +
+                  "📌 Template ID: " + EMAILJS_TEMPLATE_ID);
+            
+            showToast('❌ Email failed to send.', 'error');
+            reject(error);
+        });
     });
 }
 
@@ -717,4 +731,7 @@ loadAllData();
 loadLecturers();
 setInterval(loadAllData, 10000);
 setInterval(loadLecturers, 30000);
-</script>
+
+console.log('🚀 Warden Dashboard ready!');
+console.log('📧 Template ID:', EMAILJS_TEMPLATE_ID);
+console.log('📧 Service ID:', EMAILJS_SERVICE_ID);

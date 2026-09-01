@@ -100,7 +100,7 @@ function registerStudent() {
         }
     }
 
-    // Create new student object WITH vehicle details
+    // Create new student object
     var newStudent = {
         id: Date.now(),
         name: fullname,
@@ -113,14 +113,15 @@ function registerStudent() {
         password: password,
         plate_no: plate_no,
         vehicle_type: vehicle_type,
-        vehicle_color: vehicle_color
+        vehicle_color: vehicle_color,
+        registeredAt: new Date().toISOString()
     };
 
-    // Save to localStorage
+    // ===== SAVE TO LOCALSTORAGE =====
     students.push(newStudent);
     localStorage.setItem('students', JSON.stringify(students));
 
-    // Save to sessionStorage for auto login
+    // ===== SAVE TO SESSIONSTORAGE FOR DASHBOARD =====
     var loggedInStudent = {
         id: newStudent.id,
         name: newStudent.name,
@@ -135,8 +136,12 @@ function registerStudent() {
         program: newStudent.program
     };
     sessionStorage.setItem('loggedInStudent', JSON.stringify(loggedInStudent));
+    sessionStorage.setItem('freshLogin', 'true');
 
-    // Redirect to student dashboard
+    // Show success message
+    alert('✅ Registration successful!\n\nWelcome ' + fullname + '!');
+
+    // ===== REDIRECT TO STUDENT DASHBOARD =====
     window.location.href = 'https://saver-systm.lilylorraineee.workers.dev/student/student_dashboard.html';
     
     return false;

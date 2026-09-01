@@ -86,11 +86,12 @@ function logout() {
 }
 
 /* ============================================================
-   GET EMAIL FROM BOOKING
+   GET EMAIL FROM BOOKING - FIXED
 ============================================================ */
 
 function getBookingEmail(booking) {
     console.log("🔍 Searching email for:", booking.studentName);
+    console.log("📋 Booking data:", booking);
     
     // 1. Check booking.studentEmail
     if (booking.studentEmail && String(booking.studentEmail).includes("@")) {
@@ -106,6 +107,8 @@ function getBookingEmail(booking) {
     
     // 3. Check students list
     var students = JSON.parse(localStorage.getItem('students')) || [];
+    console.log("📚 Students in localStorage:", students.length);
+    
     for (var i = 0; i < students.length; i++) {
         if (String(students[i].id) === String(booking.studentId)) {
             if (students[i].email && String(students[i].email).includes("@")) {
@@ -132,7 +135,30 @@ function getBookingEmail(booking) {
         }
     }
     
-    // 5. CREATE DUMMY EMAIL
+    // 5. Check myPremiumBooking
+    var premiumKey = 'myPremiumBooking_' + booking.studentId;
+    var myPremiumBooking = JSON.parse(localStorage.getItem(premiumKey));
+    if (myPremiumBooking && myPremiumBooking.studentEmail && String(myPremiumBooking.studentEmail).includes("@")) {
+        console.log("✅ Found in myPremiumBooking:", myPremiumBooking.studentEmail);
+        return String(myPremiumBooking.studentEmail).trim();
+    }
+    
+    // 6. Check myBasicBooking
+    var basicKey = 'myBasicBooking_' + booking.studentId;
+    var myBasicBooking = JSON.parse(localStorage.getItem(basicKey));
+    if (myBasicBooking && myBasicBooking.studentEmail && String(myBasicBooking.studentEmail).includes("@")) {
+        console.log("✅ Found in myBasicBooking:", myBasicBooking.studentEmail);
+        return String(myBasicBooking.studentEmail).trim();
+    }
+    
+    // 7. Check sessionStorage
+    var loggedInStudent = JSON.parse(sessionStorage.getItem('loggedInStudent'));
+    if (loggedInStudent && loggedInStudent.email && String(loggedInStudent.email).includes("@")) {
+        console.log("✅ Found in sessionStorage:", loggedInStudent.email);
+        return String(loggedInStudent.email).trim();
+    }
+    
+    // 8. CREATE DUMMY EMAIL
     console.log("⚠️ No email found! Creating one...");
     var dummyEmail = "";
     
@@ -144,7 +170,7 @@ function getBookingEmail(booking) {
         dummyEmail = "unknown@tvetmara.edu.my";
     }
     
-    console.log("✅ Created email:", dummyEmail);
+    console.log("✅ Created dummy email:", dummyEmail);
     
     // Save to localStorage
     var studentsList = JSON.parse(localStorage.getItem('students')) || [];
@@ -168,7 +194,7 @@ function getBookingEmail(booking) {
 }
 
 /* ============================================================
-   SEND APPROVAL EMAIL - FINAL VERSION (HANTAR SEMUA PARAMETER)
+   SEND APPROVAL EMAIL
 ============================================================ */
 
 function sendApprovalEmail(booking) {
@@ -217,20 +243,9 @@ function sendApprovalEmail(booking) {
         var parkingPrice = booking.type === 'premium' ? '50.00' : '30.00';
         var parkingTypeLabel = booking.type === 'premium' ? '⭐ Premium' : '🅿️ Basic';
 
-        // ===== HANTAR SEMUA KEMUNGKINAN PARAMETER =====
+        // ===== PARAMETER UNTUK TEMPLATE =====
         var templateParams = {
-            // ===== PARAMETER EMAIL (CUBA SEMUA) =====
             email: studentEmail,
-            to_email: studentEmail,
-            to: studentEmail,
-            recipient: studentEmail,
-            user_email: studentEmail,
-            receiver: studentEmail,
-            address: studentEmail,
-            mail_to: studentEmail,
-            send_to: studentEmail,
-            
-            // ===== PARAMETER CONTENT =====
             student_name: booking.studentName || 'Student',
             booking_date: bookingDate,
             booking_time: bookingTime,
@@ -263,8 +278,7 @@ function sendApprovalEmail(booking) {
             alert("❌ Email gagal dihantar.\n\n" +
                   "Error: " + errorMsg + "\n\n" +
                   "📌 Email: " + studentEmail + "\n" +
-                  "📌 Template ID: " + EMAILJS_TEMPLATE_ID + "\n\n" +
-                  "📌 Sila semak parameter 'To Email' dalam template di EmailJS dashboard.");
+                  "📌 Template ID: " + EMAILJS_TEMPLATE_ID);
             
             showToast('❌ Email failed to send.', 'error');
             reject(error);
@@ -447,9 +461,20 @@ function filterPaidBasic() {
     applyFilters();
 }
 
-function openFilterModal() { document.getElementById('filterModal').classList.add('active'); }
-function closeFilterModal() { document.getElementById('filterModal').classList.remove('active'); }
-function applyFilterFromModal() { closeFilterModal(); activeStatusFilter = null; document.querySelectorAll('.stat-box').forEach(function(box) { box.classList.remove('active-filter'); }); applyFilters(); }
+function openFilterModal() { 
+    var modal = document.getElementById('filterModal');
+    if (modal) modal.classList.add('active');
+}
+function closeFilterModal() { 
+    var modal = document.getElementById('filterModal');
+    if (modal) modal.classList.remove('active');
+}
+function applyFilterFromModal() { 
+    closeFilterModal(); 
+    activeStatusFilter = null; 
+    document.querySelectorAll('.stat-box').forEach(function(box) { box.classList.remove('active-filter'); }); 
+    applyFilters(); 
+}
 function resetFilters() {
     document.getElementById('filterCourse').value = 'all';
     document.getElementById('filterSemester').value = 'all';
@@ -735,14 +760,14 @@ function loadAllData() {
     updateParkingBalance();
 }
 
-// ===== FIX: Check if filterModal exists before adding event listener =====
-var filterModal = document.getElementById('filterModal');
-if (filterModal) {
-    filterModal.addEventListener('click', function(e) {
+// ===== FIX: Check if filterModal exists =====
+var filterModalElement = document.getElementById('filterModal');
+if (filterModalElement) {
+    filterModalElement.addEventListener('click', function(e) {
         if (e.target === this) closeFilterModal();
     });
 } else {
-    console.log('⚠️ filterModal element not found, skipping event listener');
+    console.log('ℹ️ filterModal element not found - skipping');
 }
 
 loadAllData();

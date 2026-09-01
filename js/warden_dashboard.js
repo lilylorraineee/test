@@ -735,9 +735,15 @@ function loadAllData() {
     updateParkingBalance();
 }
 
-document.getElementById('filterModal').addEventListener('click', function(e) {
-    if (e.target === this) closeFilterModal();
-});
+// ===== FIX: Check if filterModal exists before adding event listener =====
+var filterModal = document.getElementById('filterModal');
+if (filterModal) {
+    filterModal.addEventListener('click', function(e) {
+        if (e.target === this) closeFilterModal();
+    });
+} else {
+    console.log('⚠️ filterModal element not found, skipping event listener');
+}
 
 loadAllData();
 loadLecturers();

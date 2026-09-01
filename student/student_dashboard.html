@@ -1,53 +1,218 @@
-<script>
-function toggleMenu(){
-    var menu = document.getElementById("menu");
-    var overlay = document.getElementById("overlay");
-    menu.classList.toggle("active");
-    overlay.classList.toggle("active");
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - TVET Parking System</title>
+    <link rel="stylesheet" href="https://saver-systm.lilylorraineee.workers.dev/Design/student_dashboard.css">
+</head>
+<body>
 
-function loginStudent() {
-    var email = document.getElementById('email').value.trim();
-    var password = document.getElementById('password').value;
-    var errorMsg = document.getElementById('errorMsg');
+<div class="topbar">
+    <div class="brand">TVETMARA LUMUT</div>
+    <div class="menu-icon" onclick="toggleMenu()">☰</div>
+</div>
 
-    errorMsg.style.display = 'none';
+<div id="overlay" onclick="toggleMenu()"></div>
 
-    var students = JSON.parse(localStorage.getItem('students')) || [];
-    var student = null;
+<div id="menu" class="menu">
+    <a href="https://saver-systm.lilylorraineee.workers.dev/index.html">🏠 Home</a>
+    <a href="https://saver-systm.lilylorraineee.workers.dev/student/student_login.html">🎓 Student Login</a>
+    <a href="#" class="logout-link" onclick="logout()">🚪 Logout</a>
+</div>
+
+<!-- ===== WRAPPER WITH SIDEBAR ===== -->
+<div class="dashboard-wrapper">
     
-    for (var i = 0; i < students.length; i++) {
-        if (students[i].email === email && students[i].password === password) {
-            student = students[i];
-            break;
-        }
-    }
-
-    if(student) {
-        var loggedInStudent = {
-            id: student.id,
-            name: student.name,
-            email: student.email,
-            matric_no: student.matric_no,
-            ic_no: student.ic_no,
-            phone_no: student.phone_no,
-            plate_no: student.plate_no || '',
-            vehicle_type: student.vehicle_type || '',
-            vehicle_color: student.vehicle_color || '',
-            semester: student.semester,
-            program: student.program || student.course || ''
-        };
+    <!-- LEFT SIDEBAR - Personal Information -->
+    <div class="sidebar" id="sidebar">
+        <div class="profile-icon">
+            <div class="avatar" id="avatarInitial">👤</div>
+            <div class="profile-name" id="sidebarName">Student Name</div>
+            <div class="profile-role">🎓 Student</div>
+        </div>
         
-        sessionStorage.setItem('loggedInStudent', JSON.stringify(loggedInStudent));
-        sessionStorage.setItem('freshLogin', 'true');
-
-        console.log('✅ Student logged in:', loggedInStudent);
+        <hr class="info-divider">
         
-        window.location.href = 'https://saver-systm.lilylorraineee.workers.dev/student/student_dashboard.html';
-    } else {
-        errorMsg.style.display = 'block';
-        errorMsg.innerHTML = '❌ Invalid email or password. Please try again.';
-    }
-    return false;
-}
-</script>
+        <div class="info-item">
+            <span class="label">📚 Matric No</span>
+            <span class="value highlight" id="sidebarMatric">-</span>
+        </div>
+        
+        <div class="info-item">
+            <span class="label">📖 Program</span>
+            <span class="value" id="sidebarProgram">-</span>
+        </div>
+        
+        <div class="info-item">
+            <span class="label">📅 Semester</span>
+            <span class="value" id="sidebarSemester">-</span>
+        </div>
+        <div class="info-item">
+            <span class="label">📱 Phone</span>
+            <span class="value" id="sidebarPhone">-</span>
+        </div>
+        <div class="info-item">
+            <span class="label">🆔 IC No</span>
+            <span class="value" id="sidebarIC">-</span>
+        </div>
+        
+        <div class="info-item" style="border-bottom: none;">
+            <span class="label">🚗 Plate No</span>
+            <span class="value plate" id="sidebarPlate">Not set</span>
+        </div>
+        
+        <div class="info-item" style="border-bottom: none;">
+            <span class="label">🚙 Vehicle Type</span>
+            <span class="value vehicle" id="sidebarVehicleType">-</span>
+        </div>
+        
+        <div class="info-item" style="border-bottom: none;">
+            <span class="label">🎨 Vehicle Color</span>
+            <span class="value vehicle" id="sidebarVehicleColor">-</span>
+        </div>
+        
+        <hr class="info-divider">
+        
+        <div class="info-item" style="border-bottom: none;">
+            <span class="label">📌 Booking Status</span>
+            <span class="value" id="sidebarBookingStatus" style="color: #6a6a8a;">No Booking</span>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <!-- Welcome Card -->
+        <div class="welcome-card">
+            <h2>Welcome, <span id="studentName"></span>! 👋</h2>
+            <p>Manage your parking booking here.</p>
+            <div class="plate-display">🚗 Your Plate Number: <strong id="welcomePlate"></strong></div>
+        </div>
+
+        <!-- ===== CURRENT BOOKING CARD ===== -->
+        <div class="current-booking-card" id="currentBookingCard">
+            <h4>📌 Current Booking</h4>
+            
+            <div id="bookingDetailsContainer">
+                <div class="booking-details">
+                    <p><span style="color: #00b4d8;">🅿️ Booked Lot:</span> <strong id="bookedSlot" style="color: #ff00cc; font-size: 18px;"></strong></p>
+                    <p><span style="color: #00b4d8;">📅 Booking Time:</span> <span id="bookingTime"></span></p>
+                    <p><span style="color: #00b4d8;">⏳ Status:</span> <span id="bookingStatusDetail" style="color: #f9a825;"></span></p>
+                    <div id="payButtonContainer"></div>
+                </div>
+            </div>
+            
+            <div id="noBookingState" class="no-booking-state" style="display: none;">
+                <span class="icon">📭</span>
+                <h3>No Active Booking</h3>
+                <p>You don't have any active parking booking at the moment.</p>
+                <button class="btn-book-now" onclick="scrollToBooking()">📅 Book Now</button>
+            </div>
+        </div>
+
+        <!-- ===== PARKING TYPE SECTION ===== -->
+        <div class="parking-type-section" id="choiceSection">
+            <div class="section-header">
+                <h3>🎫 Choose Parking Type</h3>
+            </div>
+            
+            <div class="choice-container">
+                <div class="choice-card premium-card" onclick="selectParkingType('premium')">
+                    <span class="card-badge">⭐ FIXED</span>
+                    <div class="choice-icon">⭐</div>
+                    <div class="choice-title premium-title">Premium Parking</div>
+                    <div class="choice-desc">Reserved parking lot<br>No sharing, fixed spot</div>
+                    <div class="choice-price">RM 50 / Semester</div>
+                    <span class="arrow-hint">Select →</span>
+                </div>
+
+                <div class="choice-card basic-card" onclick="selectParkingType('basic')">
+                    <span class="card-badge">🅿️ FIRST COME</span>
+                    <div class="choice-icon">🅿️</div>
+                    <div class="choice-title basic-title">Basic Parking</div>
+                    <div class="choice-desc">First come, first serve<br>Random parking spot</div>
+                    <div class="choice-price">RM 30 / Semester</div>
+                    <span class="arrow-hint">Select →</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- PREMIUM SECTION -->
+        <div id="premiumSection" style="display: none;">
+            <a class="back-link" onclick="backToChoice()">← Back to Parking Type Selection</a>
+            <h3 class="section-title">⭐ Premium Parking - Select Your Lot</h3>
+            <p style="color:#6a6a8a; margin-bottom:15px;">
+                🟢 Green = Available | 🟡 Yellow = Pending/Approved | 🔴 Red = Paid/Occupied
+            </p>
+            
+            <div class="parking-section">
+                <div class="map-container">
+                    <div class="parking-spot available" id="spot1">1</div>
+                    <div class="parking-spot available" id="spot2">2</div>
+                    <div class="parking-spot available" id="spot3">3</div>
+                    <div class="parking-spot available" id="spot4">4</div>
+                    <div class="parking-spot available" id="spot5">5</div>
+                    <div class="parking-spot available" id="spot6">6</div>
+                    <div class="parking-spot available" id="spot7">7</div>
+                    <div class="right-column">
+                        <div class="parking-spot available" id="spot15">15</div>
+                        <div class="parking-spot available" id="spot14">14</div>
+                        <div class="parking-spot available" id="spot13">13</div>
+                        <div class="parking-spot available" id="spot12">12</div>
+                        <div class="parking-spot available" id="spot11">11</div>
+                        <div class="parking-spot available" id="spot10">10</div>
+                        <div class="parking-spot available" id="spot9">9</div>
+                        <div class="parking-spot available" id="spot8">8</div>
+                    </div>
+                </div>
+            </div>
+            <div class="note">📍 Premium parking lots (1-15) - Reserved spot with no sharing</div>
+        </div>
+
+        <!-- BASIC SECTION -->
+        <div id="basicSection" style="display: none;">
+            <a class="back-link" onclick="backToChoice()">← Back to Parking Type Selection</a>
+            <div class="basic-info glass">
+                <h3>🅿️ Basic Parking (First Come, First Serve)</h3>
+                <p style="margin-bottom: 20px;">No specific lot booking required.<br>Just park at any available basic parking zone.</p>
+                <p style="color: #00e676; margin-bottom: 20px;">✅ Available basic lots: <span id="basicAvailableCount">55</span> / 55</p>
+                <button class="btn-book-basic" onclick="bookBasicParking()">Book Basic Parking →</button>
+                <p style="margin-top: 20px; font-size: 12px; color: #6a6a8a;">* First come, first serve basis. No fixed lot assigned.</p>
+            </div>
+        </div>
+
+        <!-- Booking Info -->
+        <div class="booking-info">
+            <h4>📌 How to Book:</h4>
+            <p><span style="color:#ff00cc;">⭐ Premium:</span> RM50/semester - Select your preferred fixed parking lot from the map.</p>
+            <p><span style="color:#00b4d8;">🅿️ Basic:</span> RM30/semester - First come, first serve - park at any available basic zone.</p>
+            <p>2. Your request will become <span style="color:#f9a825;">YELLOW (Pending)</span> and wait for staff approval.</p>
+            <p>3. After approval, click <span style="color:#00e676;">PAY NOW</span> to complete booking.</p>
+            <p>4. Once payment is successful, your booking is confirmed.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ===== MODAL PAYMENT ===== -->
+<div id="paymentModal" class="modal">
+    <div class="modal-content">
+        <h3>💳 Make Payment</h3>
+        <p id="paymentAmount" style="color: #00e676; font-size: 24px; margin-bottom: 5px;">RM 0</p>
+        <p style="font-size: 12px; color: #6a6a8a; margin-top: -5px; margin-bottom: 15px;">* Payment for one semester</p>
+        
+        <div class="plate-display">
+            🚗 Plate Number: <strong id="paymentPlate">-</strong>
+        </div>
+        
+        <p style="text-align: center; margin: 15px 0;">Click "Confirm Payment" to complete booking.</p>
+        
+        <button class="pay-btn" onclick="processDummyPayment()">✅ Confirm Payment</button>
+        <button class="btn-cancel" onclick="closePaymentModal()" style="margin-top: 10px; padding: 10px 25px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; background: rgba(255, 23, 68, 0.1); color: #ff1744;">Cancel</button>
+    </div>
+</div>
+
+<!-- ===== SCRIPT LETAK DI BAWAH - INI PENTING! ===== -->
+<script src="https://saver-systm.lilylorraineee.workers.dev/js/student_dashboard.js"></script>
+
+</body>
+</html>

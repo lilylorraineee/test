@@ -217,7 +217,7 @@ function sendApprovalEmail(booking) {
         var parkingTypeLabel = booking.type === 'premium' ? '⭐ Premium' : '🅿️ Basic';
 
         var templateParams = {
-            to_email: studentEmail,
+            email: studentEmail,
             student_name: booking.studentName || 'Student',
             booking_date: bookingDate,
             booking_time: bookingTime,

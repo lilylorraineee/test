@@ -1,4 +1,4 @@
-<script>
+
 // ============================================================
 // CHECK LOGIN
 // ============================================================
@@ -184,4 +184,4 @@ function logout() {
         window.location.href = 'https://saver-systm.lilylorraineee.workers.dev/lecturer/lecturer_login.html';
     }
 }
-</script>
+

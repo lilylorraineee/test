@@ -1,4 +1,4 @@
-<script>
+
 function toggleMenu(){
     var menu = document.getElementById("menu");
     var overlay = document.getElementById("overlay");
@@ -51,4 +51,4 @@ function loginStudent() {
     }
     return false;
 }
-</script>
+
